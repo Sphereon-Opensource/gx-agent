@@ -1,12 +1,17 @@
 version: 3.0
 
 constants:
-  baseUrl: http://localhost:3335
-  port: 3335
-  # please use your own X25519 key, this is only an example
-  secretKey: 29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
+  complianceServiceUrl: compliance
+  complianceServiceVersion: v2206
+  participantDid: did:web:participant
+  participantUrl: participant
   methods:
-    - issueCredentialUsingVcApi
+    - issueVerifiableCredential
+      issueVerifiablePresentation
+      getComplianceCredential
+      getComplianceCredentialFromUnsignedParticipant
+      addServiceOfferingUnsigned
+      addServiceOffering
 
 server:
   baseUrl:
@@ -70,8 +75,10 @@ agent:
   $args:
     - schemaValidation: false
       plugins:
-        - $require: ./packages/vc-api-issuer/dist#VcApiIssuer
+        - $require: ./packages/gx-compliance-client/dist#GaiaxComplianceClient.ts
           $args:
-            - issueUrl: 'https://vc-api.sphereon.io/services/issue/credentials'
-              # please use your own authorization token, this is only an example
-              authorizationToken: 'ey...'
+            # please use your own variables, these are just for test
+            - complianceServiceUrl: compliance
+              complianceServiceVersion: v2206
+              participantDid: did:web:participant
+              participantUrl: participant
