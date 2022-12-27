@@ -1,0 +1,61 @@
+{
+  "name": "@sphereon/gx-compliance-client",
+  "version": "0.0.1",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "veramo": {
+    "pluginInterfaces": {
+      "IGaiaxComplianceClient": "./src/types/IGaiaxComplianceClient.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "generate-plugin-schema": "yarn veramo dev generate-plugin-schema"
+  },
+  "resolutions": {
+    "@veramo/core": "3.1.2-next.84"
+  },
+  "dependencies": {
+    "@sphereon/ssi-sdk-bls-kms-local": "^0.8.0",
+    "@sphereon/ssi-sdk-vc-handler-ld-local": "^0.8.0",
+    "@sphereon/ssi-types": "^0.8.0",
+    "@transmute/lds-ecdsa-secp256k1-recovery2020": "^0.0.7",
+    "@types/uuid": "^9.0.0",
+    "@veramo/core": "3.1.2-next.84",
+    "axios": "^1.2.1",
+    "cross-fetch": "^3.1.5",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.7",
+    "@types/jest": "^27.0.2",
+    "@veramo/cli": "3.1.2-next.84",
+    "jest": "^27.3.1",
+    "prettier": "^2.4.1",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.6.4"
+  },
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "README.md",
+    "plugin.schema.json",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "git@github.com:Sphereon-Opensource/SSI-SDK.git",
+  "author": "Sphereon <dev@sphereon.com>",
+  "license": "Apache-2.0",
+  "keywords": [
+    "Sphereon",
+    "SSI",
+    "Veramo",
+    "W3C",
+    "VC",
+    "API",
+    "Issuer"
+  ]
+}
