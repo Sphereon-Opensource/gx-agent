@@ -13,11 +13,9 @@ import {
   IIssueVerifiablePresentationArgs,
 } from '../types/IGaiaxComplianceClient'
 import { IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
-import { LdCredentialModule } from '@sphereon/ssi-sdk-vc-handler-ld-local/src/ld-credential-module'
-import { LdContextLoader } from '@sphereon/ssi-sdk-vc-handler-ld-local/src/ld-context-loader'
-import { LdSuiteLoader } from '@sphereon/ssi-sdk-vc-handler-ld-local/src/ld-suite-loader'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
+import { LdContextLoader, LdCredentialModule, LdSuiteLoader } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 
 /**
  * {@inheritDoc IGaiaxComplianceClient}
@@ -99,6 +97,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
   /** {@inheritDoc IGaiaxComplianceClient.getComplianceCredential} */
   private async getComplianceCredential(args: IGetComplianceCredentialArgs, context: IRequiredContext): Promise<IVerifiableCredential> {
+      // What is this?
     this.getApiVersionedUrl() + '/sign'
     try {
       const { data } = await axios.post(this.getApiVersionedUrl() + '/sign', args.selfDescribedVP)
@@ -204,6 +203,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
   /** {@inheritDoc IGaiaxComplianceClient.addServiceOffering} */
   private async addServiceOffering(args: IAddServiceOfferingArgs, _context: IRequiredContext): Promise<IGaiaxOnboardingResult> {
+      //fixme: what is this?
     this.getApiVersionedUrl() + '/service-offering/verify/raw'
     try {
       const { data } = await axios.post(this.getApiVersionedUrl() + '/service-offering/verify/raw', args.serviceOfferingVP)

@@ -1,11 +1,11 @@
 import { IAgentContext, IDIDManager, IKey, IKeyManager, IPluginMethodMap, IResolver, W3CVerifiableCredential } from '@veramo/core'
 import { ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
 import { OrPromise, RecordLike } from '@veramo/utils'
-import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/src/types/types'
-import { SphereonLdSignature } from '@sphereon/ssi-sdk-vc-handler-ld-local/src/ld-suites'
-import { IBindingOverrides } from '@sphereon/ssi-sdk-vc-handler-ld-local/src'
+import { IBindingOverrides } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 import { AbstractPrivateKeyStore } from '@veramo/key-manager'
-import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local/src/types/ICredentialHandlerLDLocal'
+import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
+import { SphereonLdSignature } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/ld-suites'
+import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 
 export interface IGaiaxComplianceClient extends IPluginMethodMap {
   issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: IRequiredContext): Promise<IVerifiableCredential>

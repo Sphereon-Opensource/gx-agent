@@ -12,7 +12,6 @@ constants:
       getComplianceCredentialFromUnsignedParticipant
       addServiceOfferingUnsigned
       addServiceOffering
-
 server:
   baseUrl:
     $ref: /constants/baseUrl
@@ -43,7 +42,7 @@ server:
     - - /open-api.json
       - $require: '@veramo/remote-server?t=function#ApiSchemaRouter'
         $args:
-          - basePath: :3335/agent
+          - basePath: localhost:3335/agent
             securityScheme: bearer
             apiName: Agent
             apiVersion: '1.0.0'
@@ -75,7 +74,7 @@ agent:
   $args:
     - schemaValidation: false
       plugins:
-        - $require: ./packages/gx-compliance-client/dist#GaiaxComplianceClient.ts
+        - $require: ./packages/gx-compliance-client/dist#GaiaxComplianceClient
           $args:
             # please use your own variables, these are just for test
             - complianceServiceUrl: compliance
