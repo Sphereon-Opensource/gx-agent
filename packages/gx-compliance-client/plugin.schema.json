@@ -9,9 +9,7 @@
               "$ref": "#/components/schemas/IVerifiablePresentation"
             }
           },
-          "required": [
-            "serviceOfferingVP"
-          ]
+          "required": ["serviceOfferingVP"]
         },
         "IVerifiablePresentation": {
           "type": "object",
@@ -64,12 +62,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "@context",
-            "proof",
-            "type",
-            "verifiableCredential"
-          ]
+          "required": ["@context", "proof", "type", "verifiableCredential"]
         },
         "IProof": {
           "type": "object",
@@ -122,12 +115,7 @@
               }
             }
           },
-          "required": [
-            "type",
-            "created",
-            "proofPurpose",
-            "verificationMethod"
-          ]
+          "required": ["type", "created", "proofPurpose", "verificationMethod"]
         },
         "IProofType": {
           "type": "string",
@@ -285,14 +273,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "@context",
-            "credentialSubject",
-            "issuanceDate",
-            "issuer",
-            "proof",
-            "type"
-          ]
+          "required": ["@context", "credentialSubject", "issuanceDate", "issuer", "proof", "type"]
         },
         "ICredentialSchemaType": {
           "anyOf": [
@@ -314,9 +295,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "id"
-          ]
+          "required": ["id"]
         },
         "IIssuerId": {
           "type": "string"
@@ -328,9 +307,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "id"
-          ]
+          "required": ["id"]
         },
         "ICredentialStatus": {
           "type": "object",
@@ -342,10 +319,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "id",
-            "type"
-          ]
+          "required": ["id", "type"]
         },
         "CompactJWT": {
           "type": "string",
@@ -370,11 +344,7 @@
               "description": "List of descriptors of how the claims are being mapped to presentation definition"
             }
           },
-          "required": [
-            "id",
-            "definition_id",
-            "descriptor_map"
-          ],
+          "required": ["id", "definition_id", "descriptor_map"],
           "description": "It expresses how the inputs are presented as proofs to a Verifier."
         },
         "Descriptor": {
@@ -396,11 +366,7 @@
               "description": "The Proof or JWT algorith that the proof is in"
             }
           },
-          "required": [
-            "id",
-            "path",
-            "format"
-          ],
+          "required": ["id", "path", "format"],
           "description": "descriptor map laying out the structure of the presentation submission."
         },
         "IGaiaxOnboardingResult": {
@@ -419,12 +385,7 @@
               "$ref": "#/components/schemas/IGaiaxConformityResult"
             }
           },
-          "required": [
-            "conforms",
-            "isValidSignature",
-            "shape",
-            "content"
-          ]
+          "required": ["conforms", "isValidSignature", "shape", "content"]
         },
         "IGaiaxConformityResult": {
           "type": "object",
@@ -437,10 +398,7 @@
               "items": {}
             }
           },
-          "required": [
-            "conforms",
-            "results"
-          ]
+          "required": ["conforms", "results"]
         },
         "IAddServiceOfferingUnsignedArgs": {
           "type": "object",
@@ -467,14 +425,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "customContext",
-            "key",
-            "purpose",
-            "subject",
-            "type",
-            "verificationMethodId"
-          ]
+          "required": ["customContext", "key", "purpose", "subject", "type", "verificationMethodId"]
         },
         "IKey": {
           "type": "object",
@@ -511,24 +462,12 @@
               "description": "Optional. Key metadata. This should be used to determine which algorithms are supported."
             }
           },
-          "required": [
-            "kid",
-            "kms",
-            "type",
-            "publicKeyHex"
-          ],
+          "required": ["kid", "kms", "type", "publicKeyHex"],
           "description": "Cryptographic key"
         },
         "TKeyType": {
           "type": "string",
-          "enum": [
-            "Ed25519",
-            "Secp256k1",
-            "Secp256r1",
-            "X25519",
-            "Bls12381G1",
-            "Bls12381G2"
-          ],
+          "enum": ["Ed25519", "Secp256k1", "Secp256r1", "X25519", "Bls12381G1", "Bls12381G2"],
           "description": "Cryptographic key type."
         },
         "KeyMetadata": {
@@ -553,11 +492,7 @@
         },
         "IGaiaxCredentialType": {
           "type": "string",
-          "enum": [
-            "ServiceOffering",
-            "LegalPerson",
-            "NaturalPerson"
-          ]
+          "enum": ["ServiceOffering", "LegalPerson", "NaturalPerson"]
         },
         "IGetComplianceCredentialArgs": {
           "type": "object",
@@ -566,9 +501,7 @@
               "$ref": "#/components/schemas/IVerifiablePresentation"
             }
           },
-          "required": [
-            "selfDescribedVP"
-          ]
+          "required": ["selfDescribedVP"]
         },
         "IGetComplianceCredentialFromUnsignedParticipantArgs": {
           "type": "object",
@@ -595,14 +528,7 @@
               "$ref": "#/components/schemas/IGaiaxCredentialType"
             }
           },
-          "required": [
-            "purpose",
-            "verificationMethodId",
-            "key",
-            "customContext",
-            "subject",
-            "type"
-          ]
+          "required": ["purpose", "verificationMethodId", "key", "customContext", "subject", "type"]
         },
         "IIssueVerifiableCredentialArgs": {
           "type": "object",
@@ -626,14 +552,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "customContext",
-            "key",
-            "purpose",
-            "subject",
-            "type",
-            "verificationMethodId"
-          ]
+          "required": ["customContext", "key", "purpose", "subject", "type", "verificationMethodId"]
         },
         "IIssueVerifiablePresentationArgs": {
           "type": "object",
@@ -660,13 +579,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "customContext",
-            "key",
-            "purpose",
-            "verifiableCredentials",
-            "verificationMethodId"
-          ]
+          "required": ["customContext", "key", "purpose", "verifiableCredentials", "verificationMethodId"]
         },
         "VerifiableCredential": {
           "type": "object",
@@ -719,13 +632,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "@context",
-            "credentialSubject",
-            "issuanceDate",
-            "issuer",
-            "proof"
-          ],
+          "required": ["@context", "credentialSubject", "issuanceDate", "issuer", "proof"],
           "description": "Represents a signed Verifiable Credential payload (includes proof), using a JSON representation. See  {@link  https://www.w3.org/TR/vc-data-model/#credentials | VC data model }"
         },
         "ProofType": {
@@ -746,9 +653,7 @@
                   "type": "string"
                 }
               },
-              "required": [
-                "id"
-              ]
+              "required": ["id"]
             },
             {
               "type": "string"
@@ -775,10 +680,7 @@
               "type": "string"
             }
           },
-          "required": [
-            "id",
-            "type"
-          ],
+          "required": ["id", "type"],
           "description": "Used for the discovery of information about the current status of a verifiable credential, such as whether it is suspended or revoked. The precise contents of the credential status information is determined by the specific `credentialStatus` type definition, and varies depending on factors such as whether it is simple to implement or if it is privacy-enhancing.\n\nSee  {@link  https://www.w3.org/TR/vc-data-model/#status | Credential Status }"
         }
       },
