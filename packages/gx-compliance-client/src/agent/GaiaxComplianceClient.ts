@@ -12,9 +12,9 @@ import {
   IIssueVerifiableCredentialArgs,
   IIssueVerifiablePresentationArgs,
 } from '../types/IGaiaxComplianceClient'
-import { IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
+import {AdditionalClaims, ICredentialSubject, IVerifiableCredential, IVerifiablePresentation} from '@sphereon/ssi-types'
 import { v4 as uuidv4 } from 'uuid'
-import axios from 'axios'
+import fetch from 'cross-fetch';
 import { LdContextLoader, LdCredentialModule, LdSuiteLoader } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 
 /**
@@ -50,8 +50,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiableCredential} */
   private async issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: IRequiredContext): Promise<IVerifiableCredential> {
-    //TODO remove this
-    console.log(this.participantUrl)
     const verifiableCredentialSP = await this.ldCredentialModule.issueLDVerifiableCredential(
       {
         issuanceDate: new Date(),
@@ -96,12 +94,9 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.getComplianceCredential} */
-  private async getComplianceCredential(args: IGetComplianceCredentialArgs, context: IRequiredContext): Promise<IVerifiableCredential> {
-      // What is this?
-    this.getApiVersionedUrl() + '/sign'
+  private async getComplianceCredential(args: IGetComplianceCredentialArgs, _context: IRequiredContext): Promise<IVerifiableCredential> {
     try {
-      const { data } = await axios.post(this.getApiVersionedUrl() + '/sign', args.selfDescribedVP)
-      return data
+      return (await GaiaxComplianceClient.postRequest(this.getApiVersionedUrl() + '/sign', args.selfDescribedVP as unknown as BodyInit)) as IVerifiableCredential
     } catch (e) {
       throw new Error('Error on fetching complianceCredential: ' + e)
     }
@@ -158,8 +153,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     const apiType = args.type === IGaiaxCredentialType.LegalPerson || IGaiaxCredentialType.NaturalPerson ? 'participant' : 'service-offering'
     const URL = `${this.getApiVersionedUrl()}/${apiType}/verify/raw?store=true`
     try {
-      const { data } = await axios.post(URL, onboardingVP)
-      return data
+      return (await GaiaxComplianceClient.postRequest(URL, onboardingVP as unknown as BodyInit)) as IVerifiableCredential
     } catch (e) {
       throw new Error('Error on onboarding a complianceCredential: ' + e)
     }
@@ -169,6 +163,9 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   private async addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: IRequiredContext): Promise<IGaiaxOnboardingResult> {
     //TODO: implement fetching compliance VC from data storage
     const complianceCredential: W3CVerifiableCredential = null as unknown as W3CVerifiableCredential
+    if (!((complianceCredential as IVerifiableCredential).credentialSubject as (ICredentialSubject & AdditionalClaims)['providedBy'] as string).startsWith(this.participantUrl)) {
+      throw new Error(`ServiceOffering providedBy should start with ${this.participantUrl}`)
+    }
     //TODO: error handling on null complianceCredential
     const serviceOfferingVC: W3CVerifiableCredential = (await this.issueVerifiableCredential(
       {
@@ -203,11 +200,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
   /** {@inheritDoc IGaiaxComplianceClient.addServiceOffering} */
   private async addServiceOffering(args: IAddServiceOfferingArgs, _context: IRequiredContext): Promise<IGaiaxOnboardingResult> {
-      //fixme: what is this?
-    this.getApiVersionedUrl() + '/service-offering/verify/raw'
     try {
-      const { data } = await axios.post(this.getApiVersionedUrl() + '/service-offering/verify/raw', args.serviceOfferingVP)
-      return data
+      return await GaiaxComplianceClient.postRequest(this.getApiVersionedUrl() + '/service-offering/verify/raw', args.serviceOfferingVP as unknown as BodyInit) as IGaiaxOnboardingResult
     } catch (e) {
       throw new Error('Error on fetching complianceCredential: ' + e)
     }
@@ -215,6 +209,24 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
   private getChallenge(): string {
     return new Date().getUTCFullYear() + '-' + (new Date().getUTCMonth() + 1) + '-' + new Date().getUTCDay()
+  }
+
+  private static async postRequest(url: string, body: BodyInit): Promise<unknown> {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body,
+      });
+      if (!response || !response.status || response.status < 200 || response.status >= 400) {
+        throw new Error(`Can't get the response from ${url}`);
+      }
+      return await response.json();
+    } catch (error) {
+      throw new Error(`${(error as Error).message}`);
+    }
   }
 
   private getApiVersionedUrl() {
