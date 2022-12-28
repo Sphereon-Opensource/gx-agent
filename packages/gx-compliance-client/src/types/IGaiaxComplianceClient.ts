@@ -19,6 +19,19 @@ export interface IGaiaxComplianceClient extends IPluginMethodMap {
   addServiceOffering(args: IAddServiceOfferingArgs, context: IRequiredContext): Promise<IGaiaxOnboardingResult>
 }
 
+/**
+ * Plugin method map interface
+ * @public
+ */
+export enum MethodNames {
+  issueVerifiableCredential = 'issueVerifiableCredential',
+  issueVerifiablePresentation = 'issueVerifiablePresentation',
+  getComplianceCredential = 'getComplianceCredential',
+  getComplianceCredentialFromUnsignedParticipant = 'getComplianceCredentialFromUnsignedParticipant',
+  addServiceOfferingUnsigned = 'addServiceOfferingUnsigned',
+  addServiceOffering = 'addServiceOffering',
+}
+
 export interface IGaiaxComplianceClientArgs {
   complianceServiceUrl: string
   complianceServiceVersion: string

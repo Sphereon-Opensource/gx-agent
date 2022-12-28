@@ -1,0 +1,375 @@
+export const exampleV1 = {
+  '@context': [
+    {
+      '@version': 1.1,
+    },
+    'https://www.w3.org/ns/odrl.jsonld',
+    {
+      ex: 'https://example.org/examples#',
+      schema: 'http://schema.org/',
+      rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+
+      '3rdPartyCorrelation': 'ex:3rdPartyCorrelation',
+      AllVerifiers: 'ex:AllVerifiers',
+      Archival: 'ex:Archival',
+      BachelorDegree: 'ex:BachelorDegree',
+      Child: 'ex:Child',
+      CLCredentialDefinition2019: 'ex:CLCredentialDefinition2019',
+      CLSignature2019: 'ex:CLSignature2019',
+      IssuerPolicy: 'ex:IssuerPolicy',
+      HolderPolicy: 'ex:HolderPolicy',
+      Mother: 'ex:Mother',
+      RelationshipCredential: 'ex:RelationshipCredential',
+      UniversityDegreeCredential: 'ex:UniversityDegreeCredential',
+      AlumniCredential: 'ex:AlumniCredential',
+      DisputeCredential: 'ex:DisputeCredential',
+      PrescriptionCredential: 'ex:PrescriptionCredential',
+      ZkpExampleSchema2018: 'ex:ZkpExampleSchema2018',
+
+      issuerData: 'ex:issuerData',
+      attributes: 'ex:attributes',
+      signature: 'ex:signature',
+      signatureCorrectnessProof: 'ex:signatureCorrectnessProof',
+      primaryProof: 'ex:primaryProof',
+      nonRevocationProof: 'ex:nonRevocationProof',
+
+      alumniOf: { '@id': 'schema:alumniOf', '@type': 'rdf:HTML' },
+      child: { '@id': 'ex:child', '@type': '@id' },
+      degree: 'ex:degree',
+      degreeType: 'ex:degreeType',
+      degreeSchool: 'ex:degreeSchool',
+      college: 'ex:college',
+      name: { '@id': 'schema:name', '@type': 'rdf:HTML' },
+      givenName: 'schema:givenName',
+      familyName: 'schema:familyName',
+      parent: { '@id': 'ex:parent', '@type': '@id' },
+      referenceId: 'ex:referenceId',
+      documentPresence: 'ex:documentPresence',
+      evidenceDocument: 'ex:evidenceDocument',
+      spouse: 'schema:spouse',
+      subjectPresence: 'ex:subjectPresence',
+      verifier: { '@id': 'ex:verifier', '@type': '@id' },
+      currentStatus: 'ex:currentStatus',
+      statusReason: 'ex:statusReason',
+      prescription: 'ex:prescription',
+    },
+  ],
+}
+
+export const gxShape = {
+  '@version': 2206,
+  'gx-participant': {
+    '@context': {
+      xsd: 'http://www.w3.org/2001/XMLSchema#',
+      sh: 'http://www.w3.org/ns/shacl#',
+      'gx-participant': 'https://registry.gaia-x.eu/v2206/api/shape/files?file=participant&type=ttl#',
+    },
+    '@graph': [
+      {
+        '@id': 'gx-participant:AddressShape',
+        '@type': 'sh:NodeShape',
+        'sh:property': [
+          {
+            'sh:path': { '@id': 'gx-participant:addressCode' },
+            'sh:description': 'Country principal subdivision code in ISO 3166-2 format.',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+            'sh:minLength': 4,
+            'sh:maxLength': 6,
+            'sh:pattern': '^[A-Z]{2}-[A-Z0-9]{1,3}$',
+          },
+          {
+            'sh:path': { '@id': 'gx-participant:addressCountryCode' },
+            'sh:description': 'Optional country code in ISO 3166-1 alpha2 format.',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:maxCount': 1,
+            'sh:minLength': 2,
+            'sh:pattern': '^[A-Z]{2}$',
+          },
+        ],
+      },
+      {
+        '@id': 'gx-participant:RegistrationNumberShape',
+        '@type': 'sh:NodeShape',
+        'sh:property': [
+          {
+            'sh:path': { '@id': 'gx-participant:registrationNumberType' },
+            'sh:description': 'The type of the registrationNumber',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+            'sh:minLength': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-participant:registrationNumberNumber' },
+            'sh:description': 'The registrationNumber itself.',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+            'sh:minLength': 1,
+          },
+        ],
+      },
+      {
+        '@id': 'gx-participant:LegalPersonShape',
+        '@type': 'sh:NodeShape',
+        'sh:targetClass': { '@id': 'gx-participant:LegalPerson' },
+        'sh:property': [
+          {
+            'sh:path': { '@id': 'gx-participant:registrationNumber' },
+            'sh:node': { '@id': 'gx-participant:RegistrationNumberShape' },
+            'sh:description': "Country's registration number which identifies one specific company.",
+            'sh:minCount': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-participant:headquarterAddress' },
+            'sh:node': { '@id': 'gx-participant:AddressShape' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-participant:legalAddress' },
+            'sh:node': { '@id': 'gx-participant:AddressShape' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-participant:termsAndConditions' },
+            'sh:description': 'SHA512 of the Generic Terms and Conditions for Gaia-X Ecosystem',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+            'sh:minLength': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-participant:leiCode' },
+            'sh:description': 'Unique LEI number as defined by https://www.gleif.org.',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:maxCount': 1,
+            'sh:minLength': 20,
+            'sh:maxLength': 20,
+            'sh:pattern': '[0-9A-Z]{18}[0-9]{2}',
+            'sh:flags': 'i',
+          },
+          {
+            'sh:path': { '@id': 'gx-participant:parentOrganisation' },
+            'sh:description': 'A list of direct participant that this entity is a subOrganization of, if any.',
+            'sh:node': { '@id': 'gx-participant:LegalPersonShape' },
+          },
+          {
+            'sh:path': { '@id': 'gx-participant:subOrganisation' },
+            'sh:description': 'A list of direct participant with an legal mandate on this entity, e.g., as a subsidiary.',
+            'sh:node': { '@id': 'gx-participant:LegalPersonShape' },
+          },
+        ],
+      },
+    ],
+  },
+  'gx-resource': {
+    '@context': {
+      rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+      rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
+      xsd: 'http://www.w3.org/2001/XMLSchema#',
+      sh: 'http://www.w3.org/ns/shacl#',
+      schema: 'http://schema.org/',
+      'gx-participant': 'https://registry.gaia-x.eu/api/v2206/shape/files?file=participant&type=ttl#',
+      'gx-resource': 'https://registry.gaia-x.eu/api/v2206/shape/files?file=resource&type=ttl#',
+    },
+    '@graph': [
+      {
+        '@id': 'gx-resource:ResourceShape',
+        '@type': 'sh:NodeShape',
+        'sh:targetClass': { '@id': 'gx-resource:Resource' },
+        'sh:property': {
+          'sh:path': { '@id': 'gx-resource:aggregationOf' },
+          'sh:description': 'resources related to the resource and that can exist independently of it.',
+          'sh:class': { '@id': 'gx-resource:Resource' },
+        },
+      },
+      {
+        '@id': 'gx-resource:PhysicalResourceShape',
+        '@type': 'sh:NodeShape',
+        'rdfs:subClassOf': { '@id': 'gx-resource:Resource' },
+        'sh:targetClass': { '@id': 'gx-resource:PhysicalResource' },
+        'sh:property': [
+          {
+            'sh:path': { '@id': 'gx-resource:maintainedBy' },
+            'sh:description': 'a list of participant maintaining the resource in operational condition and thus having physical access to it.',
+            'sh:class': { '@id': 'gx-participant:LegalPerson' },
+            'sh:minCount:': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-resource:ownedBy' },
+            'sh:description': 'a list of participant owning the resource.',
+            'sh:class': { '@id': 'gx-participant:LegalPerson' },
+          },
+          {
+            'sh:path': { '@id': 'gx-resource:manufacturedBy' },
+            'sh:description': 'a list of participant manufacturing the resource.',
+            'sh:class': { '@id': 'gx-participant:LegalPerson' },
+          },
+          {
+            'sh:path': { '@id': 'gx-resource:locationAddress' },
+            'sh:description': 'a list of physical location in ISO 3166-1 alpha2, alpha-3 or numeric format.',
+            'sh:class': { '@id': 'gx-participant:Address' },
+            'sh:minCount': 1,
+          },
+        ],
+      },
+      {
+        '@id': 'gx-resource:VirtualResourceShape',
+        '@type': 'sh:NodeShape',
+        'rdfs:subClassOf': { '@id': 'gx-resource:Resource' },
+        'sh:targetClass': { '@id': 'gx-resource:VirtualResource' },
+        'sh:property': [
+          {
+            'sh:path': { '@id': 'gx-resource:copyrightOwnedBy' },
+            'sh:description':
+              'A list of copyright owners either as a free form string or participant URIs from which Self-Descriptions can be retrieved. A copyright owner is a person or organization that has the right to exploit the resource. Copyright owner does not necessarily refer to the author of the resource, who is a natural person and may differ from copyright owner.',
+            'sh:class': { '@id': 'gx-participant:LegalPerson' },
+            'sh:minCount:': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-resource:license' },
+            'sh:description': 'A list of SPDX license identifiers or URL to license document',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount:': 1,
+          },
+        ],
+      },
+      {
+        '@id': 'gx-resource:InstantiatedVirtualResourceShape',
+        '@type': 'sh:NodeShape',
+        'rdfs:subClassOf': { '@id': 'gx-resource:VirtualResource' },
+        'sh:targetClass': { '@id': 'gx-resource:InstantiatedVirtualResource' },
+        'sh:property': [
+          {
+            'sh:path': { '@id': 'gx-resource:maintainedBy' },
+            'sh:description': 'a list of participant maintaining the resource in operational condition.',
+            'sh:class': { '@id': 'gx-participant:LegalPerson' },
+            'sh:minCount:': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-resource:hostedOn' },
+            'sh:description': 'A list of SPDX license identifiers or URL to license document',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount:': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-resource:tenantOwnedBy' },
+            'sh:description': 'a list of participant with contractual relation with the resource.',
+            'sh:class': { '@id': 'gx-participant:LegalPerson' },
+            'sh:minCount:': 1,
+          },
+        ],
+      },
+    ],
+  },
+  'gx-service-offering': {
+    '@context': {
+      xsd: 'http://www.w3.org/2001/XMLSchema#',
+      sh: 'http://www.w3.org/ns/shacl#',
+      'gx-service-offering': 'https://registry.gaia-x.eu/v2206/api/shape/files?file=service-offering&type=ttl#',
+    },
+    '@graph': [
+      {
+        '@id': 'gx-service-offering:TermsAndConditionsShape',
+        '@type': 'sh:NodeShape',
+        'sh:property': [
+          {
+            'sh:path': { '@id': 'gx-service-offering:url' },
+            'sh:description': 'a resolvable link to document',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-service-offering:hash' },
+            'sh:description': 'sha256 hash of the above document.',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+          },
+        ],
+      },
+      {
+        '@id': 'gx-service-offering:DataExportShape',
+        '@type': 'sh:NodeShape',
+        'sh:property': [
+          {
+            'sh:path': { '@id': 'gx-service-offering:requestType' },
+            'sh:description': 'The mean to request data retrieval',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+            'sh:pattern': '^(API|email|webform|unregisteredLetter|registeredLetter|supportCenter)$',
+          },
+          {
+            'sh:path': { '@id': 'gx-service-offering:accessType' },
+            'sh:description': 'Type of data support',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+            'sh:pattern': '^(digital|physical)$',
+          },
+          {
+            'sh:path': { '@id': 'gx-service-offering:formatType' },
+            'sh:description': 'Type of Media Types (formerly known as MIME types) as defined by the IANA.',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount': 1,
+            'sh:maxCount': 1,
+            'sh:minLength': 1,
+          },
+        ],
+      },
+      {
+        '@id': 'gx-service-offering:ServiceOfferingShape',
+        '@type': 'sh:NodeShape',
+        'sh:targetClass': { '@id': 'gx-service-offering:ServiceOffering' },
+        'sh:name': 'Service Offering',
+        'sh:property': [
+          {
+            'sh:path': { '@id': 'gx-service-offering:providedBy' },
+            'sh:description': 'a resolvable link to the participant Self-Description providing the service',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minCount:': 1,
+            'sh:maxCount:': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-service-offering:termsAndConditions' },
+            'sh:description': 'a resolvable link to the Terms and Conditions applying to that service.',
+            'sh:node': { '@id': 'gx-service-offering:TermsAndConditionsShape' },
+            'sh:minCount:': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-service-offering:dataExport' },
+            'sh:description': 'list of methods to export data out of the service',
+            'sh:node': { '@id': 'gx-service-offering:DataExportShape' },
+            'sh:minCount': 1,
+          },
+          {
+            'sh:path': { '@id': 'gx-service-offering:aggregationOf' },
+            'sh:description':
+              'a resolvable link to the Self-Descriptions of resources related to the service and that can exist independently of it.',
+            'sh:datatype': { '@id': 'xsd:string' },
+          },
+          {
+            'sh:path': { '@id': 'gx-service-offering:policies' },
+            'sh:description': 'a list of policy expressed using a DSL (e.g., Rego or ODRL)',
+            'sh:datatype': { '@id': 'xsd:string' },
+          },
+          {
+            'sh:path': { '@id': 'gx-service-offering:dataProtectionRegime' },
+            'sh:description':
+              'a list of data protection regime (see https://gaia-x.gitlab.io/policy-rules-committee/trust-framework/service/#service-offering)',
+            'sh:datatype': { '@id': 'xsd:string' },
+            'sh:minLength': 8,
+            'sh:maxLength': 9,
+            'sh:pattern': '^(GDPR2016|LGPD2019|PDPA2012|CCPA2018|VCDPA2021)$',
+          },
+        ],
+      },
+    ],
+  },
+}
