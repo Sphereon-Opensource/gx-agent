@@ -10,24 +10,31 @@ import {
 import { CredentialIssuer, ICredentialIssuer } from '@veramo/credential-w3c'
 import { KeyManager, MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
-import { exampleV1, gxShape } from './mocks'
+import { exampleV1, gxShape } from './schemas'
+import { participantDid } from './mocks'
 import { KeyManagementSystem } from '@veramo/kms-local'
-import { getUniResolver } from '@sphereon/did-uni-client'
-import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { createAgent, IDIDManager, IKeyManager, IResolver, TAgent } from '@veramo/core'
-import { IGaiaxComplianceClient } from '../dist'
-import { Resolver } from 'did-resolver'
+import { IGaiaxComplianceClient, IGaiaxCredentialType } from '../dist'
 import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
+import { WebDIDProvider } from '@veramo/did-provider-web'
+import { ICredentialSubject } from '@sphereon/ssi-types'
+import nock from 'nock'
+
 const customContext = new Map<string, ContextDoc>([
   [`https://www.w3.org/2018/credentials/examples/v1`, exampleV1],
   ['https://registry.gaia-x.eu/v2206/api/shape', gxShape as unknown as ContextDoc],
 ])
 
 describe('@sphereon/gx-compliance-client', () => {
-  let agent: TAgent<IResolver & IKeyManager & IDIDManager & ICredentialHandlerLDLocal & IGaiaxComplianceClient>
-
+  let agent: TAgent<IResolver & IKeyManager & IDIDManager & ICredentialHandlerLDLocal & ICredentialIssuer & IGaiaxComplianceClient>
   beforeAll(async () => {
-    /*agent = createAgent({
+    nock('https://participant')
+      .get(`/.well-known/did.json`)
+      .times(3)
+      .reply(200, {
+        ...participantDid,
+      })
+    agent = createAgent<IResolver & IKeyManager & IDIDManager & ICredentialHandlerLDLocal & ICredentialIssuer & IGaiaxComplianceClient>({
       plugins: [
         new KeyManager({
           store: new MemoryKeyStore(),
@@ -35,11 +42,12 @@ describe('@sphereon/gx-compliance-client', () => {
             local: new KeyManagementSystem(new MemoryPrivateKeyStore()),
           },
         }),
-        new DIDManager(),
-        new DIDResolverPlugin({
-          resolver: new Resolver({
-            ...getUniResolver('web')
-          })
+        new DIDManager({
+          providers: {
+            'did:web': new WebDIDProvider({ defaultKms: 'local' }),
+          },
+          store: new MemoryDIDStore(),
+          defaultProvider: 'did:web',
         }),
         new CredentialIssuer(),
         new CredentialHandlerLDLocal({
@@ -53,64 +61,64 @@ describe('@sphereon/gx-compliance-client', () => {
           ]),
         }),
         new GaiaxComplianceClient({
-          complianceServiceUrl: 'http://compliance',
-          complianceServiceVersion: 'v2206',
-          participantDid: 'did:web:participant',
-          participantUrl: 'http://participant',
           credentialHandlerOptions: {
             contextMaps: [LdDefaultContexts, customContext],
             suites: [new SphereonEd25519Signature2018(), new SphereonEd25519Signature2020()],
           },
-        })
+          participantUrl: 'http://participant',
+          participantDid: 'did:web:participant',
+          complianceServiceVersion: 'v2206',
+          complianceServiceUrl: 'http://compliance',
+        }),
       ],
-    })*/
+    })
   })
 
   it('should create a VC', async () => {
-    /*await agent.issueVerifiableCredential({
-        customContext: 'https://registry.gaia-x.eu/v2206/api/shape',
-        key: {
-          privateKeyHex:
-            '078c0f0eaa6510fab9f4f2cf8657b32811c53d7d98869fd0d5bd08a7ba34376b8adfdd44784dea407e088ff2437d5e2123e685a26dca91efceb7a9f4dfd81848',
-          publicKeyHex: '8adfdd44784dea407e088ff2437d5e2123e685a26dca91efceb7a9f4dfd81848',
-          kms: 'local',
-          kid: `did:web:participant#sign`,
-          type: 'Ed25519',
-        },
-        purpose: 'assertionMethod',
-        subject: {
-          id: '3d17bb21-40d8-4c82-8468-fa11dfa8617c',
-          'gx-participant:name': 'OVH',
-          'gx-participant:legalName': 'OVH',
-          'gx-participant:website': 'https://participant',
-          'gx-participant:registrationNumber': [
-            {
-              'gx-participant:registrationNumberType': 'leiCode',
-              'gx-participant:registrationNumberNumber': '9695007586GCAKPYJ703',
-            },
-            {
-              'gx-participant:registrationNumberType': 'EUID',
-              'gx-participant:registrationNumberNumber': 'FR5910.424761419',
-            },
-          ],
-          'gx-participant:headquarterAddress': {
-            'gx-participant:addressCountryCode': 'FR',
-            'gx-participant:addressCode': 'FR-HDF',
-            'gx-participant:streetAddress': '2 rue Kellermann',
-            'gx-participant:postalCode': '59100',
-            'gx-participant:locality': 'Roubaix',
+    await agent.issueVerifiableCredential({
+      customContext: 'https://registry.gaia-x.eu/v2206/api/shape',
+      key: {
+        privateKeyHex:
+          '078c0f0eaa6510fab9f4f2cf8657b32811c53d7d98869fd0d5bd08a7ba34376b8adfdd44784dea407e088ff2437d5e2123e685a26dca91efceb7a9f4dfd81848',
+        publicKeyHex: '8adfdd44784dea407e088ff2437d5e2123e685a26dca91efceb7a9f4dfd81848',
+        kms: 'local',
+        kid: `did:web:participant#sign`,
+        type: 'Ed25519',
+      },
+      purpose: 'assertionMethod',
+      subject: {
+        id: '3d17bb21-40d8-4c82-8468-fa11dfa8617c',
+        'gx-participant:name': 'OVH',
+        'gx-participant:legalName': 'OVH',
+        'gx-participant:website': 'https://participant',
+        'gx-participant:registrationNumber': [
+          {
+            'gx-participant:registrationNumberType': 'leiCode',
+            'gx-participant:registrationNumberNumber': '9695007586GCAKPYJ703',
           },
-          'gx-participant:legalAddress': {
-            'gx-participant:addressCountryCode': 'FR',
-            'gx-participant:addressCode': 'FR-HDF',
-            'gx-participant:streetAddress': '2 rue Kellermann',
-            'gx-participant:postalCode': '59100',
-            'gx-participant:locality': 'Roubaix',
+          {
+            'gx-participant:registrationNumberType': 'EUID',
+            'gx-participant:registrationNumberNumber': 'FR5910.424761419',
           },
-          'gx-participant:termsAndConditions': '70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700',
+        ],
+        'gx-participant:headquarterAddress': {
+          'gx-participant:addressCountryCode': 'FR',
+          'gx-participant:addressCode': 'FR-HDF',
+          'gx-participant:streetAddress': '2 rue Kellermann',
+          'gx-participant:postalCode': '59100',
+          'gx-participant:locality': 'Roubaix',
         },
-        type: 'LegalPerson',
-        verificationMethodId: 'did:web:participant#JWK2020-RSA'
-      })*/
+        'gx-participant:legalAddress': {
+          'gx-participant:addressCountryCode': 'FR',
+          'gx-participant:addressCode': 'FR-HDF',
+          'gx-participant:streetAddress': '2 rue Kellermann',
+          'gx-participant:postalCode': '59100',
+          'gx-participant:locality': 'Roubaix',
+        },
+        'gx-participant:termsAndConditions': '70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700',
+      } as unknown as ICredentialSubject,
+      type: IGaiaxCredentialType.LegalPerson,
+      verificationMethodId: 'did:web:participant#JWK2020-RSA',
+    })
   })
 })
