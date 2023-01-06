@@ -1,24 +1,27 @@
-import { GaiaxComplianceClient } from '../src'
+import { GaiaxComplianceClient, GXPluginMethodMap, IGaiaxCredentialType } from '../src'
 import {
   CredentialHandlerLDLocal,
-  ICredentialHandlerLDLocal,
   LdDefaultContexts,
   MethodNames,
   SphereonEd25519Signature2018,
   SphereonEd25519Signature2020,
 } from '@sphereon/ssi-sdk-vc-handler-ld-local'
-import { CredentialIssuer, ICredentialIssuer } from '@veramo/credential-w3c'
-import { KeyManager, MemoryKeyStore, MemoryPrivateKeyStore } from '@veramo/key-manager'
+import { CredentialIssuer } from '@veramo/credential-w3c'
+import { KeyManager } from '@veramo/key-manager'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { exampleV1, gxShape } from './schemas'
 import { participantDid } from './mocks'
-import { KeyManagementSystem } from '@veramo/kms-local'
-import { createAgent, IDIDManager, IKeyManager, IResolver, TAgent } from '@veramo/core'
-import { IGaiaxComplianceClient, IGaiaxCredentialType } from '../dist'
+import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
+import { createAgent, TAgent } from '@veramo/core'
 import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
 import { WebDIDProvider } from '@veramo/did-provider-web'
 import { ICredentialSubject } from '@sphereon/ssi-types'
+// @ts-ignore
 import nock from 'nock'
+import { DataStore, DataStoreORM, Entities, KeyStore, PrivateKeyStore } from '@veramo/data-store'
+import { DataSource } from 'typeorm'
+// @ts-ignore
+import fs from 'fs'
 
 const customContext = new Map<string, ContextDoc>([
   [`https://www.w3.org/2018/credentials/examples/v1`, exampleV1],
@@ -26,7 +29,21 @@ const customContext = new Map<string, ContextDoc>([
 ])
 
 describe('@sphereon/gx-compliance-client', () => {
-  let agent: TAgent<IResolver & IKeyManager & IDIDManager & ICredentialHandlerLDLocal & ICredentialIssuer & IGaiaxComplianceClient>
+  let agent: TAgent<GXPluginMethodMap>
+  let dbConnection: Promise<DataSource>
+  const databaseFile = './tmp/test-db2.sqlite'
+  const DB_ENCRYPTION_KEY = '12739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830a'
+
+  beforeEach(async () => {
+    await (await dbConnection).dropDatabase()
+    await (await dbConnection).synchronize()
+  })
+
+  afterAll(async () => {
+    ;(await dbConnection).close()
+    fs.unlinkSync(databaseFile)
+  })
+
   beforeAll(async () => {
     nock('https://participant')
       .get(`/.well-known/did.json`)
@@ -34,12 +51,19 @@ describe('@sphereon/gx-compliance-client', () => {
       .reply(200, {
         ...participantDid,
       })
-    agent = createAgent<IResolver & IKeyManager & IDIDManager & ICredentialHandlerLDLocal & ICredentialIssuer & IGaiaxComplianceClient>({
+
+    dbConnection = new DataSource({
+      type: 'sqlite',
+      database: databaseFile,
+      entities: Entities,
+    }).initialize()
+
+    agent = createAgent<GXPluginMethodMap>({
       plugins: [
         new KeyManager({
-          store: new MemoryKeyStore(),
+          store: new KeyStore(dbConnection),
           kms: {
-            local: new KeyManagementSystem(new MemoryPrivateKeyStore()),
+            local: new KeyManagementSystem(new PrivateKeyStore(dbConnection, new SecretBox(DB_ENCRYPTION_KEY))),
           },
         }),
         new DIDManager({
@@ -60,11 +84,9 @@ describe('@sphereon/gx-compliance-client', () => {
             // We test the verify methods by using the LDLocal versions directly in the tests
           ]),
         }),
+        new DataStore(dbConnection),
+        new DataStoreORM(dbConnection),
         new GaiaxComplianceClient({
-          credentialHandlerOptions: {
-            contextMaps: [LdDefaultContexts, customContext],
-            suites: [new SphereonEd25519Signature2018(), new SphereonEd25519Signature2020()],
-          },
           participantUrl: 'http://participant',
           participantDid: 'did:web:participant',
           complianceServiceVersion: 'v2206',
@@ -77,14 +99,7 @@ describe('@sphereon/gx-compliance-client', () => {
   it('should create a VC', async () => {
     await agent.issueVerifiableCredential({
       customContext: 'https://registry.gaia-x.eu/v2206/api/shape',
-      key: {
-        privateKeyHex:
-          '078c0f0eaa6510fab9f4f2cf8657b32811c53d7d98869fd0d5bd08a7ba34376b8adfdd44784dea407e088ff2437d5e2123e685a26dca91efceb7a9f4dfd81848',
-        publicKeyHex: '8adfdd44784dea407e088ff2437d5e2123e685a26dca91efceb7a9f4dfd81848',
-        kms: 'local',
-        kid: `did:web:participant#sign`,
-        type: 'Ed25519',
-      },
+      keyRef: 'test',
       purpose: 'assertionMethod',
       subject: {
         id: '3d17bb21-40d8-4c82-8468-fa11dfa8617c',

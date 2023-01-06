@@ -1,22 +1,27 @@
-import { IAgentContext, IDIDManager, IKey, IKeyManager, IPluginMethodMap, IResolver, W3CVerifiableCredential } from '@veramo/core'
+import {
+  IAgentContext,
+  ICredentialIssuer,
+  IDataStore,
+  IDataStoreORM,
+  IDIDManager,
+  IKeyManager,
+  IPluginMethodMap,
+  IResolver,
+  W3CVerifiableCredential,
+} from '@veramo/core'
 import { ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
-import { OrPromise, RecordLike } from '@veramo/utils'
-import { IBindingOverrides } from '@sphereon/ssi-sdk-vc-handler-ld-local'
-import { AbstractPrivateKeyStore } from '@veramo/key-manager'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
-import { SphereonLdSignature } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/ld-suites'
-import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 
 export interface IGaiaxComplianceClient extends IPluginMethodMap {
-  issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: IRequiredContext): Promise<IVerifiableCredential>
-  issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: IRequiredContext): Promise<IVerifiablePresentation>
-  getComplianceCredential(args: IGetComplianceCredentialArgs, context: IRequiredContext): Promise<IVerifiableCredential>
+  issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
+  issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation>
+  getComplianceCredential(args: IGetComplianceCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   getComplianceCredentialFromUnsignedParticipant(
     args: IGetComplianceCredentialFromUnsignedParticipantArgs,
-    context: IRequiredContext
+    context: GXRequiredContext
   ): Promise<IVerifiableCredential>
-  addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: IRequiredContext): Promise<IGaiaxOnboardingResult>
-  addServiceOffering(args: IAddServiceOfferingArgs, context: IRequiredContext): Promise<IGaiaxOnboardingResult>
+  addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+  addServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
 }
 
 /**
@@ -37,12 +42,6 @@ export interface IGaiaxComplianceClientArgs {
   complianceServiceVersion: string
   participantDid: string
   participantUrl: string
-  credentialHandlerOptions: {
-    contextMaps: RecordLike<OrPromise<ContextDoc>>[]
-    suites: SphereonLdSignature[]
-    bindingOverrides?: IBindingOverrides
-    keyStore?: AbstractPrivateKeyStore
-  }
 }
 
 export interface IGaiaxConformityResult {
@@ -67,7 +66,7 @@ export enum IGaiaxCredentialType {
 
 export interface IIssueVerifiableCredentialArgs {
   customContext: string
-  key: IKey
+  keyRef?: string
   purpose: string
   subject: ICredentialSubject
   type: IGaiaxCredentialType
@@ -77,7 +76,7 @@ export interface IIssueVerifiableCredentialArgs {
 export interface IIssueVerifiablePresentationArgs {
   challenge?: string
   customContext: string
-  key: IKey
+  keyRef?: string
   purpose: string
   verifiableCredentials: W3CVerifiableCredential[]
   verificationMethodId: string
@@ -91,7 +90,7 @@ export interface IGetComplianceCredentialFromUnsignedParticipantArgs {
   challenge?: string
   purpose: string
   verificationMethodId: string
-  key: IKey
+  keyRef?: string
   customContext: string
   subject: ICredentialSubject
   type: IGaiaxCredentialType
@@ -100,7 +99,7 @@ export interface IGetComplianceCredentialFromUnsignedParticipantArgs {
 export interface IAddServiceOfferingUnsignedArgs {
   challenge?: string
   customContext: string
-  key: IKey
+  keyRef: string
   purpose: string
   subject: ICredentialSubject
   type: IGaiaxCredentialType
@@ -111,4 +110,12 @@ export interface IAddServiceOfferingArgs {
   serviceOfferingVP: IVerifiablePresentation
 }
 
-export type IRequiredContext = IAgentContext<IResolver & IKeyManager & IDIDManager & ICredentialHandlerLDLocal>
+export type GXPluginMethodMap = IResolver &
+  IKeyManager &
+  IDIDManager &
+  ICredentialHandlerLDLocal &
+  ICredentialIssuer &
+  IGaiaxComplianceClient &
+  IDataStore &
+  IDataStoreORM
+export type GXRequiredContext = IAgentContext<GXPluginMethodMap>

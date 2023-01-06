@@ -1,6 +1,6 @@
 import { IAgentPlugin, W3CVerifiableCredential } from '@veramo/core'
 
-import { IGaiaxComplianceClient, IGaiaxCredentialType, IRequiredContext, schema } from '../index'
+import { GXRequiredContext, IGaiaxComplianceClient, IGaiaxCredentialType, schema } from '../index'
 
 import {
   IAddServiceOfferingArgs,
@@ -13,9 +13,11 @@ import {
   IIssueVerifiablePresentationArgs,
 } from '../types/IGaiaxComplianceClient'
 import { AdditionalClaims, ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
+
+import { VerifiableCredentialSP, VerifiablePresentationSP } from '@sphereon/ssi-sdk-core'
+
 import { v4 as uuidv4 } from 'uuid'
 import fetch from 'cross-fetch'
-import { LdContextLoader, LdCredentialModule, LdSuiteLoader } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 
 /**
  * {@inheritDoc IGaiaxComplianceClient}
@@ -35,70 +37,54 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   private readonly participantDid: string
   private readonly participantUrl: string
 
-  private ldCredentialModule: LdCredentialModule
-
   constructor(options: IGaiaxComplianceClientArgs) {
     this.complianceServiceUrl = options.complianceServiceUrl
     this.complianceServiceVersion = options.complianceServiceVersion
     this.participantDid = options.participantDid
     this.participantUrl = options.participantUrl
-    this.ldCredentialModule = new LdCredentialModule({
-      ldContextLoader: new LdContextLoader({ contextsPaths: options.credentialHandlerOptions.contextMaps }),
-      ldSuiteLoader: new LdSuiteLoader({ ldSignatureSuites: options.credentialHandlerOptions.suites }),
-    })
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiableCredential} */
-  private async issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: IRequiredContext): Promise<IVerifiableCredential> {
-    const verifiableCredentialSP = await this.ldCredentialModule.issueLDVerifiableCredential(
-      {
+  private async issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential> {
+    const verifiableCredentialSP = await context.agent.createVerifiableCredentialLDLocal({
+      credential: {
         issuanceDate: new Date(),
         credentialSubject: args.subject,
         type: ['VerifiableCredential', args.type],
         issuer: this.participantDid,
-        // magic number for 6 month later
-        expirationDate: new Date(new Date().getDate() + 15552000000),
         id: uuidv4(),
         '@context': ['https://www.w3.org/2018/credentials/v1', args.customContext],
       },
-      this.participantDid,
-      args.key,
-      args.verificationMethodId,
-      args.purpose,
-      context
-    )
+      purpose: args.purpose,
+      keyRef: args.keyRef,
+    })
     return verifiableCredentialSP as IVerifiableCredential
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiablePresentation} */
-  private async issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: IRequiredContext): Promise<IVerifiablePresentation> {
-    return (await this.ldCredentialModule.signLDVerifiablePresentation(
-      {
+  private async issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation> {
+    return (await context.agent.createVerifiablePresentationLDLocal({
+      presentation: {
         id: uuidv4(),
         issuanceDate: new Date(),
         type: ['VerifiablePresentation'],
-        // magic number for 2 hour later
-        expirationDate: new Date(new Date().getDate() + 7200000),
         '@context': ['https://www.w3.org/2018/credentials/v1', args.customContext],
         verifiableCredential: args.verifiableCredentials,
         holder: this.participantDid,
       },
-      this.participantDid,
-      args.key,
-      args.verificationMethodId,
-      args.challenge ? args.challenge : this.getChallenge(),
-      this.complianceServiceUrl,
-      args.purpose,
-      context
-    )) as IVerifiablePresentation
+      purpose: args.purpose,
+      keyRef: args.keyRef,
+      challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
+      domain: this.complianceServiceUrl,
+    })) as IVerifiablePresentation
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.getComplianceCredential} */
-  private async getComplianceCredential(args: IGetComplianceCredentialArgs, _context: IRequiredContext): Promise<IVerifiableCredential> {
+  private async getComplianceCredential(args: IGetComplianceCredentialArgs, _context: GXRequiredContext): Promise<IVerifiableCredential> {
     try {
       return (await GaiaxComplianceClient.postRequest(
         this.getApiVersionedUrl() + '/sign',
-        args.selfDescribedVP as unknown as BodyInit
+        JSON.stringify(args.selfDescribedVP)
       )) as IVerifiableCredential
     } catch (e) {
       throw new Error('Error on fetching complianceCredential: ' + e)
@@ -108,13 +94,13 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   /** {@inheritDoc IGaiaxComplianceClient.getComplianceCredentialFromUnsignedParticipant} */
   private async getComplianceCredentialFromUnsignedParticipant(
     args: IGetComplianceCredentialFromUnsignedParticipantArgs,
-    context: IRequiredContext
+    context: GXRequiredContext
   ): Promise<IVerifiableCredential> {
     const selfDescribedVC: IVerifiableCredential = await this.issueVerifiableCredential(
       {
         customContext: args.customContext,
         verificationMethodId: args.verificationMethodId,
-        key: args.key,
+        keyRef: args.keyRef,
         purpose: args.purpose,
         subject: args.subject,
         //TODO: error handling. only accepts NaturalPerson and LegalPerson
@@ -122,39 +108,53 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       },
       context
     )
+    const selfDescribedVCHash = await context.agent.dataStoreSaveVerifiableCredential({
+      verifiableCredential: selfDescribedVC as VerifiableCredentialSP,
+    })
+
+    console.log(selfDescribedVCHash)
+
     const selfDescribedVP = await this.issueVerifiablePresentation(
       {
-        challenge: args.challenge ? args.challenge : this.getChallenge(),
+        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
         customContext: args.customContext,
-        key: args.key,
+        keyRef: args.keyRef,
         purpose: args.purpose,
         verifiableCredentials: [selfDescribedVC as W3CVerifiableCredential],
         verificationMethodId: args.verificationMethodId,
       },
       context
     )
+
+    const selfDescribedVPHash = await context.agent.dataStoreSaveVerifiablePresentation({
+      verifiablePresentation: selfDescribedVP as VerifiablePresentationSP,
+    })
+    console.log(selfDescribedVPHash)
+
     const complianceCredential = await this.getComplianceCredential(
       {
         selfDescribedVP: selfDescribedVP,
       },
       context
     )
-    //TODO: implement this
-    //saveVC(complianceCredential)
+    await context.agent.dataStoreSaveVerifiableCredential({ verifiableCredential: complianceCredential as VerifiableCredentialSP })
 
     const onboardingVP = await this.issueVerifiablePresentation(
       {
         customContext: args.customContext,
-        key: args.key,
+        keyRef: args.keyRef,
         purpose: args.purpose,
         verifiableCredentials: [complianceCredential as W3CVerifiableCredential, selfDescribedVC as W3CVerifiableCredential],
-        challenge: args.challenge ? args.challenge : this.getChallenge(),
+        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
         verificationMethodId: args.verificationMethodId,
       },
       context
     )
+
+    // todo: This logic should be a function
     const apiType = args.type === IGaiaxCredentialType.LegalPerson || IGaiaxCredentialType.NaturalPerson ? 'participant' : 'service-offering'
     const URL = `${this.getApiVersionedUrl()}/${apiType}/verify/raw?store=true`
+
     try {
       return (await GaiaxComplianceClient.postRequest(URL, onboardingVP as unknown as BodyInit)) as IVerifiableCredential
     } catch (e) {
@@ -163,7 +163,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.addServiceOfferingUnsigned} */
-  private async addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: IRequiredContext): Promise<IGaiaxOnboardingResult> {
+  private async addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult> {
     //TODO: implement fetching compliance VC from data storage
     const complianceCredential: W3CVerifiableCredential = null as unknown as W3CVerifiableCredential
     if (
@@ -177,7 +177,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     const serviceOfferingVC: W3CVerifiableCredential = (await this.issueVerifiableCredential(
       {
         customContext: args.customContext,
-        key: args.key,
+        keyRef: args.keyRef,
         purpose: args.purpose,
         //TODO: handle error, only ServiceOffering is allowed here
         type: args.type,
@@ -188,9 +188,9 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     )) as W3CVerifiableCredential
     const serviceOfferingVP = await this.issueVerifiablePresentation(
       {
-        challenge: args.challenge ? args.challenge : this.getChallenge(),
+        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
         customContext: args.customContext,
-        key: args.key,
+        keyRef: args.keyRef,
         purpose: args.purpose,
         verifiableCredentials: [complianceCredential, serviceOfferingVC],
         verificationMethodId: args.verificationMethodId,
@@ -206,7 +206,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.addServiceOffering} */
-  private async addServiceOffering(args: IAddServiceOfferingArgs, _context: IRequiredContext): Promise<IGaiaxOnboardingResult> {
+  private async addServiceOffering(args: IAddServiceOfferingArgs, _context: GXRequiredContext): Promise<IGaiaxOnboardingResult> {
     try {
       return (await GaiaxComplianceClient.postRequest(
         this.getApiVersionedUrl() + '/service-offering/verify/raw',
@@ -217,8 +217,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     }
   }
 
-  private getChallenge(): string {
-    return new Date().getUTCFullYear() + '-' + (new Date().getUTCMonth() + 1) + '-' + new Date().getUTCDay()
+  private static staticDateChallenge(): string {
+    return new Date().toISOString().substring(0, 10)
   }
 
   private static async postRequest(url: string, body: BodyInit): Promise<unknown> {
