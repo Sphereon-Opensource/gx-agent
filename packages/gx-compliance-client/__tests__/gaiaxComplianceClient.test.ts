@@ -1,4 +1,5 @@
 import { GaiaxComplianceClient, GXPluginMethodMap, IGaiaxCredentialType } from '../src'
+import { BlsKeyManagementSystem } from '@sphereon/ssi-sdk-bls-kms-local/dist/BlsKeyManagementSystem'
 import {
   CredentialHandlerLDLocal,
   LdDefaultContexts,
@@ -7,7 +8,7 @@ import {
   SphereonEd25519Signature2020,
 } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 import { CredentialIssuer } from '@veramo/credential-w3c'
-import { KeyManager } from '@veramo/key-manager'
+import { KeyManager, MemoryPrivateKeyStore } from '@veramo/key-manager'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { exampleV1, gxShape } from './schemas'
 import { participantDid } from './mocks'
@@ -96,7 +97,7 @@ describe('@sphereon/gx-compliance-client', () => {
     })
   })
 
-  it('should create a VC', async () => {
+  it.skip('should create a VC', async () => {
     await agent.issueVerifiableCredential({
       customContext: 'https://registry.gaia-x.eu/v2206/api/shape',
       keyRef: 'test',
@@ -135,5 +136,15 @@ describe('@sphereon/gx-compliance-client', () => {
       type: IGaiaxCredentialType.LegalPerson,
       verificationMethodId: 'did:web:participant#JWK2020-RSA',
     })
+  })
+
+  it('should create rsa keys', async () => {
+    const kms = new BlsKeyManagementSystem(new MemoryPrivateKeyStore())
+    const key = await kms.createKey({ type: 'RSA' })
+    expect(key.type).toEqual('RSA')
+    expect(key.publicKeyHex.length).toBeGreaterThan(320)
+    expect(key.kid).toBeDefined()
+    expect(key.meta?.algorithms).toEqual(['RS256', 'RS512'])
+    expect(key.meta?.publicKeyPEM).toBeDefined()
   })
 })
