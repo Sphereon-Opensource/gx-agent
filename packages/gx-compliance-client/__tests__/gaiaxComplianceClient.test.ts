@@ -149,7 +149,7 @@ describe('@sphereon/gx-compliance-client', () => {
     expect(key.meta?.publicKeyPEM).toBeDefined()
   })
 
-  it('should import created rsa keys', async () => {
+  it('should sign with created rsa keys (read from kms)', async () => {
     const kms = new BlsKeyManagementSystem(new MemoryPrivateKeyStore())
     const key = await kms.createKey({ type: 'RSA' })
     expect(key.type).toEqual('RSA')
@@ -160,10 +160,9 @@ describe('@sphereon/gx-compliance-client', () => {
 
     const data = u8a.fromString('test', 'utf-8')
 
+    const kid = key.kid
     // @ts-ignore
-    const importedKey = await kms.importKey({ kid: key.kid, privateKeyHex: key.privateKeyHex, type: 'RSA' })
-    const signature = await kms.sign({ keyRef: key, data, algorithm: 'RS256' })
-    console.log(importedKey)
+    const signature = await kms.sign({ keyRef: { kid }, data, algorithm: 'RS256' })
     console.log(signature)
   })
 })
