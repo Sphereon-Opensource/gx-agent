@@ -1,5 +1,6 @@
 import { GaiaxComplianceClient, GXPluginMethodMap, IGaiaxCredentialType } from '../src'
 import { BlsKeyManagementSystem } from '@sphereon/ssi-sdk-bls-kms-local/dist/BlsKeyManagementSystem'
+import * as u8a from 'uint8arrays'
 import {
   CredentialHandlerLDLocal,
   LdDefaultContexts,
@@ -146,5 +147,23 @@ describe('@sphereon/gx-compliance-client', () => {
     expect(key.kid).toBeDefined()
     expect(key.meta?.algorithms).toEqual(['RS256', 'RS512'])
     expect(key.meta?.publicKeyPEM).toBeDefined()
+  })
+
+  it('should import created rsa keys', async () => {
+    const kms = new BlsKeyManagementSystem(new MemoryPrivateKeyStore())
+    const key = await kms.createKey({ type: 'RSA' })
+    expect(key.type).toEqual('RSA')
+    expect(key.publicKeyHex.length).toBeGreaterThan(320)
+    expect(key.kid).toBeDefined()
+    expect(key.meta?.algorithms).toEqual(['RS256', 'RS512'])
+    expect(key.meta?.publicKeyPEM).toBeDefined()
+
+    const data = u8a.fromString('test', 'utf-8')
+
+    // @ts-ignore
+    const importedKey = await kms.importKey({ kid: key.kid, privateKeyHex: key.privateKeyHex, type: 'RSA' })
+    const signature = await kms.sign({ keyRef: key, data, algorithm: 'RS256' })
+    console.log(importedKey)
+    console.log(signature)
   })
 })
