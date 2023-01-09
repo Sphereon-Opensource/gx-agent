@@ -2,7 +2,7 @@
 <h1 align="center">
   <br>
   <a href="https://www.sphereon.com"><img src="https://sphereon.com/content/themes/sphereon/assets/img/logo.svg" alt="Sphereon" width="400"></a>
-  <br>VC API Issuer (Typescript) 
+  <br>GX Compliance client (Typescript) 
   <br>
 </h1>
 
@@ -12,14 +12,14 @@
 
 ---
 
-# vc-api-verifier
+# gx-agent-compliance-client
 
-A Veramo plugin to issue credentials using the vc-http-api. Based on an older version of the spec (v0.1) and only working for Sphereon's VC API currently. We are working on supporting the latest spec version.
+A Veramo plugin to connect to gaia-x compliance servers. You can use this library to create Self-Descriptions, Service Offerings and send them to a gaia-x compliance server.
 
 ### Installation
 
 ```shell
-yarn add @sphereon/ssi-sdk-vc-api-issuer
+yarn add @sphereon/gx-agent-compliance-client
 ```
 
 ### Build
@@ -29,8 +29,6 @@ yarn build
 ```
 
 ### Test
-
-To run the tests a VC_HTTP_API_AUTH_TOKEN environment variable needs to be present with an authorization token.
 
 The test command runs:
 

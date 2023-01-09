@@ -39,8 +39,11 @@ describe('@sphereon/gx-compliance-client', () => {
   beforeEach(async () => {
     await (await dbConnection).dropDatabase()
     await (await dbConnection).synchronize()
-  })
-
+  }),
+    `BbsBlsSignature2020`,
+    `EcdsaSecp256k1RecoverySignature2020`,
+    `Ed25519Signature2018`,
+    `Ed25519Signature2020`
   afterAll(async () => {
     ;(await dbConnection).close()
     fs.unlinkSync(databaseFile)
@@ -163,6 +166,6 @@ describe('@sphereon/gx-compliance-client', () => {
     const kid = key.kid
     // @ts-ignore
     const signature = await kms.sign({ keyRef: { kid }, data, algorithm: 'RS256' })
-    console.log(signature)
+    expect(signature.length).toBeGreaterThan(10)
   })
 })

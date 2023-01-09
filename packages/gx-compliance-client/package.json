@@ -1,5 +1,5 @@
 {
-  "name": "@sphereon/gx-compliance-client",
+  "name": "@sphereon/gx-agent-compliance-client",
   "version": "0.0.1",
   "source": "src/index.ts",
   "main": "dist/index.js",
@@ -19,6 +19,7 @@
     "@sphereon/ssi-sdk-vc-handler-ld-local": "0.8.1-next.119",
     "@sphereon/ssi-types": "0.8.1-next.119",
     "@types/uuid": "^9.0.0",
+    "@veramo/cli": "4.2.0",
     "@veramo/core": "4.2.0",
     "@veramo/data-store": "^4.2.0",
     "@veramo/did-provider-web": "^4.2.0",
