@@ -5,7 +5,7 @@
   "main": "build/cli.js",
   "types": "build/cli.d.ts",
   "bin": {
-    "veramo": "bin/gx-cli.js"
+    "veramo": "bin/gx-participant.js"
   },
   "scripts": {
     "build": "tsc",

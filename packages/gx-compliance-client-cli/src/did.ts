@@ -5,17 +5,39 @@ import { printTable } from 'console-table-printer'
 const did = program.command('did').description('Decentralized identifiers')
 
 did
-  .command('create')
-  .description('creates a did:web with the received arguments')
-  .action(async (cmd) => {
-    const agent = getAgent(program.opts().config)
+.command('create')
+.description('create an identifier')
+.action(async (cmd) => {
+  const agent = getAgent(program.opts().config)
 
+  try {
     const providers = await agent.didManagerGetProviders()
-    const list = providers.map((provider) => ({ provider }))
+    const kms = await agent.keyManagerGetKeyManagementSystems()
 
-    if (list.length > 0) {
-      printTable(list)
-    } else {
-      console.log('No identifier providers')
-    }
-  })
+    const answers = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'provider',
+        choices: providers,
+        message: 'Select identifier provider',
+      },
+      {
+        type: 'list',
+        name: 'kms',
+        choices: kms,
+        message: 'Select key management system',
+      },
+      {
+        type: 'input',
+        name: 'alias',
+        message: 'Enter alias',
+      },
+    ])
+
+    const identifier = await agent.didManagerCreate(answers)
+    printTable([{ provider: identifier.provider, alias: identifier.alias, did: identifier.did }])
+  } catch (e: any) {
+    console.error(e.message)
+  }
+})
+
