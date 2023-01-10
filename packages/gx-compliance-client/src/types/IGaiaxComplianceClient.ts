@@ -16,10 +16,11 @@ export interface IGaiaxComplianceClient extends IPluginMethodMap {
   issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation>
   getComplianceCredential(args: IGetComplianceCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
-  getComplianceCredentialFromUnsignedParticipant(
-    args: IGetComplianceCredentialFromUnsignedParticipantArgs,
+  acquireComplianceCredentialFromUnsignedParticipant(
+    args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
   ): Promise<IVerifiableCredential>
+  acquireComplianceCredentialFromExistingParticipant(args: IAcquireComplianceCredentialFromExistingParticipantArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
   addServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
 }
@@ -91,12 +92,28 @@ export interface IIssueVerifiablePresentationArgs {
 export interface IGetComplianceCredentialArgs {
   selfDescribedVP: IVerifiablePresentation
 }
+export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
+  participantVChash: string;
+  keyRef: string;
+  purpose: string;
+  challenge: string;
+  verificationMethodId: string;
+}
 
-export interface IGetComplianceCredentialFromUnsignedParticipantArgs {
+export interface IOnboardParticipantArgs {
+  verificationMethodId: string
+  selfDescribedVC: IVerifiableCredential
+  complianceCredential: IVerifiableCredential
+  purpose: string
+  challenge?: string
+  keyRef: string
+}
+
+export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
   challenge?: string
   purpose: string
   verificationMethodId: string
-  keyRef?: string
+  keyRef: string
   unsignedCredential: ICredential
 }
 
@@ -110,6 +127,24 @@ export interface IAddServiceOfferingUnsignedArgs {
 
 export interface IAddServiceOfferingArgs {
   serviceOfferingVP: IVerifiablePresentation
+}
+
+export interface IIssueAndSaveVerifiablePresentationArgs {
+  challenge: string
+  keyRef: string
+  purpose: string
+  verifiableCredentials: IVerifiableCredential[]
+  verificationMethodId: string
+}
+
+export interface VerifiablePresentationResponse {
+  verifiablePresentation: IVerifiablePresentation
+  vpHash: string
+}
+
+export interface VerifiableCredentialResponse {
+  verifiableCredential: IVerifiableCredential
+  vcHash: string
 }
 
 export type GXPluginMethodMap = IResolver &
