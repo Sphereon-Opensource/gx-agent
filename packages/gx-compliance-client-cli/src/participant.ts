@@ -52,7 +52,7 @@ participant
   .action(async (cmd) => {
     try {
       const sd = fs.readFileSync(cmd['sd-file'], 'utf-8') as IGetComplianceCredentialFromUnsignedParticipantArgs
-      const result = await (await fetch('http://v2206/api/participant/verify', {
+      const result = await (await fetch('http://v2206/api/participant/verify/raw', {
         method: 'POST',
         body: JSON.stringify(sd),
         headers: {
