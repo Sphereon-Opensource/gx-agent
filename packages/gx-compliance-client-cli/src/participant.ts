@@ -10,7 +10,7 @@ participant
   .command('compliance')
   .command('submit')
   .description('submits a self-description file to gx-compliance server')
-  .requiredOption('-sd-file, --sd-file <string>', 'address of your sd-file')
+  .requiredOption('-sd-file, --sd-file <string>', 'filesystem location of your sd-file')
   .requiredOption('-sd-id, --sd-id <string>', 'id of your sd')
   .action(async (cmd) => {
     try {
@@ -30,7 +30,7 @@ participant
   .command('self-description')
   .command('create')
   .description('creates a self-description file based on your self-description file')
-  .option('-sd-file, --sd-file <string>', 'address of your sd-file')
+  .option('-sd-file, --sd-file <string>', 'filesystem location of your sd-file')
   .action(async (cmd) => {
     try {
       const sd = fs.readFileSync(cmd['sd-file'], 'utf-8') as IGetComplianceCredentialFromUnsignedParticipantArgs
@@ -48,7 +48,7 @@ participant
   .command('self-description')
   .command('verify')
   .description('verifies a self-description file (by a external call to gx-compliance server)')
-  .option('-sd-file, --sd-file <string>', 'address of your sd-file')
+  .option('-sd-file, --sd-file <string>', 'filesystem location of your sd-file')
   .action(async (cmd) => {
     try {
       const sd = fs.readFileSync(cmd['sd-file'], 'utf-8') as IGetComplianceCredentialFromUnsignedParticipantArgs
