@@ -2,7 +2,6 @@ import { program } from 'commander'
 import {getAgent} from "./setup";
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import { IGetComplianceCredentialFromUnsignedParticipantArgs } from "@sphereon/gx-agent-compliance-client";
 
 const participant = program.command('participant').description('gx participant')
 
@@ -14,11 +13,12 @@ participant
   .requiredOption('-sd-id, --sd-id <string>', 'id of your sd')
   .action(async (cmd) => {
     try {
-      const sd = fs.readFileSync(cmd['sd-file'], 'utf-8') as IGetComplianceCredentialFromUnsignedParticipantArgs
+      const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
+      const id = cmd['sd-id']
+      console.log(id)
       const agent = getAgent(program.opts().config)
       const selfDescription = await agent.getComplianceCredentialFromUnsignedParticipant({
-        ...sd,
-        id: cmd['sd-id']
+        ...sd
       })
       printTable([{...selfDescription}])
     } catch(e:unknown) {
@@ -33,7 +33,7 @@ participant
   .option('-sd-file, --sd-file <string>', 'filesystem location of your sd-file')
   .action(async (cmd) => {
     try {
-      const sd = fs.readFileSync(cmd['sd-file'], 'utf-8') as IGetComplianceCredentialFromUnsignedParticipantArgs
+      const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
       const agent = getAgent(program.opts().config)
       const selfDescription = await agent.issueVerifiableCredential({
         ...sd
@@ -51,7 +51,7 @@ participant
   .option('-sd-file, --sd-file <string>', 'filesystem location of your sd-file')
   .action(async (cmd) => {
     try {
-      const sd = fs.readFileSync(cmd['sd-file'], 'utf-8') as IGetComplianceCredentialFromUnsignedParticipantArgs
+      const sd = fs.readFileSync(cmd['sd-file'], 'utf-8')
       const result = await (await fetch('http://v2206/api/participant/verify/raw', {
         method: 'POST',
         body: JSON.stringify(sd),
