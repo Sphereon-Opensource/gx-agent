@@ -65,12 +65,18 @@ export enum IGaiaxCredentialType {
 }
 
 export interface IIssueVerifiableCredentialArgs {
+  unsignedCredential: ICredential
+  // todo: ask Niels, not sure if we need this anymore
+  verificationMethodId: string
+  keyRef?: string
+}
+
+export interface IIssueVerifiableCredentialFromSubject {
   customContext: string
   keyRef?: string
   purpose: string
   subject: ICredentialSubject
   type: IGaiaxCredentialType
-  verificationMethodId: string
 }
 
 export interface IIssueVerifiablePresentationArgs {
@@ -91,9 +97,7 @@ export interface IGetComplianceCredentialFromUnsignedParticipantArgs {
   purpose: string
   verificationMethodId: string
   keyRef?: string
-  customContext: string
-  subject: ICredentialSubject
-  type: IGaiaxCredentialType
+  unsignedCredential: ICredential
 }
 
 export interface IAddServiceOfferingUnsignedArgs {

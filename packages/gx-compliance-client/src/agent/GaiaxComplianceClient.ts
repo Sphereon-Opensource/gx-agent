@@ -11,7 +11,7 @@ import {
   IGetComplianceCredentialFromUnsignedParticipantArgs,
   IIssueVerifiableCredentialArgs,
   IIssueVerifiablePresentationArgs,
-} from '../types/IGaiaxComplianceClient'
+} from '../types'
 import { AdditionalClaims, ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
 
 import { VerifiableCredentialSP, VerifiablePresentationSP } from '@sphereon/ssi-sdk-core'
@@ -96,16 +96,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     args: IGetComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
   ): Promise<IVerifiableCredential> {
-    const selfDescribedVC: IVerifiableCredential = await this.issueVerifiableCredential(
-      {
-        customContext: args.customContext,
-        verificationMethodId: args.verificationMethodId,
-        keyRef: args.keyRef,
-        purpose: args.purpose,
-        subject: args.subject,
-        //TODO: error handling. only accepts NaturalPerson and LegalPerson
-        type: args.type,
-      },
+    const selfDescribedVC: IVerifiableCredential = await this.issueVerifiableCredential({unsignedCredential: args.unsignedCredential, verificationMethodId: args.verificationMethodId, keyRef: args.keyRef},
       context
     )
     const selfDescribedVCHash = await context.agent.dataStoreSaveVerifiableCredential({
@@ -176,12 +167,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     //TODO: error handling on null complianceCredential
     const serviceOfferingVC: W3CVerifiableCredential = (await this.issueVerifiableCredential(
       {
-        customContext: args.customContext,
         keyRef: args.keyRef,
-        purpose: args.purpose,
-        //TODO: handle error, only ServiceOffering is allowed here
-        type: args.type,
-        subject: args.subject,
+        unsignedCredential: args.unsignedCredential,
         verificationMethodId: args.verificationMethodId,
       },
       context
