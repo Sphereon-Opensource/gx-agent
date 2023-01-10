@@ -2,7 +2,7 @@ import { getAgent } from './setup'
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import { privateKeyHexFromPEM, X509Opts } from '@sphereon/ssi-sdk-bls-kms-local'
+import { privateKeyHexFromPEM } from '@sphereon/ssi-sdk-bls-kms-local'
 
 const did = program.command('did').description('Decentralized identifiers')
 
@@ -24,7 +24,7 @@ did
 
   try {
 
-    const x509: X509Opts = {
+    const x509 = {
       cn,
       certificatePEM,
       certificateChainPEM,
@@ -34,7 +34,7 @@ did
     const privateKeyHex = privateKeyHexFromPEM(privateKeyPEM)
     const meta = { x509 }
 
-    await agent.keyManagerImport({ kid: cn, privateKeyHex, type: 'RSA', meta})
+    await agent.keyManagerImport({ kid: cn, privateKeyHex, type: 'RSA', meta, kms: 'local'})
 
     const identifier = await agent.didManagerCreate({ provider: 'did:web',  alias: `did:web${cn}`})
     printTable([{ provider: identifier.provider, alias: identifier.alias, did: identifier.did }])

@@ -1,4 +1,4 @@
 {
   "files": [],
-  "references": [{ "path": "gx-compliance-client" }]
+  "references": [{ "path": "gx-compliance-client" }, { "path": "gx-compliance-client-cli" }]
 }

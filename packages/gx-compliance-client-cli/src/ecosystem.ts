@@ -1,6 +1,7 @@
 import { program } from 'commander'
 import { getAgent } from "./setup";
 import {GxEntityType} from "./types";
+import { printTable } from 'console-table-printer'
 
 const ecosystem = program.command('ecosystem').description('gx client ecosystem')
 
@@ -11,7 +12,7 @@ ecosystem
   .requiredOption('-ecosystem-url, --ecosystem-url <string>', 'gaia-x compliance server address')
   .action(async (cmd) => {
     const agent = getAgent(program.opts().config)
-    const id = await agent.dataStoreSaveMessage({
+    const id = await agent.dataStoreSaveMessage({ message: {
       id: cmd.name,
       type: GxEntityType.ecosystem,
       createdAt: new Date().toUTCString(),
@@ -19,6 +20,6 @@ ecosystem
         name: cmd.name,
         'ecosystem-url': cmd['ecosystem-url']
       }
-    })
-    return id
+    }})
+    printTable([{ id }])
   })
