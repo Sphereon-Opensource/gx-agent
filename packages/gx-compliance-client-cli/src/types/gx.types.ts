@@ -1,3 +1,3 @@
 export enum GxEntityType {
-  ecosystem = 'ecosystem'
+  ecosystem = 'ecosystem',
 }

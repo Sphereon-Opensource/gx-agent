@@ -1,4 +1,4 @@
-import { IAgentPlugin, W3CVerifiableCredential } from '@veramo/core'
+import { CredentialPayload, IAgentPlugin, W3CVerifiableCredential } from '@veramo/core'
 
 import { GXRequiredContext, IGaiaxComplianceClient, IGaiaxCredentialType, schema } from '../index'
 
@@ -47,14 +47,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiableCredential} */
   private async issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential> {
     const verifiableCredentialSP = await context.agent.createVerifiableCredentialLDLocal({
-      credential: {
-        issuanceDate: new Date(),
-        credentialSubject: args.subject,
-        type: ['VerifiableCredential', args.type],
-        issuer: this.participantDid,
-        id: uuidv4(),
-        '@context': ['https://www.w3.org/2018/credentials/v1', args.customContext],
-      },
+      credential: args.unsignedCredential as CredentialPayload,
       purpose: args.purpose,
       keyRef: args.keyRef,
     })
@@ -68,7 +61,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         id: uuidv4(),
         issuanceDate: new Date(),
         type: ['VerifiablePresentation'],
-        '@context': ['https://www.w3.org/2018/credentials/v1', args.customContext],
+        '@context': ['https://www.w3.org/2018/credentials/v1'],
         verifiableCredential: args.verifiableCredentials,
         holder: this.participantDid,
       },
@@ -96,7 +89,13 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     args: IGetComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
   ): Promise<IVerifiableCredential> {
-    const selfDescribedVC: IVerifiableCredential = await this.issueVerifiableCredential({unsignedCredential: args.unsignedCredential, verificationMethodId: args.verificationMethodId, keyRef: args.keyRef},
+    const selfDescribedVC: IVerifiableCredential = await this.issueVerifiableCredential(
+      {
+        unsignedCredential: args.unsignedCredential,
+        verificationMethodId: args.verificationMethodId,
+        purpose: args.purpose,
+        keyRef: args.keyRef,
+      },
       context
     )
     const selfDescribedVCHash = await context.agent.dataStoreSaveVerifiableCredential({
@@ -108,7 +107,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     const selfDescribedVP = await this.issueVerifiablePresentation(
       {
         challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
-        customContext: args.customContext,
         keyRef: args.keyRef,
         purpose: args.purpose,
         verifiableCredentials: [selfDescribedVC as W3CVerifiableCredential],
@@ -132,7 +130,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
     const onboardingVP = await this.issueVerifiablePresentation(
       {
-        customContext: args.customContext,
         keyRef: args.keyRef,
         purpose: args.purpose,
         verifiableCredentials: [complianceCredential as W3CVerifiableCredential, selfDescribedVC as W3CVerifiableCredential],
@@ -143,7 +140,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     )
 
     // todo: This logic should be a function
-    const apiType = args.type === IGaiaxCredentialType.LegalPerson || IGaiaxCredentialType.NaturalPerson ? 'participant' : 'service-offering'
+    const credentialType = args.unsignedCredential['type'].find((el) => el !== 'VerifiableCredential')
+    const apiType = credentialType === IGaiaxCredentialType.LegalPerson || IGaiaxCredentialType.NaturalPerson ? 'participant' : 'service-offering'
     const URL = `${this.getApiVersionedUrl()}/${apiType}/verify/raw?store=true`
 
     try {
@@ -167,6 +165,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     //TODO: error handling on null complianceCredential
     const serviceOfferingVC: W3CVerifiableCredential = (await this.issueVerifiableCredential(
       {
+        purpose: args.purpose,
         keyRef: args.keyRef,
         unsignedCredential: args.unsignedCredential,
         verificationMethodId: args.verificationMethodId,
@@ -176,7 +175,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     const serviceOfferingVP = await this.issueVerifiablePresentation(
       {
         challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
-        customContext: args.customContext,
         keyRef: args.keyRef,
         purpose: args.purpose,
         verifiableCredentials: [complianceCredential, serviceOfferingVC],

@@ -22,23 +22,22 @@ did
     const certificateChainURL = `https://${cn}/.wellknown/${path[path.length - 1]}`
     const agent = getAgent(program.opts().config)
 
-  try {
+    try {
+      const x509 = {
+        cn,
+        certificatePEM,
+        certificateChainPEM,
+        privateKeyPEM,
+        certificateChainURL,
+      }
+      const privateKeyHex = privateKeyHexFromPEM(privateKeyPEM)
+      const meta = { x509 }
 
-    const x509 = {
-      cn,
-      certificatePEM,
-      certificateChainPEM,
-      privateKeyPEM,
-      certificateChainURL
+      await agent.keyManagerImport({ kid: cn, privateKeyHex, type: 'RSA', meta, kms: 'local' })
+
+      const identifier = await agent.didManagerCreate({ provider: 'did:web', alias: `did:web${cn}` })
+      printTable([{ provider: identifier.provider, alias: identifier.alias, did: identifier.did }])
+    } catch (e: any) {
+      console.error(e.message)
     }
-    const privateKeyHex = privateKeyHexFromPEM(privateKeyPEM)
-    const meta = { x509 }
-
-    await agent.keyManagerImport({ kid: cn, privateKeyHex, type: 'RSA', meta, kms: 'local'})
-
-    const identifier = await agent.didManagerCreate({ provider: 'did:web',  alias: `did:web${cn}`})
-    printTable([{ provider: identifier.provider, alias: identifier.alias, did: identifier.did }])
-  } catch (e: unknown) {
-    console.error(e.message)
-  }
-})
+  })

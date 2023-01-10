@@ -9,7 +9,7 @@ import {
   IResolver,
   W3CVerifiableCredential,
 } from '@veramo/core'
-import { ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
+import { ICredential, ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 
 export interface IGaiaxComplianceClient extends IPluginMethodMap {
@@ -67,6 +67,7 @@ export enum IGaiaxCredentialType {
 export interface IIssueVerifiableCredentialArgs {
   unsignedCredential: ICredential
   // todo: ask Niels, not sure if we need this anymore
+  purpose: string
   verificationMethodId: string
   keyRef?: string
 }
@@ -81,7 +82,6 @@ export interface IIssueVerifiableCredentialFromSubject {
 
 export interface IIssueVerifiablePresentationArgs {
   challenge?: string
-  customContext: string
   keyRef?: string
   purpose: string
   verifiableCredentials: W3CVerifiableCredential[]
@@ -102,11 +102,9 @@ export interface IGetComplianceCredentialFromUnsignedParticipantArgs {
 
 export interface IAddServiceOfferingUnsignedArgs {
   challenge?: string
-  customContext: string
+  unsignedCredential: ICredential
   keyRef: string
   purpose: string
-  subject: ICredentialSubject
-  type: IGaiaxCredentialType
   verificationMethodId: string
 }
 
