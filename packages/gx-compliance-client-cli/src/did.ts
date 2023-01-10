@@ -38,7 +38,7 @@ did
 
     const identifier = await agent.didManagerCreate({ provider: 'did:web',  alias: `did:web${cn}`})
     printTable([{ provider: identifier.provider, alias: identifier.alias, did: identifier.did }])
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error(e.message)
   }
 })

@@ -5,6 +5,7 @@ import { ISelectiveDisclosure } from '@veramo/selective-disclosure'
 import { IDIDComm } from '@veramo/did-comm'
 import { IDIDDiscovery } from '@veramo/did-discovery'
 import { createAgentFromConfig } from '@veramo/cli/build/lib/agentCreator'
+import {IGaiaxComplianceClient} from "@sphereon/gx-agent-compliance-client";
 
 const fs = require('fs')
 
@@ -33,7 +34,8 @@ export type EnabledInterfaces = IDIDManager &
   IDIDComm &
   ICredentialPlugin &
   ISelectiveDisclosure &
-  IDIDDiscovery
+  IDIDDiscovery &
+  IGaiaxComplianceClient
 
 export type ConfiguredAgent = TAgent<EnabledInterfaces>
 
