@@ -5,13 +5,14 @@ import { ISelectiveDisclosure } from '@veramo/selective-disclosure'
 import { IDIDComm } from '@veramo/did-comm'
 import { IDIDDiscovery } from '@veramo/did-discovery'
 import { createAgentFromConfig } from '@veramo/cli/build/lib/agentCreator'
-import {IGaiaxComplianceClient} from "@sphereon/gx-agent-compliance-client";
+import { IGaiaxComplianceClient } from '@sphereon/gx-compliance-client'
 
 const fs = require('fs')
 
 export const getConfig = (fileName: string): any => {
   if (!fs.existsSync(fileName)) {
     console.log('Config file not found: ' + fileName)
+    // fixme: We should provide an example file and provide rename/copy instructions here, as veramo config create will never create a valid GX config
     console.log('Use "veramo config create" to create one')
     process.exit(1)
   }
@@ -25,6 +26,7 @@ export const getConfig = (fileName: string): any => {
   return config
 }
 
+// TODO: This should be moved to a types file in the gx-compiance-client for re-use
 export type EnabledInterfaces = IDIDManager &
   IKeyManager &
   IDataStore &

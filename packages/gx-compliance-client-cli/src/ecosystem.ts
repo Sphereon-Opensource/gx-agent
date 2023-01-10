@@ -3,13 +3,14 @@ import { getAgent } from './setup'
 import { GxEntityType } from './types'
 import { printTable } from 'console-table-printer'
 
-const ecosystem = program.command('ecosystem').description('gx client ecosystem')
+const ecosystem = program.command('ecosystem').description('gx-participant ecosystem')
 
 ecosystem
   .command('add')
+  //todo: description???
   .description('creates a new gaia-x compliance client')
-  .requiredOption('-name, --name <string>', 'ecosystem name')
-  .requiredOption('-ecosystem-url, --ecosystem-url <string>', 'gaia-x compliance server address')
+  .requiredOption('-n, --name <string>', 'ecosystem name')
+  .requiredOption('-url, --ecosystem-url <string>', 'gaia-x ecosystem server address')
   .action(async (cmd) => {
     const agent = getAgent(program.opts().config)
     const id = await agent.dataStoreSaveMessage({

@@ -1,4 +1,4 @@
-import { CredentialPayload, IAgentPlugin, W3CVerifiableCredential } from '@veramo/core'
+import { IAgentPlugin, W3CVerifiableCredential } from '@veramo/core'
 
 import {
   GXRequiredContext,
@@ -13,12 +13,12 @@ import {
 } from '../index'
 
 import {
+  IAcquireComplianceCredentialFromUnsignedParticipantArgs,
   IAddServiceOfferingArgs,
   IAddServiceOfferingUnsignedArgs,
   IGaiaxComplianceClientArgs,
   IGaiaxOnboardingResult,
-  IGetComplianceCredentialArgs,
-  IAcquireComplianceCredentialFromUnsignedParticipantArgs,
+  IAcquireComplianceCredentialArgs,
   IIssueVerifiableCredentialArgs,
   IIssueVerifiablePresentationArgs,
 } from '../types'
@@ -37,7 +37,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   readonly methods: IGaiaxComplianceClient = {
     issueVerifiableCredential: this.issueVerifiableCredential.bind(this),
     issueVerifiablePresentation: this.issueVerifiablePresentation.bind(this),
-    getComplianceCredential: this.getComplianceCredential.bind(this),
+    acquireComplianceCredential: this.acquireComplianceCredential.bind(this),
     acquireComplianceCredentialFromUnsignedParticipant: this.acquireComplianceCredentialFromUnsignedParticipant.bind(this),
     acquireComplianceCredentialFromExistingParticipant: this.acquireComplianceCredentialFromExistingParticipant.bind(this),
     addServiceOfferingUnsigned: this.addServiceOfferingUnsigned.bind(this),
@@ -58,7 +58,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiableCredential} */
   private async issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential> {
     const verifiableCredentialSP = await context.agent.createVerifiableCredentialLDLocal({
-      credential: args.unsignedCredential as CredentialPayload,
+      credential: args.credential,
       purpose: args.purpose,
       keyRef: args.keyRef,
     })
@@ -106,8 +106,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     })) as IVerifiablePresentation
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.getComplianceCredential} */
-  private async getComplianceCredential(args: IGetComplianceCredentialArgs, _context: GXRequiredContext): Promise<IVerifiableCredential> {
+  /** {@inheritDoc IGaiaxComplianceClient.acquireComplianceCredential} */
+  private async acquireComplianceCredential(args: IAcquireComplianceCredentialArgs, _context: GXRequiredContext): Promise<IVerifiableCredential> {
     try {
       return (await GaiaxComplianceClient.postRequest(
         this.getApiVersionedUrl() + '/sign',
@@ -125,7 +125,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   ): Promise<IVerifiableCredential> {
     const selfDescribedVC: IVerifiableCredential = await this.issueVerifiableCredential(
       {
-        unsignedCredential: args.unsignedCredential,
+        credential: args.credential,
         verificationMethodId: args.verificationMethodId,
         purpose: args.purpose,
         keyRef: args.keyRef,
@@ -153,14 +153,17 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       },
       context
     )
-    return await this.onboardParticipant({
-      keyRef: args.keyRef,
-      purpose: args.purpose,
-      complianceCredential: complianceResponse.verifiableCredential,
-      selfDescribedVC: selfDescribedVC,
-      challenge: args.challenge,
-      verificationMethodId: args.verificationMethodId,
-    }, context)
+    return await this.onboardParticipant(
+      {
+        keyRef: args.keyRef,
+        purpose: args.purpose,
+        complianceCredential: complianceResponse.verifiableCredential,
+        selfDescribedVC: selfDescribedVC,
+        challenge: args.challenge,
+        verificationMethodId: args.verificationMethodId,
+      },
+      context
+    )
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.addServiceOfferingUnsigned} */
@@ -179,7 +182,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       {
         purpose: args.purpose,
         keyRef: args.keyRef,
-        unsignedCredential: args.unsignedCredential,
+        credential: args.credential,
         verificationMethodId: args.verificationMethodId,
       },
       context
@@ -219,9 +222,9 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     args: IAcquireComplianceCredentialFromExistingParticipantArgs,
     context: GXRequiredContext
   ): Promise<IVerifiableCredential> {
-    const selfDescribedVC = await context.agent.dataStoreGetVerifiableCredential({
+    const selfDescribedVC = (await context.agent.dataStoreGetVerifiableCredential({
       hash: args.participantVChash,
-    }) as IVerifiableCredential
+    })) as IVerifiableCredential
     const verifiablePresentationResponse: VerifiablePresentationResponse = await this.issueAndSaveVerifiablePresentation(
       {
         keyRef: args.keyRef,
@@ -233,19 +236,22 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       context
     )
     const complianceResponse = await this.acquireComplianceCredentialFromVerifiablePresentation(
-        {
-          verifiablePresentation: verifiablePresentationResponse.verifiablePresentation,
-        },
-        context
+      {
+        verifiablePresentation: verifiablePresentationResponse.verifiablePresentation,
+      },
+      context
     )
-    return this.onboardParticipant({
-      complianceCredential: complianceResponse.verifiableCredential,
-      selfDescribedVC: selfDescribedVC,
-      keyRef: args.keyRef,
-      purpose: args.purpose,
-      challenge: args.challenge,
-      verificationMethodId: args.verificationMethodId
-    }, context)
+    return this.onboardParticipant(
+      {
+        complianceCredential: complianceResponse.verifiableCredential,
+        selfDescribedVC: selfDescribedVC,
+        keyRef: args.keyRef,
+        purpose: args.purpose,
+        challenge: args.challenge,
+        verificationMethodId: args.verificationMethodId,
+      },
+      context
+    )
   }
 
   private static staticDateChallenge(): string {
@@ -278,7 +284,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     args: { verifiablePresentation: IVerifiablePresentation },
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
-    const complianceCredential = await this.getComplianceCredential(
+    const complianceCredential = await this.acquireComplianceCredential(
       {
         selfDescribedVP: args.verifiablePresentation,
       },
@@ -289,7 +295,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     })
     return {
       verifiableCredential: complianceCredential,
-      vcHash: hash,
+      hash,
     }
   }
 
