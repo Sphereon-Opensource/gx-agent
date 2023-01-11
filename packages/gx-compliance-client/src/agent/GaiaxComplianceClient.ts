@@ -125,7 +125,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   private async acquireComplianceCredentialFromUnsignedParticipant(
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
-  ): Promise<IVerifiableCredential> {
+  ): Promise<VerifiableCredentialResponse> {
     const selfDescribedVC: IVerifiableCredential = await this.issueVerifiableCredential(
       {
         credential: args.credential,
@@ -150,23 +150,13 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       },
       context
     )
-    const complianceResponse = await this.acquireComplianceCredentialFromVerifiablePresentation(
+    const verifiableCredentialResponse = (await this.acquireComplianceCredentialFromVerifiablePresentation(
       {
         verifiablePresentation: verifiablePresentationResponse.verifiablePresentation,
       },
       context
-    )
-    return await this.onboardParticipantWithCredential(
-      {
-        keyRef: args.keyRef,
-        purpose: args.purpose,
-        complianceCredential: complianceResponse.verifiableCredential,
-        selfDescribedVC: selfDescribedVC,
-        challenge: args.challenge,
-        verificationMethodId: args.verificationMethodId,
-      },
-      context
-    )
+    )) as VerifiableCredentialResponse
+    return verifiableCredentialResponse
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.addServiceOfferingUnsigned} */
@@ -224,7 +214,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   private async acquireComplianceCredentialFromExistingParticipant(
     args: IAcquireComplianceCredentialFromExistingParticipantArgs,
     context: GXRequiredContext
-  ): Promise<IVerifiableCredential> {
+  ): Promise<VerifiableCredentialResponse> {
     const selfDescribedVC = (await context.agent.dataStoreGetVerifiableCredential({
       hash: args.participantVChash,
     })) as IVerifiableCredential
@@ -238,20 +228,9 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       },
       context
     )
-    const complianceResponse = await this.acquireComplianceCredentialFromVerifiablePresentation(
+    return this.acquireComplianceCredentialFromVerifiablePresentation(
       {
         verifiablePresentation: verifiablePresentationResponse.verifiablePresentation,
-      },
-      context
-    )
-    return this.onboardParticipantWithCredential(
-      {
-        complianceCredential: complianceResponse.verifiableCredential,
-        selfDescribedVC: selfDescribedVC,
-        keyRef: args.keyRef,
-        purpose: args.purpose,
-        challenge: args.challenge,
-        verificationMethodId: args.verificationMethodId,
       },
       context
     )

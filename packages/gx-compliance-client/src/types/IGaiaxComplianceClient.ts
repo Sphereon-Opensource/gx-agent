@@ -20,11 +20,11 @@ export interface IGaiaxComplianceClient extends IPluginMethodMap {
   acquireComplianceCredentialFromUnsignedParticipant(
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
-  ): Promise<IVerifiableCredential>
+  ): Promise<VerifiableCredentialResponse>
   acquireComplianceCredentialFromExistingParticipant(
     args: IAcquireComplianceCredentialFromExistingParticipantArgs,
     context: GXRequiredContext
-  ): Promise<IVerifiableCredential>
+  ): Promise<VerifiableCredentialResponse>
   onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
@@ -120,8 +120,8 @@ export interface IOnboardParticipantWithCredentialArgs {
 
 export interface IOnboardParticipantWithCredentialIdsArgs {
   verificationMethodId: string
-  selfDescribedVcHash: IVerifiableCredential
-  complianceCredentialHash: IVerifiableCredential
+  selfDescribedVcHash: string
+  complianceCredentialHash: string
   purpose: string
   challenge?: string
   keyRef: string
