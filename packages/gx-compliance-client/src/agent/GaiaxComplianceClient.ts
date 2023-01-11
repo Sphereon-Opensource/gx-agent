@@ -178,7 +178,14 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   /** {@inheritDoc IGaiaxComplianceClient.addServiceOfferingUnsigned} */
   private async addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult> {
     //TODO: implement fetching compliance VC from data storage
-    const complianceCredential: W3CVerifiableCredential = null as unknown as W3CVerifiableCredential
+    if (!args.complianceCredentialHash && !args.complianceCredential) {
+      throw new Error('You should provide either complianceCredentialHash or complete complianceCredential')
+    }
+    const complianceCredential: W3CVerifiableCredential = args.complianceCredentialHash
+      ? ((await context.agent.dataStoreGetVerifiableCredential({
+          hash: args.complianceCredentialHash,
+        })) as W3CVerifiableCredential)
+      : (args.complianceCredential! as W3CVerifiableCredential)
     if (
       !(
         (complianceCredential as IVerifiableCredential).credentialSubject as (ICredentialSubject & AdditionalClaims)['providedBy'] as string
@@ -186,12 +193,11 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     ) {
       throw new Error(`ServiceOffering providedBy should start with ${this.participantUrl}`)
     }
-    //TODO: error handling on null complianceCredential
     const serviceOfferingVC: W3CVerifiableCredential = (await this.issueVerifiableCredential(
       {
         purpose: args.purpose,
         keyRef: args.keyRef,
-        credential: args.credential,
+        credential: args.serviceOfferingCredential,
         verificationMethodId: args.verificationMethodId,
       },
       context

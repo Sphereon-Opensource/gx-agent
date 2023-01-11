@@ -144,9 +144,12 @@ export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
   credential: CredentialPayload
 }
 
+//fixme @nlklomp is this the right approach to handle complianceCredentialHash, complianceCredential
 export interface IAddServiceOfferingUnsignedArgs {
   challenge?: string
-  credential: CredentialPayload
+  serviceOfferingCredential: CredentialPayload
+  complianceCredentialHash?: string
+  complianceCredential?: IVerifiableCredential
   keyRef: string
   purpose: string
   verificationMethodId: string
