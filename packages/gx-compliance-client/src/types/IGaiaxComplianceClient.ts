@@ -1,4 +1,5 @@
 import {
+  CredentialPayload,
   IAgentContext,
   ICredentialIssuer,
   IDataStore,
@@ -9,18 +10,21 @@ import {
   IResolver,
   W3CVerifiableCredential,
 } from '@veramo/core'
-import { ICredential, ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
+import { ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 
 export interface IGaiaxComplianceClient extends IPluginMethodMap {
   issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation>
-  getComplianceCredential(args: IGetComplianceCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
+  acquireComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   acquireComplianceCredentialFromUnsignedParticipant(
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
   ): Promise<IVerifiableCredential>
-  acquireComplianceCredentialFromExistingParticipant(args: IAcquireComplianceCredentialFromExistingParticipantArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
+  acquireComplianceCredentialFromExistingParticipant(
+    args: IAcquireComplianceCredentialFromExistingParticipantArgs,
+    context: GXRequiredContext
+  ): Promise<IVerifiableCredential>
   addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
   addServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
 }
@@ -66,9 +70,9 @@ export enum IGaiaxCredentialType {
 }
 
 export interface IIssueVerifiableCredentialArgs {
-  unsignedCredential: ICredential
+  credential: CredentialPayload
   // todo: ask Niels, not sure if we need this anymore
-  purpose: string
+  purpose?: string
   verificationMethodId: string
   keyRef?: string
 }
@@ -89,15 +93,15 @@ export interface IIssueVerifiablePresentationArgs {
   verificationMethodId: string
 }
 
-export interface IGetComplianceCredentialArgs {
+export interface IAcquireComplianceCredentialArgs {
   selfDescribedVP: IVerifiablePresentation
 }
 export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
-  participantVChash: string;
-  keyRef: string;
-  purpose: string;
-  challenge: string;
-  verificationMethodId: string;
+  participantVChash: string
+  keyRef: string
+  purpose: string
+  challenge: string
+  verificationMethodId: string
 }
 
 export interface IOnboardParticipantArgs {
@@ -114,12 +118,12 @@ export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
   purpose: string
   verificationMethodId: string
   keyRef: string
-  unsignedCredential: ICredential
+  credential: CredentialPayload
 }
 
 export interface IAddServiceOfferingUnsignedArgs {
   challenge?: string
-  unsignedCredential: ICredential
+  credential: CredentialPayload
   keyRef: string
   purpose: string
   verificationMethodId: string
@@ -144,7 +148,7 @@ export interface VerifiablePresentationResponse {
 
 export interface VerifiableCredentialResponse {
   verifiableCredential: IVerifiableCredential
-  vcHash: string
+  hash: string
 }
 
 export type GXPluginMethodMap = IResolver &

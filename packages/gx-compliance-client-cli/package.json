@@ -5,13 +5,14 @@
   "main": "build/cli.js",
   "types": "build/cli.d.ts",
   "bin": {
-    "veramo": "bin/gx-participant.js"
+    "gx-participant": "bin/gx-participant.js"
   },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -b --watch"
   },
   "dependencies": {
+    "@sphereon/gx-compliance-client": "^0.0.1",
     "@microsoft/api-extractor": "^7.33.6",
     "@microsoft/api-extractor-model": "^7.25.2",
     "@types/blessed": "^0.1.19",
@@ -46,7 +47,7 @@
     "@types/node-fetch": "3.0.3",
     "@types/passport-http-bearer": "1.0.37",
     "@types/ws": "8.5.4",
-    "typescript": "4.9.4"
+    "typescript": "4.6.4"
   },
   "files": [
     "bin/**/*",

@@ -12,14 +12,14 @@
 
 ---
 
-# gx-agent-compliance-client
+# gx-compliance-client
 
 A Veramo plugin to connect to gaia-x compliance servers. You can use this library to create Self-Descriptions, Service Offerings and send them to a gaia-x compliance server.
 
 ### Installation
 
 ```shell
-yarn add @sphereon/gx-agent-compliance-client
+yarn add @sphereon/gx-compliance-client
 ```
 
 ### Build
