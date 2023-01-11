@@ -17,30 +17,39 @@ participant
     }
     const agent = getAgent(program.opts().config)
     //FIXME it makes more sense to move this to plugin since we need to call additional agent methods to retrieve key/did info
-    const did = sd.credentialSubject.id
-    const didDoc = await agent.resolveDid({ didUrl: did })
-    const verificationMethodId = didDoc.verificationMethod[0].id
-    const keyRef = (await agent.didManagerGet({ did })).keys[0].kid
 
-    let selfDescription = undefined
+    // Beginning
+    const participantVChash = cmd['sd-id']
+    const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8')) || await agent.dataStoreGetVerifiableCredential({
+      hash: participantVChash
+    })
+    const did = sd.credentialSubject.id as string
+    const didResolutionResult = await agent.resolveDid({ didUrl: did })
+    if (!didResolutionResult.didDocument?.verificationMethod) {
+      throw new InvalidArgumentError("There is no verification method")
+    }
+    const verificationMethodId = didResolutionResult.didDocument.verificationMethod[0].id as string
+    const keyRef = (await agent.didManagerGet({ did })).keys[0].kid
+    // End
+
     if (!cmd['sd-file']) {
-      const participantVChash = cmd['sd-id']
-      selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
+      const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
         participantVChash,
-        purpose: selfDescription.proof.proofPurpose,
-        challenge: selfDescription.proof.challenge,
-        verificationMethodId
+        purpose: sd.proof.proofPurpose,
+        challenge: sd.proof.challenge,
+        verificationMethodId,
+        keyRef
       })
+      printTable([{ ...selfDescription }])
     } else {
-      const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
-      selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
+      const selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
         purpose: sd.proof.proofPurpose,
         verificationMethodId,
         keyRef,
         credential: sd
       })
+      printTable([{ ...selfDescription }])
     }
-    printTable([{ ...selfDescription }])
   })
 
 participant
