@@ -1,28 +1,16 @@
-import { GaiaxComplianceClient, GXPluginMethodMap, IGaiaxCredentialType } from '../src'
-import { BlsKeyManagementSystem } from '@sphereon/ssi-sdk-bls-kms-local/dist/BlsKeyManagementSystem'
-import * as u8a from 'uint8arrays'
-import {
-  CredentialHandlerLDLocal,
-  LdDefaultContexts,
-  MethodNames,
-  SphereonEd25519Signature2018,
-  SphereonEd25519Signature2020,
-} from '@sphereon/ssi-sdk-vc-handler-ld-local'
-import { CredentialPlugin } from '@veramo/credential-w3c'
-import { KeyManager } from '@veramo/key-manager'
+import { GXPluginMethodMap, IGaiaxCredentialType } from '../src'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { exampleV1, gxShape } from './schemas'
 import { participantDid } from './mocks'
-import { KeyManagementSystem, SecretBox } from '@veramo/kms-local'
-import { createAgent, TAgent } from '@veramo/core'
-import { DIDManager, MemoryDIDStore } from '@veramo/did-manager'
-import { WebDIDProvider } from '@veramo/did-provider-web'
+import { IIdentifier, TAgent } from '@veramo/core'
 // @ts-ignore
 import nock from 'nock'
-import { DataStore, DataStoreORM, Entities, KeyStore, PrivateKeyStore } from '@veramo/data-store'
 import { DataSource } from 'typeorm'
 // @ts-ignore
 import fs from 'fs'
+import { PEM_CERT, PEM_CHAIN, PEM_PRIV_KEY } from './certs'
+import { createDatabase, dropDatabase, setupAgent } from './commonTest'
+import { X509Opts } from '@sphereon/ssi-sdk-bls-kms-local/dist/x509/x509-utils'
 
 const customContext = new Map<string, ContextDoc>([
   [`https://www.w3.org/2018/credentials/examples/v1`, exampleV1],
@@ -33,14 +21,29 @@ const customContext = new Map<string, ContextDoc>([
 describe('@sphereon/gx-compliance-client', () => {
   let agent: TAgent<GXPluginMethodMap>
   let dbConnection: Promise<DataSource>
-  let kms: KeyManagementSystem
   const databaseFile = './tmp/test-db2.sqlite'
   const DB_ENCRYPTION_KEY = '12739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830a'
+  let identifier: IIdentifier
+
+  const x509: X509Opts = {
+    cn: 'f825-87-213-241-251.eu.ngrok.io',
+    certificatePEM: PEM_CERT,
+    certificateChainPEM: PEM_CHAIN,
+    privateKeyPEM: PEM_PRIV_KEY,
+    certificateChainURL: 'https://example.com/.wellknown/fullchain.pem',
+  }
 
   beforeEach(async () => {
-    await (await dbConnection).dropDatabase()
-    await (await dbConnection).synchronize()
+    await createDatabase(dbConnection)
+    identifier = await agent.createDIDFromX509({
+      domain: x509.cn!,
+      certificatePEM: x509.certificatePEM!,
+      certificateChainPEM: x509.certificateChainPEM!,
+      certificateChainURL: x509.certificateChainURL!,
+      privateKeyPEM: x509.privateKeyPEM!,
+    })
   })
+
   /*
      FIXME: @Sadjad Whut?
     ,
@@ -49,8 +52,7 @@ describe('@sphereon/gx-compliance-client', () => {
     `Ed25519Signature2018`,
     `Ed25519Signature2020`*/
   afterAll(async () => {
-    await (await dbConnection).close()
-    fs.unlinkSync(databaseFile)
+    await dropDatabase(dbConnection, databaseFile)
   })
 
   beforeAll(async () => {
@@ -61,56 +63,17 @@ describe('@sphereon/gx-compliance-client', () => {
         ...participantDid,
       })
 
-    dbConnection = new DataSource({
-      type: 'sqlite',
-      database: databaseFile,
-      entities: Entities,
-    }).initialize()
-    ;(kms = new BlsKeyManagementSystem(new PrivateKeyStore(dbConnection, new SecretBox(DB_ENCRYPTION_KEY)))),
-      (agent = createAgent<GXPluginMethodMap>({
-        plugins: [
-          new KeyManager({
-            store: new KeyStore(dbConnection),
-            kms: {
-              local: kms,
-            },
-          }),
-          new DIDManager({
-            providers: {
-              'did:web': new WebDIDProvider({ defaultKms: 'local' }),
-            },
-            store: new MemoryDIDStore(),
-            defaultProvider: 'did:web',
-          }),
-          new CredentialPlugin(),
-          new CredentialHandlerLDLocal({
-            contextMaps: [LdDefaultContexts, customContext],
-            suites: [new SphereonEd25519Signature2018(), new SphereonEd25519Signature2020()],
-            bindingOverrides: new Map([
-              // Bindings to test overrides of credential-ld plugin methods
-              ['createVerifiableCredentialLD', MethodNames.createVerifiableCredentialLDLocal],
-              ['createVerifiablePresentationLD', MethodNames.createVerifiablePresentationLDLocal],
-              // We test the verify methods by using the LDLocal versions directly in the tests
-            ]),
-          }),
-          new DataStore(dbConnection),
-          new DataStoreORM(dbConnection),
-          new GaiaxComplianceClient({
-            participantUrl: 'http://participant',
-            participantDid: 'did:web:participant',
-            complianceServiceVersion: 'v2206',
-            complianceServiceUrl: 'http://compliance',
-          }),
-        ],
-      }))
+    const agentSetup = await setupAgent({ dbFile: databaseFile, dbEncryptionKey: DB_ENCRYPTION_KEY, customContext })
+    dbConnection = agentSetup.dbConnection
+    agent = agentSetup.agent
   })
 
-  it.skip('should create a VC', async () => {
-    await agent.issueVerifiableCredential({
+  it('should create a VC', async () => {
+    const vc = await agent.issueVerifiableCredential({
       keyRef: 'test',
       purpose: 'assertionMethod',
       credential: {
-        issuer: 'did:web:participant',
+        issuer: `${identifier.did}`,
         id: '3d17bb21-40d8-4c82-8468-fa11dfa8617c',
         credentialSubject: {
           '@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.gaia-x.eu/v2206/api/shape'],
@@ -147,32 +110,8 @@ describe('@sphereon/gx-compliance-client', () => {
         type: [IGaiaxCredentialType.LegalPerson],
       },
 
-      verificationMethodId: 'did:web:participant#JWK2020-RSA',
+      verificationMethodId: `${identifier.controllerKeyId}`,
     })
-  })
-
-  it('should create rsa keys', async () => {
-    const key = await kms.createKey({ type: 'RSA' })
-    expect(key.type).toEqual('RSA')
-    expect(key.publicKeyHex.length).toBeGreaterThan(320)
-    expect(key.kid).toBeDefined()
-    expect(key.meta?.algorithms).toEqual(['RS256', 'RS512'])
-    expect(key.meta?.publicKeyPEM).toBeDefined()
-  })
-
-  it('should sign with created rsa keys (read from kms)', async () => {
-    const key = await kms.createKey({ type: 'RSA' })
-    expect(key.type).toEqual('RSA')
-    expect(key.publicKeyHex.length).toBeGreaterThan(320)
-    expect(key.kid).toBeDefined()
-    expect(key.meta?.algorithms).toEqual(['RS256', 'RS512'])
-    expect(key.meta?.publicKeyPEM).toBeDefined()
-
-    const data = u8a.fromString('test', 'utf-8')
-
-    const kid = key.kid
-    const signature = await kms.sign({ keyRef: { kid }, data, algorithm: 'RS256' })
-    console.log(`signature: ${signature}`)
-    expect(signature.length).toBeGreaterThan(10)
+    console.log(JSON.stringify(vc, null, 2))
   })
 })

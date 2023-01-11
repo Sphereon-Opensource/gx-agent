@@ -1,10 +1,11 @@
-import { IAgentPlugin, W3CVerifiableCredential } from '@veramo/core'
+import { IAgentPlugin, IIdentifier, W3CVerifiableCredential } from '@veramo/core'
 
 import {
   GXRequiredContext,
   IAcquireComplianceCredentialFromExistingParticipantArgs,
   IGaiaxComplianceClient,
   IGaiaxCredentialType,
+  IImportDIDArg,
   IIssueAndSaveVerifiablePresentationArgs,
   IOnboardParticipantArgs,
   schema,
@@ -28,6 +29,7 @@ import { VerifiableCredentialSP, VerifiablePresentationSP } from '@sphereon/ssi-
 
 import { v4 as uuidv4 } from 'uuid'
 import fetch from 'cross-fetch'
+import { DID } from './DID'
 
 /**
  * {@inheritDoc IGaiaxComplianceClient}
@@ -35,6 +37,7 @@ import fetch from 'cross-fetch'
 export class GaiaxComplianceClient implements IAgentPlugin {
   readonly schema = schema.IGaiaxComplianceClient
   readonly methods: IGaiaxComplianceClient = {
+    createDIDFromX509: this.createDIDFromX509.bind(this),
     issueVerifiableCredential: this.issueVerifiableCredential.bind(this),
     issueVerifiablePresentation: this.issueVerifiablePresentation.bind(this),
     acquireComplianceCredential: this.acquireComplianceCredential.bind(this),
@@ -47,12 +50,24 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   private readonly complianceServiceVersion: string
   private readonly participantDid: string
   private readonly participantUrl: string
+  private readonly defaultKMS?: string
 
   constructor(options: IGaiaxComplianceClientArgs) {
+    this.defaultKMS = options.defaultKms
     this.complianceServiceUrl = options.complianceServiceUrl
     this.complianceServiceVersion = options.complianceServiceVersion
     this.participantDid = options.participantDid
     this.participantUrl = options.participantUrl
+  }
+
+  private async createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier> {
+    return DID.createDIDFromX509(
+      {
+        ...args,
+        kms: args.kms ? args.kms : this.defaultKMS ? this.defaultKMS : 'local',
+      },
+      context
+    )
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiableCredential} */
@@ -88,6 +103,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       vpHash: selfDescribedVPHash,
     }
   }
+
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiablePresentation} */
   private async issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation> {
     return (await context.agent.createVerifiablePresentationLDLocal({
