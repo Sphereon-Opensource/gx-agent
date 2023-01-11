@@ -5,6 +5,7 @@ import {
   IDataStore,
   IDataStoreORM,
   IDIDManager,
+  IIdentifier,
   IKeyManager,
   IPluginMethodMap,
   IResolver,
@@ -14,9 +15,14 @@ import { ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } fr
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 
 export interface IGaiaxComplianceClient extends IPluginMethodMap {
+  createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier>
+
   issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
+
   issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation>
+
   acquireComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
+
   acquireComplianceCredentialFromUnsignedParticipant(
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
@@ -28,6 +34,7 @@ export interface IGaiaxComplianceClient extends IPluginMethodMap {
   onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+
   addServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
 }
 
@@ -48,6 +55,7 @@ export enum MethodNames {
 }
 
 export interface IGaiaxComplianceClientArgs {
+  defaultKms?: string
   complianceServiceUrl: string
   complianceServiceVersion: string
   participantDid: string
@@ -101,6 +109,7 @@ export interface IIssueVerifiablePresentationArgs {
 export interface IAcquireComplianceCredentialArgs {
   selfDescribedVP: IVerifiablePresentation
 }
+
 export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
   participantVChash: string
   keyRef: string
@@ -163,6 +172,17 @@ export interface VerifiablePresentationResponse {
 export interface VerifiableCredentialResponse {
   verifiableCredential: IVerifiableCredential
   hash: string
+}
+
+export interface IImportDIDArg {
+  domain: string
+  privateKeyPEM: string
+  certificatePEM: string
+  certificateChainPEM: string
+  certificateChainURL?: string
+  kms?: string // The Key Management System to use. Will default to 'local' when not supplied.
+
+  kid?: string // The requested KID. A default will be generated when not supplied
 }
 
 export type GXPluginMethodMap = IResolver &
