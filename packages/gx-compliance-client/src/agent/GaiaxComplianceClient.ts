@@ -7,7 +7,8 @@ import {
   IGaiaxCredentialType,
   IImportDIDArg,
   IIssueAndSaveVerifiablePresentationArgs,
-  IOnboardParticipantArgs,
+  IOnboardParticipantWithCredentialArgs,
+  IOnboardParticipantWithCredentialIdsArgs,
   schema,
   VerifiableCredentialResponse,
   VerifiablePresentationResponse,
@@ -43,6 +44,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     acquireComplianceCredential: this.acquireComplianceCredential.bind(this),
     acquireComplianceCredentialFromUnsignedParticipant: this.acquireComplianceCredentialFromUnsignedParticipant.bind(this),
     acquireComplianceCredentialFromExistingParticipant: this.acquireComplianceCredentialFromExistingParticipant.bind(this),
+    onboardParticipantWithCredentialIds: this.onboardParticipantWithCredentialIds.bind(this),
+    onboardParticipantWithCredential: this.onboardParticipantWithCredential.bind(this),
     addServiceOfferingUnsigned: this.addServiceOfferingUnsigned.bind(this),
     addServiceOffering: this.addServiceOffering.bind(this),
   }
@@ -138,7 +141,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   private async acquireComplianceCredentialFromUnsignedParticipant(
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
-  ): Promise<IVerifiableCredential> {
+  ): Promise<VerifiableCredentialResponse> {
     const selfDescribedVC: IVerifiableCredential = await this.issueVerifiableCredential(
       {
         credential: args.credential,
@@ -163,23 +166,13 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       },
       context
     )
-    const complianceResponse = await this.acquireComplianceCredentialFromVerifiablePresentation(
+    const verifiableCredentialResponse = (await this.acquireComplianceCredentialFromVerifiablePresentation(
       {
         verifiablePresentation: verifiablePresentationResponse.verifiablePresentation,
       },
       context
-    )
-    return await this.onboardParticipant(
-      {
-        keyRef: args.keyRef,
-        purpose: args.purpose,
-        complianceCredential: complianceResponse.verifiableCredential,
-        selfDescribedVC: selfDescribedVC,
-        challenge: args.challenge,
-        verificationMethodId: args.verificationMethodId,
-      },
-      context
-    )
+    )) as VerifiableCredentialResponse
+    return verifiableCredentialResponse
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.addServiceOfferingUnsigned} */
@@ -233,11 +226,11 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     }
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.addServiceOffering} */
+  /** {@inheritDoc IGaiaxComplianceClient.acquireComplianceCredentialFromExistingParticipant} */
   private async acquireComplianceCredentialFromExistingParticipant(
     args: IAcquireComplianceCredentialFromExistingParticipantArgs,
     context: GXRequiredContext
-  ): Promise<IVerifiableCredential> {
+  ): Promise<VerifiableCredentialResponse> {
     const selfDescribedVC = (await context.agent.dataStoreGetVerifiableCredential({
       hash: args.participantVChash,
     })) as IVerifiableCredential
@@ -251,20 +244,9 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       },
       context
     )
-    const complianceResponse = await this.acquireComplianceCredentialFromVerifiablePresentation(
+    return this.acquireComplianceCredentialFromVerifiablePresentation(
       {
         verifiablePresentation: verifiablePresentationResponse.verifiablePresentation,
-      },
-      context
-    )
-    return this.onboardParticipant(
-      {
-        complianceCredential: complianceResponse.verifiableCredential,
-        selfDescribedVC: selfDescribedVC,
-        keyRef: args.keyRef,
-        purpose: args.purpose,
-        challenge: args.challenge,
-        verificationMethodId: args.verificationMethodId,
       },
       context
     )
@@ -315,7 +297,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     }
   }
 
-  private async onboardParticipant(args: IOnboardParticipantArgs, context: GXRequiredContext) {
+  private async onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext) {
     const onboardingVP = await this.issueVerifiablePresentation(
       {
         keyRef: args.keyRef,
@@ -337,5 +319,25 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     } catch (e) {
       throw new Error('Error on onboarding a complianceCredential: ' + e)
     }
+  }
+
+  private async onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext) {
+    const complianceCredential = (await context.agent.dataStoreGetVerifiableCredential({
+      hash: args.complianceCredentialHash,
+    })) as IVerifiableCredential
+    const selfDescribedVC = (await context.agent.dataStoreGetVerifiableCredential({
+      hash: args.selfDescribedVcHash,
+    })) as IVerifiableCredential
+    return this.onboardParticipantWithCredential(
+      {
+        complianceCredential: complianceCredential,
+        selfDescribedVC: selfDescribedVC,
+        keyRef: args.keyRef,
+        purpose: args.purpose,
+        verificationMethodId: args.verificationMethodId,
+        challenge: args.challenge,
+      },
+      context
+    )
   }
 }

@@ -26,13 +26,13 @@ export interface IGaiaxComplianceClient extends IPluginMethodMap {
   acquireComplianceCredentialFromUnsignedParticipant(
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
-  ): Promise<IVerifiableCredential>
-
+  ): Promise<VerifiableCredentialResponse>
   acquireComplianceCredentialFromExistingParticipant(
     args: IAcquireComplianceCredentialFromExistingParticipantArgs,
     context: GXRequiredContext
-  ): Promise<IVerifiableCredential>
-
+  ): Promise<VerifiableCredentialResponse>
+  onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
+  onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
 
   addServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
@@ -45,8 +45,11 @@ export interface IGaiaxComplianceClient extends IPluginMethodMap {
 export enum MethodNames {
   issueVerifiableCredential = 'issueVerifiableCredential',
   issueVerifiablePresentation = 'issueVerifiablePresentation',
-  getComplianceCredential = 'getComplianceCredential',
-  getComplianceCredentialFromUnsignedParticipant = 'getComplianceCredentialFromUnsignedParticipant',
+  acquireComplianceCredential = 'acquireComplianceCredential',
+  acquireComplianceCredentialFromUnsignedParticipant = 'acquireComplianceCredentialFromUnsignedParticipant',
+  acquireComplianceCredentialFromExistingParticipant = 'acquireComplianceCredentialFromExistingParticipant',
+  onboardParticipantWithCredential = 'onboardParticipantWithCredential',
+  onboardParticipantWithCredentialIds = 'onboardParticipantWithCredentialIds',
   addServiceOfferingUnsigned = 'addServiceOfferingUnsigned',
   addServiceOffering = 'addServiceOffering',
 }
@@ -115,10 +118,19 @@ export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
   verificationMethodId: string
 }
 
-export interface IOnboardParticipantArgs {
+export interface IOnboardParticipantWithCredentialArgs {
   verificationMethodId: string
   selfDescribedVC: IVerifiableCredential
   complianceCredential: IVerifiableCredential
+  purpose: string
+  challenge?: string
+  keyRef: string
+}
+
+export interface IOnboardParticipantWithCredentialIdsArgs {
+  verificationMethodId: string
+  selfDescribedVcHash: string
+  complianceCredentialHash: string
   purpose: string
   challenge?: string
   keyRef: string

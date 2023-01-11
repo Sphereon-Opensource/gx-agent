@@ -1,4 +1,4 @@
-import { program } from 'commander'
+import {InvalidArgumentError, program} from 'commander'
 import { getAgent } from './setup'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
@@ -9,22 +9,27 @@ participant
   .command('compliance')
   .command('submit')
   .description('submits a self-description file to gx-compliance server')
-  // fixme: They cannot both be required. They are mutually exclusive. The id looksup an existing SD, whilst the file reads from FS for a new SD
-  .requiredOption('-sd-file <string>, --sd-file <string>', 'filesystem location of your sd-file')
-  .requiredOption('-sd-id <string>, --sd-id <string>', 'id of your sd')
+  .option('-sd-file <string>, --sd-file <string>', 'filesystem location of your sd-file')
+  .option('-sd-id <string>, --sd-id <string>', 'id of your sd')
   .action(async (cmd) => {
-    try {
-      const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
-      const id = cmd['sd-id']
-      console.log(id)
-      const agent = getAgent(program.opts().config)
-      const selfDescription = await agent.getComplianceCredentialFromUnsignedParticipant({
-        ...sd,
-      })
-      printTable([{ ...selfDescription }])
-    } catch (e: unknown) {
-      console.error(e)
+    if(!cmd['sd-file'] && !cmd['sd-id']) {
+      throw new InvalidArgumentError('sd-id or sd-file need to be provided')
     }
+    let sd
+    const agent = getAgent(program.opts().config)
+    if (!cmd['sd-file']) {
+      const hash = cmd['sd-id']
+      sd = await agent.dataStoreGetVerifiableCredential({
+        hash
+      })
+    } else {
+      sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
+    }
+
+    const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
+      ...sd,
+    })
+    printTable([{ ...selfDescription }])
   })
 
 participant
@@ -49,11 +54,14 @@ participant
   .command('self-description')
   .command('verify')
   .description('verifies a self-description file (by a external call to gx-compliance server)')
-  //fixme: This doesn't make sense. This should be sd-id, as this should be a SD which is already known to the agent. Not an input file
-  .option('-sd-file, --sd-file <string>', 'filesystem location of your sd-file')
+  .option('-sd-id <string>, --sd-id <string>', 'id of your sd')
   .action(async (cmd) => {
     try {
-      const sd = fs.readFileSync(cmd['sd-file'], 'utf-8')
+      const hash = cmd['sd-id']
+      const agent = getAgent(program.opts().config)
+      const sd = await agent.dataStoreGetVerifiableCredential({
+        hash
+      })
       const result = await (
         await fetch('http://v2206/api/participant/verify/raw', {
           method: 'POST',
@@ -79,13 +87,3 @@ participant
     console.error('Feature not implemented yet')
   })
 
-// fixme: This should move to ecosystem.ts
-participant
-  .command('ecosystem')
-  .command('submit')
-  .description('Onboards the participant to the new ecosystem')
-  .option('-sd-id, --sd-id <string>', 'id of your sd')
-  .option('-compliance-id, --compliance-id <string>', '')
-  .option('-ecosystem-url, --ecosystem-url <string>', 'URL of gx-compliance server')
-  .option('-e, --ecosystem <string>', 'alias of your ecosystem')
-  .action(async (cmd) => {})
