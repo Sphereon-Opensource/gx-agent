@@ -83,4 +83,15 @@ participant
   .option('-compliance-id, --compliance-id <string>', '')
   .option('-ecosystem-url, --ecosystem-url <string>', 'URL of gx-compliance server')
   .option('-e, --ecosystem <string>', 'alias of your ecosystem')
-  .action(async (cmd) => {})
+  .action(async (cmd) => {
+    try {
+      const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
+      const agent = getAgent(program.opts().config)
+      const selfDescription = await agent.onboardParticipant({
+
+      })
+      printTable([{...selfDescription}])
+    } catch(e:unknown) {
+      console.error(e)
+    }
+  })

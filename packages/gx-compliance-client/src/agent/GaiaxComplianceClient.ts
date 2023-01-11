@@ -214,7 +214,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     }
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.addServiceOffering} */
+  /** {@inheritDoc IGaiaxComplianceClient.acquireComplianceCredentialFromExistingParticipant} */
   private async acquireComplianceCredentialFromExistingParticipant(
     args: IAcquireComplianceCredentialFromExistingParticipantArgs,
     context: GXRequiredContext
