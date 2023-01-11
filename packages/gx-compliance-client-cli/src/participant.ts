@@ -15,20 +15,31 @@ participant
     if(!cmd['sd-file'] && !cmd['sd-id']) {
       throw new InvalidArgumentError('sd-id or sd-file need to be provided')
     }
-    let sd
     const agent = getAgent(program.opts().config)
+    //FIXME it makes more sense to move this to plugin since we need to call additional agent methods to retrieve key/did info
+    const did = sd.credentialSubject.id
+    const didDoc = await agent.resolveDid({ didUrl: did })
+    const verificationMethodId = didDoc.verificationMethod[0].id
+    const keyRef = (await agent.didManagerGet({ did })).keys[0].kid
+
+    let selfDescription = undefined
     if (!cmd['sd-file']) {
-      const hash = cmd['sd-id']
-      sd = await agent.dataStoreGetVerifiableCredential({
-        hash
+      const participantVChash = cmd['sd-id']
+      selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
+        participantVChash,
+        purpose: selfDescription.proof.proofPurpose,
+        challenge: selfDescription.proof.challenge,
+        verificationMethodId
       })
     } else {
-      sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
+      const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
+      selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
+        purpose: sd.proof.proofPurpose,
+        verificationMethodId,
+        keyRef,
+        credential: sd
+      })
     }
-
-    const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
-      ...sd,
-    })
     printTable([{ ...selfDescription }])
   })
 
