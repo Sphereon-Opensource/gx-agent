@@ -1,11 +1,8 @@
 import 'cross-fetch/polyfill'
 import yaml from 'yaml'
-import { ICredentialPlugin, IDataStore, IDataStoreORM, IDIDManager, IKeyManager, IMessageHandler, IResolver, TAgent } from '@veramo/core'
-import { ISelectiveDisclosure } from '@veramo/selective-disclosure'
-import { IDIDComm } from '@veramo/did-comm'
-import { IDIDDiscovery } from '@veramo/did-discovery'
+import { TAgent } from '@veramo/core'
 import { createAgentFromConfig } from '@veramo/cli/build/lib/agentCreator'
-import { IGaiaxComplianceClient } from '@sphereon/gx-compliance-client'
+import { GXPluginMethodMap } from '@sphereon/gx-agent-compliance-client'
 
 const fs = require('fs')
 
@@ -26,24 +23,11 @@ export const getConfig = (fileName: string): any => {
   return config
 }
 
-// TODO: This should be moved to a types file in the gx-compiance-client for re-use
-export type EnabledInterfaces = IDIDManager &
-  IKeyManager &
-  IDataStore &
-  IDataStoreORM &
-  IResolver &
-  IMessageHandler &
-  IDIDComm &
-  ICredentialPlugin &
-  ISelectiveDisclosure &
-  IDIDDiscovery &
-  IGaiaxComplianceClient
-
-export type ConfiguredAgent = TAgent<EnabledInterfaces>
+export type ConfiguredAgent = TAgent<GXPluginMethodMap>
 
 export function getAgent(fileName: string): ConfiguredAgent {
   try {
-    return createAgentFromConfig<EnabledInterfaces>(getConfig(fileName))
+    return createAgentFromConfig<GXPluginMethodMap>(getConfig(fileName))
   } catch (e: any) {
     console.log('Unable to create agent from ' + fileName + '.', e.message)
     process.exit(1)
