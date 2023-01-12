@@ -106,7 +106,7 @@ describe('@sphereon/gx-compliance-client DID support', () => {
       certificateChainPEM: x509.certificateChainPEM!,
       certificateChainURL: x509.certificateChainURL!,
       privateKeyPEM: x509.privateKeyPEM!,
-      kid: 'test'
+      kid: 'test',
     })
     expect(identifier.did).toEqual(`did:web:${x509.cn!}`)
     expect(identifier.controllerKeyId).toEqual('test')

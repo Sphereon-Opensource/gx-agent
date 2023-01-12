@@ -18,7 +18,7 @@ participant
     const agent = getAgent(program.opts().config)
     if (!cmd['sd-file']) {
       const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
-        participantSDHash: cmd['sd-id']
+        participantSDHash: cmd['sd-id'],
       })
       printTable([{ ...selfDescription }])
     } else {

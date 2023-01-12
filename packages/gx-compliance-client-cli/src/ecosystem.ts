@@ -1,4 +1,4 @@
-import {  program } from 'commander'
+import { program } from 'commander'
 import { getAgent } from './setup'
 import { GxEntityType } from './types'
 import { printTable } from 'console-table-printer'

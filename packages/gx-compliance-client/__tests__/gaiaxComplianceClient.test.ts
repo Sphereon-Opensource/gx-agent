@@ -50,7 +50,7 @@ describe('@sphereon/gx-compliance-client', () => {
       certificateChainPEM: x509.certificateChainPEM!,
       certificateChainURL: x509.certificateChainURL!,
       privateKeyPEM: x509.privateKeyPEM!,
-      kid: 'test'
+      kid: 'test',
     })
   })
 

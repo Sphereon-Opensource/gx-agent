@@ -116,7 +116,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         '@context': ['https://www.w3.org/2018/credentials/v1'],
         verifiableCredential: args.verifiableCredentials,
         //todo: ksadjad fix this
-        holder: ''//this.participantDid,
+        holder: '', //this.participantDid,
       },
       purpose: args.purpose,
       keyRef: args.keyRef,
@@ -358,7 +358,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       participantDid: did,
       participantDomain: GaiaxComplianceClient.convertDidWebToHost(did),
       verificationMethodId,
-      proofPurpose: 'assertionMethod'
+      proofPurpose: 'assertionMethod',
     }
   }
 
