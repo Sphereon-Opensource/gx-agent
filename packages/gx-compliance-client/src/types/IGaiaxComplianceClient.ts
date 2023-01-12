@@ -11,31 +11,21 @@ import {
   IResolver,
   W3CVerifiableCredential,
 } from '@veramo/core'
-import { ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
+import { ICredential, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 
 export interface IGaiaxComplianceClient extends IPluginMethodMap {
-  createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier>
-
-  issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
-
-  issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation>
-
   acquireComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
-
-  acquireComplianceCredentialFromUnsignedParticipant(
-    args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
-    context: GXRequiredContext
-  ): Promise<VerifiableCredentialResponse>
-  acquireComplianceCredentialFromExistingParticipant(
-    args: IAcquireComplianceCredentialFromExistingParticipantArgs,
-    context: GXRequiredContext
-  ): Promise<VerifiableCredentialResponse>
+  acquireComplianceCredentialFromExistingParticipant(args: IAcquireComplianceCredentialFromExistingParticipantArgs, context: GXRequiredContext): Promise<VerifiableCredentialResponse>
+  acquireComplianceCredentialFromUnsignedParticipant(args: IAcquireComplianceCredentialFromUnsignedParticipantArgs, context: GXRequiredContext): Promise<VerifiableCredentialResponse>
+  addServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+  addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+  createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier>
+  issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
+  issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation>
   onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
-  addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
-
-  addServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+  verifyUnsignedSelfDescribedCredential(args: IVerifyUnsignedSelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult>
 }
 
 /**
@@ -43,15 +33,17 @@ export interface IGaiaxComplianceClient extends IPluginMethodMap {
  * @public
  */
 export enum MethodNames {
-  issueVerifiableCredential = 'issueVerifiableCredential',
-  issueVerifiablePresentation = 'issueVerifiablePresentation',
   acquireComplianceCredential = 'acquireComplianceCredential',
   acquireComplianceCredentialFromUnsignedParticipant = 'acquireComplianceCredentialFromUnsignedParticipant',
   acquireComplianceCredentialFromExistingParticipant = 'acquireComplianceCredentialFromExistingParticipant',
-  onboardParticipantWithCredential = 'onboardParticipantWithCredential',
-  onboardParticipantWithCredentialIds = 'onboardParticipantWithCredentialIds',
   addServiceOfferingUnsigned = 'addServiceOfferingUnsigned',
   addServiceOffering = 'addServiceOffering',
+  createDIDFromX509 = 'createDIDFromX509',
+  issueVerifiableCredential = 'issueVerifiableCredential',
+  issueVerifiablePresentation = 'issueVerifiablePresentation',
+  onboardParticipantWithCredential = 'onboardParticipantWithCredential',
+  onboardParticipantWithCredentialIds = 'onboardParticipantWithCredentialIds',
+  verifyUnsignedSelfDescribedCredential = 'verifyUnsignedSelfDescribedCredential',
 }
 
 export interface IGaiaxComplianceClientArgs {
@@ -72,8 +64,6 @@ export interface IGaiaxOnboardingResult {
   content: IGaiaxConformityResult
 }
 
-export interface IIssueCredentialArgs {}
-
 export enum IGaiaxCredentialType {
   ServiceOffering = 'ServiceOffering',
   LegalPerson = 'LegalPerson',
@@ -86,14 +76,6 @@ export interface IIssueVerifiableCredentialArgs {
   purpose?: string
   verificationMethodId: string
   keyRef?: string
-}
-
-export interface IIssueVerifiableCredentialFromSubject {
-  customContext: string
-  keyRef?: string
-  purpose: string
-  subject: ICredentialSubject
-  type: IGaiaxCredentialType
 }
 
 export interface IIssueVerifiablePresentationArgs {
@@ -179,6 +161,39 @@ export interface ISignatureInfo {
   participantDomain: string
   proofPurpose: string
   verificationMethodId: string
+}
+
+export interface IVerifyUnsignedSelfDescribedCredential {
+  credential: ICredential
+}
+
+export interface CredentialValidationResult {
+  /**
+   * The data conforms with the given rules and shape and has a valid signature
+   */
+  conforms: boolean
+
+  /**
+   * The SHACL Shape validation results
+   */
+  shape: ValidationResult
+
+  /**
+   * Content validation results
+   */
+  content: ValidationResult
+}
+
+export interface ValidationResult {
+  /**
+   * The data conforms with the given rules or shape
+   */
+  conforms: boolean
+
+  /**
+   * Error messages
+   */
+  results: string[]
 }
 
 export type GXPluginMethodMap = IResolver &

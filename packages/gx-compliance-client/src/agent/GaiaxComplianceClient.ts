@@ -1,6 +1,7 @@
 import { IAgentPlugin, IIdentifier, W3CVerifiableCredential } from '@veramo/core'
 
 import {
+  CredentialValidationResult,
   GXRequiredContext,
   IAcquireComplianceCredentialFromExistingParticipantArgs,
   IGaiaxComplianceClient,
@@ -10,6 +11,7 @@ import {
   IOnboardParticipantWithCredentialArgs,
   IOnboardParticipantWithCredentialIdsArgs,
   ISignatureInfo,
+  IVerifyUnsignedSelfDescribedCredential,
   schema,
   VerifiableCredentialResponse,
   VerifiablePresentationResponse,
@@ -48,8 +50,9 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     createDIDFromX509: this.createDIDFromX509.bind(this),
     issueVerifiableCredential: this.issueVerifiableCredential.bind(this),
     issueVerifiablePresentation: this.issueVerifiablePresentation.bind(this),
-    onboardParticipantWithCredentialIds: this.onboardParticipantWithCredentialIds.bind(this),
     onboardParticipantWithCredential: this.onboardParticipantWithCredential.bind(this),
+    onboardParticipantWithCredentialIds: this.onboardParticipantWithCredentialIds.bind(this),
+    verifyUnsignedSelfDescribedCredential: this.verifyUnsignedSelfDescribedCredential.bind(this),
   }
   private readonly complianceServiceUrl: string
   private readonly complianceServiceVersion: string
@@ -221,7 +224,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         type: ['VerifiablePresentation'],
         '@context': ['https://www.w3.org/2018/credentials/v1'],
         verifiableCredential: args.verifiableCredentials,
-        //todo: ksadjad fix this
         holder: participantDid,
       },
       purpose: args.purpose,
@@ -229,6 +231,14 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
       domain: this.complianceServiceUrl,
     })) as IVerifiablePresentation
+  }
+
+  /** {@inheritDoc IGaiaxComplianceClient.verifyUnsignedSelfDescribedCredential} */
+  private async verifyUnsignedSelfDescribedCredential(
+    args: IVerifyUnsignedSelfDescribedCredential,
+    context: GXRequiredContext
+  ): Promise<CredentialValidationResult> {
+    throw new Error('not implemented')
   }
 
   /**
