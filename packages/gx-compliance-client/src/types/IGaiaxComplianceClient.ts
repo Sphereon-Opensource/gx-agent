@@ -11,13 +11,19 @@ import {
   IResolver,
   W3CVerifiableCredential,
 } from '@veramo/core'
-import { ICredential, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
+import { IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 
 export interface IGaiaxComplianceClient extends IPluginMethodMap {
   acquireComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
-  acquireComplianceCredentialFromExistingParticipant(args: IAcquireComplianceCredentialFromExistingParticipantArgs, context: GXRequiredContext): Promise<VerifiableCredentialResponse>
-  acquireComplianceCredentialFromUnsignedParticipant(args: IAcquireComplianceCredentialFromUnsignedParticipantArgs, context: GXRequiredContext): Promise<VerifiableCredentialResponse>
+  acquireComplianceCredentialFromExistingParticipant(
+    args: IAcquireComplianceCredentialFromExistingParticipantArgs,
+    context: GXRequiredContext
+  ): Promise<VerifiableCredentialResponse>
+  acquireComplianceCredentialFromUnsignedParticipant(
+    args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
+    context: GXRequiredContext
+  ): Promise<VerifiableCredentialResponse>
   addServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
   addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
   createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier>
@@ -25,7 +31,7 @@ export interface IGaiaxComplianceClient extends IPluginMethodMap {
   issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation>
   onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
   onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
-  verifyUnsignedSelfDescribedCredential(args: IVerifyUnsignedSelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult>
+  verifySelfDescribedCredential(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult>
 }
 
 /**
@@ -163,8 +169,9 @@ export interface ISignatureInfo {
   verificationMethodId: string
 }
 
-export interface IVerifyUnsignedSelfDescribedCredential {
-  credential: ICredential
+export interface IVerifySelfDescribedCredential {
+  verifiableCredential?: IVerifiableCredential
+  hash?: string
 }
 
 export interface CredentialValidationResult {

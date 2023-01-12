@@ -2,6 +2,7 @@ import { InvalidArgumentError, program } from 'commander'
 import { getAgent } from './setup'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
+import { IVerifySelfDescribedCredential } from '@sphereon/gx-compliance-client'
 
 const participant = program.command('participant').description('gx-participant participant')
 
@@ -48,29 +49,22 @@ participant
     }
   })
 
-//TODO ksadjad move this to agent
 participant
   .command('self-description')
   .command('verify')
-  .description('verifies a self-description file (by a external call to gx-compliance server)')
+  .description('verifies a self-description either by VC itself or by the vc id (hash) (experimental)')
   .option('-sd-id <string>, --sd-id <string>', 'id of your sd')
+  .option('-sd-file <string>, --sd-file <string>', 'your sd file')
   .action(async (cmd) => {
     try {
-      const hash = cmd['sd-id']
+      const args: IVerifySelfDescribedCredential = {}
+      if (cmd['sd-id']) {
+        args['hash'] = cmd['sd-id']
+      } else if (cmd['sd-file']) {
+        args['verifiableCredential'] = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
+      }
       const agent = getAgent(program.opts().config)
-      const sd = await agent.dataStoreGetVerifiableCredential({
-        hash,
-      })
-      const result = await (
-        await fetch('http://v2206/api/participant/verify/raw', {
-          method: 'POST',
-          body: JSON.stringify(sd),
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-        })
-      ).json()
+      const result = await agent.verifySelfDescribedCredential(args)
       printTable([{ ...result }])
     } catch (e: unknown) {
       console.error(e)

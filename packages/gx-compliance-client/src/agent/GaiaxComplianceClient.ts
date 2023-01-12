@@ -1,4 +1,4 @@
-import { IAgentPlugin, IIdentifier, W3CVerifiableCredential } from '@veramo/core'
+import { CredentialPayload, IAgentPlugin, IIdentifier, W3CVerifiableCredential } from '@veramo/core'
 
 import {
   CredentialValidationResult,
@@ -11,7 +11,7 @@ import {
   IOnboardParticipantWithCredentialArgs,
   IOnboardParticipantWithCredentialIdsArgs,
   ISignatureInfo,
-  IVerifyUnsignedSelfDescribedCredential,
+  IVerifySelfDescribedCredential,
   schema,
   VerifiableCredentialResponse,
   VerifiablePresentationResponse,
@@ -52,7 +52,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     issueVerifiablePresentation: this.issueVerifiablePresentation.bind(this),
     onboardParticipantWithCredential: this.onboardParticipantWithCredential.bind(this),
     onboardParticipantWithCredentialIds: this.onboardParticipantWithCredentialIds.bind(this),
-    verifyUnsignedSelfDescribedCredential: this.verifyUnsignedSelfDescribedCredential.bind(this),
+    verifySelfDescribedCredential: this.verifySelfDescribedCredential.bind(this),
   }
   private readonly complianceServiceUrl: string
   private readonly complianceServiceVersion: string
@@ -234,11 +234,54 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.verifyUnsignedSelfDescribedCredential} */
-  private async verifyUnsignedSelfDescribedCredential(
-    args: IVerifyUnsignedSelfDescribedCredential,
-    context: GXRequiredContext
-  ): Promise<CredentialValidationResult> {
-    throw new Error('not implemented')
+  private async verifySelfDescribedCredential(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult> {
+    //TODO: right now we're just signing and if there's no error, we're confirming the credential object, later we might want ot incorporate some validations from gx-compliance service itself or even make an api there (just for verification and not saving anything)
+    if (!args.verifiableCredential && !!args.hash) {
+      throw new Error('You should provide either vc hash or vc itself')
+    }
+    try {
+      let vc: IVerifiableCredential = args.verifiableCredential
+        ? (args.verifiableCredential as IVerifiableCredential)
+        : ((await context.agent.dataStoreGetVerifiableCredential({
+            hash: args.hash as string,
+          })) as IVerifiableCredential)
+      const signatureInfo: ISignatureInfo = await this.extractSignatureInfo(
+        (args.verifiableCredential!.credentialSubject as ICredentialSubject)['id'] as string,
+        context
+      )
+      await this.issueVerifiableCredential(
+        {
+          credential: vc as CredentialPayload,
+          verificationMethodId: signatureInfo.verificationMethodId,
+          purpose: signatureInfo.proofPurpose,
+          keyRef: signatureInfo.keyRef,
+        },
+        context
+      )
+      return {
+        conforms: true,
+        content: {
+          conforms: true,
+          results: [],
+        },
+        shape: {
+          results: [],
+          conforms: true,
+        },
+      }
+    } catch (e) {
+      return {
+        conforms: false,
+        content: {
+          conforms: false,
+          results: [],
+        },
+        shape: {
+          results: [],
+          conforms: false,
+        },
+      }
+    }
   }
 
   /**
