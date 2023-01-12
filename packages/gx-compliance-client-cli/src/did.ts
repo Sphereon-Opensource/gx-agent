@@ -2,7 +2,7 @@ import { getAgent } from './setup'
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import { privateKeyHexFromPEM } from '@sphereon/ssi-sdk-did-utils'
+import { IIdentifier } from '@veramo/core'
 
 const did = program.command('did').description('gx-participant Decentralized identifiers')
 
@@ -21,21 +21,15 @@ did
     const path = cmd['ca-chain-file'].split('/')
     const certificateChainURL = `https://${cn}/.wellknown/${path[path.length - 1]}`
     const agent = getAgent(program.opts().config)
-
-    // TODO: The code below till the printTable, should move to gx-compliance-cli for reuse in non CLI envs
     try {
-      const x509 = {
-        cn,
+      const identifier: IIdentifier = await agent.createDIDFromX509({
+        domain: cmd.domain,
+        privateKeyPEM,
         certificatePEM,
         certificateChainPEM,
-        privateKeyPEM,
         certificateChainURL,
-      }
-      const privateKeyHex = privateKeyHexFromPEM(privateKeyPEM)
-      const meta = { x509 }
-
-      await agent.keyManagerImport({ kid: cn, privateKeyHex, type: 'RSA', meta, kms: 'local' })
-      const identifier = await agent.didManagerCreate({ provider: 'did:web', alias: `did:web:${cn}` })
+        kms: 'local',
+      })
       printTable([{ provider: identifier.provider, alias: identifier.alias, did: identifier.did }])
     } catch (e: any) {
       console.error(e.message)

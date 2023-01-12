@@ -172,7 +172,6 @@ export interface IImportDIDArg {
   certificateChainPEM: string
   certificateChainURL?: string
   kms?: string // The Key Management System to use. Will default to 'local' when not supplied.
-
   kid?: string // The requested KID. A default will be generated when not supplied
 }
 
