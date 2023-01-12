@@ -107,7 +107,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiablePresentation} */
   private async issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation> {
-    //args.verifiableCredentials.filter(vc=>(vc.type as string[]).indexOf(') === args)
+    const participantDid = GaiaxComplianceClient.extractParticipantDidFromVCs(args.verifiableCredentials)
     return (await context.agent.createVerifiablePresentationLDLocal({
       presentation: {
         id: uuidv4(),
@@ -116,7 +116,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         '@context': ['https://www.w3.org/2018/credentials/v1'],
         verifiableCredential: args.verifiableCredentials,
         //todo: ksadjad fix this
-        holder: '', //this.participantDid,
+        holder: participantDid,
       },
       purpose: args.purpose,
       keyRef: args.keyRef,
@@ -367,5 +367,23 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     did = did.replace(/:/g, '/')
     did = did.replace(/%/g, ':')
     return did
+  }
+
+  private static extractParticipantDidFromVCs(verifiableCredentials: W3CVerifiableCredential[]) {
+    const credentialSubject = (verifiableCredentials[0] as IVerifiableCredential).credentialSubject
+    let participantDid = ''
+    if (Array.isArray(credentialSubject)) {
+      const singleCredentialSubject = (credentialSubject as ICredentialSubject[]).filter((s) => !!s.id).pop()
+      if (!credentialSubject) {
+        throw new Error('No participant did provided')
+      }
+      participantDid = (singleCredentialSubject as ICredentialSubject)['id'] as string
+    } else {
+      participantDid = (credentialSubject as ICredentialSubject)['id'] as string
+    }
+    if (participantDid === '') {
+      throw new Error("Participant did can't be extracted from received VerifiableCredentials")
+    }
+    return participantDid
   }
 }
