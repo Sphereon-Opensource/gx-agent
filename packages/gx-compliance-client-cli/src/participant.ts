@@ -16,38 +16,14 @@ participant
       throw new InvalidArgumentError('sd-id or sd-file need to be provided')
     }
     const agent = getAgent(program.opts().config)
-    //FIXME it makes more sense to move this to plugin since we need to call additional agent methods to retrieve key/did info
-
-    // Beginning
-    const participantVChash = cmd['sd-id']
-    const sd =
-      JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8')) ||
-      (await agent.dataStoreGetVerifiableCredential({
-        hash: participantVChash,
-      }))
-    const did = sd.credentialSubject.id as string
-    const didResolutionResult = await agent.resolveDid({ didUrl: did })
-    if (!didResolutionResult.didDocument?.verificationMethod) {
-      throw new InvalidArgumentError('There is no verification method')
-    }
-    const verificationMethodId = didResolutionResult.didDocument.verificationMethod[0].id as string
-    const keyRef = (await agent.didManagerGet({ did })).keys[0].kid
-    // End
-
     if (!cmd['sd-file']) {
       const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
-        participantVChash,
-        purpose: sd.proof.proofPurpose,
-        challenge: sd.proof.challenge,
-        verificationMethodId,
-        keyRef,
+        participantSDHash: cmd['sd-id']
       })
       printTable([{ ...selfDescription }])
     } else {
+      const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
       const selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
-        purpose: sd.proof.proofPurpose,
-        verificationMethodId,
-        keyRef,
         credential: sd,
       })
       printTable([{ ...selfDescription }])
@@ -72,6 +48,7 @@ participant
     }
   })
 
+//TODO ksadjad move this to agent
 participant
   .command('self-description')
   .command('verify')

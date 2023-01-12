@@ -9,6 +9,7 @@ import {
   IIssueAndSaveVerifiablePresentationArgs,
   IOnboardParticipantWithCredentialArgs,
   IOnboardParticipantWithCredentialIdsArgs,
+  ISignatureInfo,
   schema,
   VerifiableCredentialResponse,
   VerifiablePresentationResponse,
@@ -24,13 +25,14 @@ import {
   IIssueVerifiableCredentialArgs,
   IIssueVerifiablePresentationArgs,
 } from '../types'
-import { AdditionalClaims, ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
+import { ICredentialSubject, IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
 
 import { VerifiableCredentialSP, VerifiablePresentationSP } from '@sphereon/ssi-sdk-core'
 
 import { v4 as uuidv4 } from 'uuid'
 import fetch from 'cross-fetch'
 import { DID } from './DID'
+import { InvalidArgumentError } from 'commander'
 
 /**
  * {@inheritDoc IGaiaxComplianceClient}
@@ -51,16 +53,12 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   }
   private readonly complianceServiceUrl: string
   private readonly complianceServiceVersion: string
-  private readonly participantDid: string
-  private readonly participantUrl: string
   private readonly defaultKMS?: string
 
   constructor(options: IGaiaxComplianceClientArgs) {
     this.defaultKMS = options.defaultKms
     this.complianceServiceUrl = options.complianceServiceUrl
-    this.complianceServiceVersion = options.complianceServiceVersion
-    this.participantDid = options.participantDid
-    this.participantUrl = options.participantUrl
+    this.complianceServiceVersion = options.complianceServiceVersion // can be default v2206
   }
 
   private async createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier> {
@@ -109,6 +107,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiablePresentation} */
   private async issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation> {
+    //args.verifiableCredentials.filter(vc=>(vc.type as string[]).indexOf(') === args)
     return (await context.agent.createVerifiablePresentationLDLocal({
       presentation: {
         id: uuidv4(),
@@ -116,7 +115,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         type: ['VerifiablePresentation'],
         '@context': ['https://www.w3.org/2018/credentials/v1'],
         verifiableCredential: args.verifiableCredentials,
-        holder: this.participantDid,
+        //todo: ksadjad fix this
+        holder: ''//this.participantDid,
       },
       purpose: args.purpose,
       keyRef: args.keyRef,
@@ -142,12 +142,13 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
+    const signatureInfo: ISignatureInfo = await this.resolveSignatureInfo(args.credential!.credentialSubject!.id as string, context)
     const selfDescribedVC: IVerifiableCredential = await this.issueVerifiableCredential(
       {
         credential: args.credential,
-        verificationMethodId: args.verificationMethodId,
-        purpose: args.purpose,
-        keyRef: args.keyRef,
+        verificationMethodId: signatureInfo.verificationMethodId,
+        purpose: signatureInfo.proofPurpose,
+        keyRef: signatureInfo.keyRef,
       },
       context
     )
@@ -158,11 +159,11 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     console.log(selfDescribedVCHash)
     const verifiablePresentationResponse: VerifiablePresentationResponse = await this.issueAndSaveVerifiablePresentation(
       {
-        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
-        keyRef: args.keyRef,
-        purpose: args.purpose,
+        challenge: GaiaxComplianceClient.staticDateChallenge(),
+        keyRef: signatureInfo.keyRef,
+        purpose: signatureInfo.proofPurpose,
         verifiableCredentials: [selfDescribedVC as IVerifiableCredential],
-        verificationMethodId: args.verificationMethodId,
+        verificationMethodId: signatureInfo.verificationMethodId,
       },
       context
     )
@@ -186,13 +187,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
           hash: args.complianceCredentialHash,
         })) as W3CVerifiableCredential)
       : (args.complianceCredential! as W3CVerifiableCredential)
-    if (
-      !(
-        (complianceCredential as IVerifiableCredential).credentialSubject as (ICredentialSubject & AdditionalClaims)['providedBy'] as string
-      ).startsWith(this.participantUrl)
-    ) {
-      throw new Error(`ServiceOffering providedBy should start with ${this.participantUrl}`)
-    }
     const serviceOfferingVC: W3CVerifiableCredential = (await this.issueVerifiableCredential(
       {
         purpose: args.purpose,
@@ -238,15 +232,17 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
     const selfDescribedVC = (await context.agent.dataStoreGetVerifiableCredential({
-      hash: args.participantVChash,
+      hash: args.participantSDHash,
     })) as IVerifiableCredential
+    const did = (selfDescribedVC.credentialSubject as ICredentialSubject)['id'] as string
+    const signatureInfo: ISignatureInfo = await this.resolveSignatureInfo(did, context)
     const verifiablePresentationResponse: VerifiablePresentationResponse = await this.issueAndSaveVerifiablePresentation(
       {
-        keyRef: args.keyRef,
-        purpose: args.purpose,
+        keyRef: signatureInfo.keyRef,
+        purpose: signatureInfo.proofPurpose,
         verifiableCredentials: [selfDescribedVC],
-        challenge: args.challenge,
-        verificationMethodId: args.verificationMethodId,
+        challenge: GaiaxComplianceClient.staticDateChallenge(),
+        verificationMethodId: signatureInfo.verificationMethodId,
       },
       context
     )
@@ -331,19 +327,45 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     const complianceCredential = (await context.agent.dataStoreGetVerifiableCredential({
       hash: args.complianceCredentialHash,
     })) as IVerifiableCredential
-    const selfDescribedVC = (await context.agent.dataStoreGetVerifiableCredential({
+    const selfDescribedVC: IVerifiableCredential = (await context.agent.dataStoreGetVerifiableCredential({
       hash: args.selfDescribedVcHash,
     })) as IVerifiableCredential
+    const did = (selfDescribedVC.credentialSubject as ICredentialSubject)['id'] as string
+    const signatureInfo: ISignatureInfo = await this.resolveSignatureInfo(did, context)
     return this.onboardParticipantWithCredential(
       {
         complianceCredential: complianceCredential,
         selfDescribedVC: selfDescribedVC,
-        keyRef: args.keyRef,
-        purpose: args.purpose,
-        verificationMethodId: args.verificationMethodId,
-        challenge: args.challenge,
+        keyRef: signatureInfo.keyRef,
+        purpose: signatureInfo.proofPurpose,
+        verificationMethodId: signatureInfo.verificationMethodId,
+        challenge: GaiaxComplianceClient.staticDateChallenge(),
       },
       context
     )
+  }
+
+  private async resolveSignatureInfo(did: string, context: GXRequiredContext): Promise<ISignatureInfo> {
+    const didResolutionResult = await context.agent.resolveDid({ didUrl: did })
+    if (!didResolutionResult.didDocument?.verificationMethod) {
+      throw new InvalidArgumentError('There is no verification method')
+    }
+    const verificationMethodId = didResolutionResult.didDocument.verificationMethod[0].id as string
+    const keyRef = (await context.agent.didManagerGet({ did })).keys[0].kid
+
+    return {
+      keyRef,
+      participantDid: did,
+      participantDomain: GaiaxComplianceClient.convertDidWebToHost(did),
+      verificationMethodId,
+      proofPurpose: 'assertionMethod'
+    }
+  }
+
+  private static convertDidWebToHost(did: string) {
+    did = did.substring(8)
+    did = did.replace(/:/g, '/')
+    did = did.replace(/%/g, ':')
+    return did
   }
 }

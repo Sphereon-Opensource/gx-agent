@@ -111,11 +111,7 @@ export interface IAcquireComplianceCredentialArgs {
 }
 
 export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
-  participantVChash: string
-  keyRef: string
-  purpose: string
-  challenge: string
-  verificationMethodId: string
+  participantSDHash: string
 }
 
 export interface IOnboardParticipantWithCredentialArgs {
@@ -128,19 +124,11 @@ export interface IOnboardParticipantWithCredentialArgs {
 }
 
 export interface IOnboardParticipantWithCredentialIdsArgs {
-  verificationMethodId: string
   selfDescribedVcHash: string
   complianceCredentialHash: string
-  purpose: string
-  challenge?: string
-  keyRef: string
 }
 
 export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
-  challenge?: string
-  purpose: string
-  verificationMethodId: string
-  keyRef: string
   credential: CredentialPayload
 }
 
@@ -186,6 +174,14 @@ export interface IImportDIDArg {
   kms?: string // The Key Management System to use. Will default to 'local' when not supplied.
 
   kid?: string // The requested KID. A default will be generated when not supplied
+}
+
+export interface ISignatureInfo {
+  keyRef: string
+  participantDid: string
+  participantDomain: string
+  proofPurpose: string
+  verificationMethodId: string
 }
 
 export type GXPluginMethodMap = IResolver &
