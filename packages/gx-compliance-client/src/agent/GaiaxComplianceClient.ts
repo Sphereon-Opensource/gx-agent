@@ -88,7 +88,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   ): Promise<VerifiablePresentationResponse> {
     const vp: IVerifiablePresentation = await this.issueVerifiablePresentation(
       {
-        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
+        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
         keyRef: args.keyRef,
         purpose: args.purpose,
         verifiableCredentials: args.verifiableCredentials as W3CVerifiableCredential[],
@@ -120,7 +120,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       },
       purpose: args.purpose,
       keyRef: args.keyRef,
-      challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
+      challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
       domain: this.complianceServiceUrl,
     })) as IVerifiablePresentation
   }
@@ -142,7 +142,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
-    const signatureInfo: ISignatureInfo = await this.resolveSignatureInfo(args.credential!.credentialSubject!.id as string, context)
+    const signatureInfo: ISignatureInfo = await this.extractSignatureInfo(args.credential!.credentialSubject!.id as string, context)
     const selfDescribedVC: IVerifiableCredential = await this.issueVerifiableCredential(
       {
         credential: args.credential,
@@ -159,7 +159,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     console.log(selfDescribedVCHash)
     const verifiablePresentationResponse: VerifiablePresentationResponse = await this.issueAndSaveVerifiablePresentation(
       {
-        challenge: GaiaxComplianceClient.staticDateChallenge(),
+        challenge: GaiaxComplianceClient.getDateChallenge(),
         keyRef: signatureInfo.keyRef,
         purpose: signatureInfo.proofPurpose,
         verifiableCredentials: [selfDescribedVC as IVerifiableCredential],
@@ -198,7 +198,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     )) as W3CVerifiableCredential
     const serviceOfferingVP = await this.issueVerifiablePresentation(
       {
-        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
+        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
         keyRef: args.keyRef,
         purpose: args.purpose,
         verifiableCredentials: [complianceCredential, serviceOfferingVC],
@@ -235,13 +235,13 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       hash: args.participantSDHash,
     })) as IVerifiableCredential
     const did = (selfDescribedVC.credentialSubject as ICredentialSubject)['id'] as string
-    const signatureInfo: ISignatureInfo = await this.resolveSignatureInfo(did, context)
+    const signatureInfo: ISignatureInfo = await this.extractSignatureInfo(did, context)
     const verifiablePresentationResponse: VerifiablePresentationResponse = await this.issueAndSaveVerifiablePresentation(
       {
         keyRef: signatureInfo.keyRef,
         purpose: signatureInfo.proofPurpose,
         verifiableCredentials: [selfDescribedVC],
-        challenge: GaiaxComplianceClient.staticDateChallenge(),
+        challenge: GaiaxComplianceClient.getDateChallenge(),
         verificationMethodId: signatureInfo.verificationMethodId,
       },
       context
@@ -252,32 +252,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       },
       context
     )
-  }
-
-  private static staticDateChallenge(): string {
-    return new Date().toISOString().substring(0, 10)
-  }
-
-  private static async postRequest(url: string, body: BodyInit): Promise<unknown> {
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body,
-      })
-      if (!response || !response.status || response.status < 200 || response.status >= 400) {
-        throw new Error(`Can't get the response from ${url}`)
-      }
-      return await response.json()
-    } catch (error) {
-      throw new Error(`${(error as Error).message}`)
-    }
-  }
-
-  private getApiVersionedUrl() {
-    return `${this.complianceServiceUrl}${this.complianceServiceVersion ? '/v' + this.complianceServiceVersion : ''}/api`
   }
 
   private async acquireComplianceCredentialFromVerifiablePresentation(
@@ -299,13 +273,17 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     }
   }
 
+  /**
+   * Below are the helper functions for this agent. These are for inner functionality of the agent
+   */
+
   private async onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext) {
     const onboardingVP = await this.issueVerifiablePresentation(
       {
         keyRef: args.keyRef,
         purpose: args.purpose,
         verifiableCredentials: [args.complianceCredential as W3CVerifiableCredential, args.selfDescribedVC as W3CVerifiableCredential],
-        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.staticDateChallenge(),
+        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
         verificationMethodId: args.verificationMethodId,
       },
       context
@@ -329,7 +307,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       hash: args.selfDescribedVcHash,
     })) as IVerifiableCredential
     const did = (selfDescribedVC.credentialSubject as ICredentialSubject)['id'] as string
-    const signatureInfo: ISignatureInfo = await this.resolveSignatureInfo(did, context)
+    const signatureInfo: ISignatureInfo = await this.extractSignatureInfo(did, context)
     return this.onboardParticipantWithCredential(
       {
         complianceCredential: complianceCredential,
@@ -337,27 +315,10 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         keyRef: signatureInfo.keyRef,
         purpose: signatureInfo.proofPurpose,
         verificationMethodId: signatureInfo.verificationMethodId,
-        challenge: GaiaxComplianceClient.staticDateChallenge(),
+        challenge: GaiaxComplianceClient.getDateChallenge(),
       },
       context
     )
-  }
-
-  private async resolveSignatureInfo(did: string, context: GXRequiredContext): Promise<ISignatureInfo> {
-    const didResolutionResult = await context.agent.resolveDid({ didUrl: did })
-    if (!didResolutionResult.didDocument?.verificationMethod) {
-      throw new InvalidArgumentError('There is no verification method')
-    }
-    const verificationMethodId = didResolutionResult.didDocument.verificationMethod[0].id as string
-    const keyRef = (await context.agent.didManagerGet({ did })).keys[0].kid
-
-    return {
-      keyRef,
-      participantDid: did,
-      participantDomain: GaiaxComplianceClient.convertDidWebToHost(did),
-      verificationMethodId,
-      proofPurpose: 'assertionMethod',
-    }
   }
 
   private static convertDidWebToHost(did: string) {
@@ -365,6 +326,11 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     did = did.replace(/:/g, '/')
     did = did.replace(/%/g, ':')
     return did
+  }
+
+  private static extractApiTypeFromVC(vc: IVerifiableCredential): string {
+    const credentialType = vc['type'].find((el) => el !== 'VerifiableCredential')
+    return credentialType === IGaiaxCredentialType.LegalPerson || IGaiaxCredentialType.NaturalPerson ? 'participant' : 'service-offering'
   }
 
   private static extractParticipantDidFromVCs(verifiableCredentials: W3CVerifiableCredential[]) {
@@ -385,8 +351,46 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     return participantDid
   }
 
-  private static extractApiTypeFromVC(vc: IVerifiableCredential): string {
-    const credentialType = vc['type'].find((el) => el !== 'VerifiableCredential')
-    return credentialType === IGaiaxCredentialType.LegalPerson || IGaiaxCredentialType.NaturalPerson ? 'participant' : 'service-offering'
+  private async extractSignatureInfo(did: string, context: GXRequiredContext): Promise<ISignatureInfo> {
+    const didResolutionResult = await context.agent.resolveDid({ didUrl: did })
+    if (!didResolutionResult.didDocument?.verificationMethod) {
+      throw new InvalidArgumentError('There is no verification method')
+    }
+    const verificationMethodId = didResolutionResult.didDocument.verificationMethod[0].id as string
+    const keyRef = (await context.agent.didManagerGet({ did })).keys[0].kid
+
+    return {
+      keyRef,
+      participantDid: did,
+      participantDomain: GaiaxComplianceClient.convertDidWebToHost(did),
+      verificationMethodId,
+      proofPurpose: 'assertionMethod',
+    }
+  }
+
+  private getApiVersionedUrl() {
+    return `${this.complianceServiceUrl}${this.complianceServiceVersion ? '/v' + this.complianceServiceVersion : ''}/api`
+  }
+
+  private static getDateChallenge(): string {
+    return new Date().toISOString().substring(0, 10)
+  }
+
+  private static async postRequest(url: string, body: BodyInit): Promise<unknown> {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body,
+      })
+      if (!response || !response.status || response.status < 200 || response.status >= 400) {
+        throw new Error(`Can't get the response from ${url}`)
+      }
+      return await response.json()
+    } catch (error) {
+      throw new Error(`${(error as Error).message}`)
+    }
   }
 }
