@@ -9,10 +9,10 @@ const did = program.command('did').description('gx-participant Decentralized ide
 did
   .command('create')
   .description('creates a did:web from X509 Certificates provided using files')
-  .requiredOption('-pkf, --private-key-file <string>', 'Private Key file')
-  .requiredOption('-cf, --cert-file <string>', 'Certificate file')
-  .requiredOption('-cacf, --ca-chain-file <string>', 'the Certificate Chain file')
-  .requiredOption('-d, --domain <string>', 'the domain of certificate (CN), which will be used in the DID')
+  .requiredOption('-private-key-file, --private-key-file <string>', 'Private Key file')
+  .requiredOption('-cert-file, --cert-file <string>', 'Certificate file')
+  .requiredOption('-ca-chain-file, --ca-chain-file <string>', 'the Certificate Chain file')
+  .requiredOption('-domain, --domain <string>', 'the domain of certificate (CN), which will be used in the DID')
   .action(async (cmd) => {
     const privateKeyPEM = fs.readFileSync(cmd['private-key-file'], 'utf-8')
     const certificatePEM = fs.readFileSync(cmd['cert-file'], 'utf-8')
