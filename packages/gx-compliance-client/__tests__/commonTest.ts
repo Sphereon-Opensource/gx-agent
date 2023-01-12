@@ -69,8 +69,6 @@ export async function setupAgent(opts: {
       new DataStoreORM(dbConnection),
       new GaiaxComplianceClient({
         defaultKms: 'local',
-        participantUrl: 'http://participant',
-        participantDid: 'did:web:participant',
         complianceServiceVersion: 'v2206',
         complianceServiceUrl: 'http://compliance',
       }),

@@ -58,8 +58,6 @@ export interface IGaiaxComplianceClientArgs {
   defaultKms?: string
   complianceServiceUrl: string
   complianceServiceVersion: string
-  participantDid: string
-  participantUrl: string
 }
 
 export interface IGaiaxConformityResult {
