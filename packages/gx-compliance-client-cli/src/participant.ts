@@ -1,4 +1,4 @@
-import {InvalidArgumentError, program} from 'commander'
+import { InvalidArgumentError, program } from 'commander'
 import { getAgent } from './setup'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
@@ -12,7 +12,7 @@ participant
   .option('-sd-file <string>, --sd-file <string>', 'filesystem location of your sd-file')
   .option('-sd-id <string>, --sd-id <string>', 'id of your sd')
   .action(async (cmd) => {
-    if(!cmd['sd-file'] && !cmd['sd-id']) {
+    if (!cmd['sd-file'] && !cmd['sd-id']) {
       throw new InvalidArgumentError('sd-id or sd-file need to be provided')
     }
     const agent = getAgent(program.opts().config)
@@ -20,13 +20,15 @@ participant
 
     // Beginning
     const participantVChash = cmd['sd-id']
-    const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8')) || await agent.dataStoreGetVerifiableCredential({
-      hash: participantVChash
-    })
+    const sd =
+      JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8')) ||
+      (await agent.dataStoreGetVerifiableCredential({
+        hash: participantVChash,
+      }))
     const did = sd.credentialSubject.id as string
     const didResolutionResult = await agent.resolveDid({ didUrl: did })
     if (!didResolutionResult.didDocument?.verificationMethod) {
-      throw new InvalidArgumentError("There is no verification method")
+      throw new InvalidArgumentError('There is no verification method')
     }
     const verificationMethodId = didResolutionResult.didDocument.verificationMethod[0].id as string
     const keyRef = (await agent.didManagerGet({ did })).keys[0].kid
@@ -38,7 +40,7 @@ participant
         purpose: sd.proof.proofPurpose,
         challenge: sd.proof.challenge,
         verificationMethodId,
-        keyRef
+        keyRef,
       })
       printTable([{ ...selfDescription }])
     } else {
@@ -46,7 +48,7 @@ participant
         purpose: sd.proof.proofPurpose,
         verificationMethodId,
         keyRef,
-        credential: sd
+        credential: sd,
       })
       printTable([{ ...selfDescription }])
     }
@@ -80,7 +82,7 @@ participant
       const hash = cmd['sd-id']
       const agent = getAgent(program.opts().config)
       const sd = await agent.dataStoreGetVerifiableCredential({
-        hash
+        hash,
       })
       const result = await (
         await fetch('http://v2206/api/participant/verify/raw', {
@@ -106,4 +108,3 @@ participant
   .action(async (cmd) => {
     console.error('Feature not implemented yet')
   })
-

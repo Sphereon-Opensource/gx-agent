@@ -2,7 +2,7 @@ import 'cross-fetch/polyfill'
 import yaml from 'yaml'
 import { TAgent } from '@veramo/core'
 import { createAgentFromConfig } from '@veramo/cli/build/lib/agentCreator'
-import { GXPluginMethodMap } from '@sphereon/gx-agent-compliance-client'
+import { GXPluginMethodMap } from '@sphereon/gx-compliance-client'
 
 const fs = require('fs')
 

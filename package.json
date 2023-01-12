@@ -43,8 +43,9 @@
     ]
   },
   "resolutions": {
-    "@sphereon/ssi-sdk-core": "0.8.1-next.120",
-    "@sphereon/ssi-types": "0.8.1-next.120",
+    "@sphereon/ssi-sdk-core": "0.8.1-next.123",
+    "@sphereon/ssi-types": "0.8.1-next.123",
+    "@sphereon/ssi-sdk-did-utils": "0.8.1-next.123",
     "@veramo/core": "4.2.0",
     "@veramo/credential-w3c": "4.2.0",
     "@veramo/data-store": "4.2.0",

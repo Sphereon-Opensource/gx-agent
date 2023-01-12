@@ -2,7 +2,7 @@ import { getAgent } from './setup'
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import { privateKeyHexFromPEM } from '@sphereon/ssi-sdk-bls-kms-local'
+import { privateKeyHexFromPEM } from '@sphereon/ssi-sdk-did-utils'
 
 const did = program.command('did').description('gx-participant Decentralized identifiers')
 

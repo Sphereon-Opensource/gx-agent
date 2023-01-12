@@ -1,6 +1,6 @@
-import { privateKeyHexFromPEM } from '@sphereon/ssi-sdk-bls-kms-local'
 import { IIdentifier } from '@veramo/core'
 import { GXRequiredContext, IImportDIDArg } from '../types'
+import { privateKeyHexFromPEM, publicKeyHexFromPEM } from '@sphereon/ssi-sdk-did-utils'
 
 export class DID {
   public static async createDIDFromX509(
@@ -16,7 +16,7 @@ export class DID {
     }
     const privateKeyHex = privateKeyHexFromPEM(privateKeyPEM)
     const meta = { x509 }
-    const kidResult = kid ? kid : `${domain}#JWK2020-RSA`
+    const kidResult = kid ? kid : publicKeyHexFromPEM(privateKeyPEM)
     const controllerKeyId = kidResult //kid ? (kidResult.includes(domain) ? kidResult : `${domain}#${kid}`) : `${domain}#JWK2020-RSA`
     return await context.agent.didManagerImport({
       did: `did:web:${domain}`,

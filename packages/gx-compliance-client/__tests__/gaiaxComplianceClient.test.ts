@@ -1,7 +1,7 @@
 import { GXPluginMethodMap, IGaiaxCredentialType } from '../src'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { exampleV1, gxShape } from './schemas'
-import { participantDid } from './mocks'
+import { mockedDID } from './mocks'
 import { IIdentifier, TAgent } from '@veramo/core'
 // @ts-ignore
 import nock from 'nock'
@@ -10,7 +10,7 @@ import { DataSource } from 'typeorm'
 import fs from 'fs'
 import { PEM_CERT, PEM_CHAIN, PEM_PRIV_KEY } from './certs'
 import { createDatabase, dropDatabase, setupAgent } from './commonTest'
-import { X509Opts } from '@sphereon/ssi-sdk-bls-kms-local/dist/x509/x509-utils'
+import { X509Opts } from '@sphereon/ssi-sdk-did-utils'
 
 const customContext = new Map<string, ContextDoc>([
   [`https://www.w3.org/2018/credentials/examples/v1`, exampleV1],
@@ -30,17 +30,27 @@ describe('@sphereon/gx-compliance-client', () => {
     certificatePEM: PEM_CERT,
     certificateChainPEM: PEM_CHAIN,
     privateKeyPEM: PEM_PRIV_KEY,
-    certificateChainURL: 'https://example.com/.wellknown/fullchain.pem',
+    certificateChainURL: 'https://f825-87-213-241-251.eu.ngrok.io/.wellknown/fullchain.pem',
   }
 
   beforeEach(async () => {
     await createDatabase(dbConnection)
+    nock.cleanAll()
+    nock('https://f825-87-213-241-251.eu.ngrok.io')
+      .get(`/.well-known/did.json`)
+      .times(3)
+      .reply(200, {
+        ...mockedDID,
+      })
+    nock('https://f825-87-213-241-251.eu.ngrok.io').get(`/.well-known/fullchain.pem`).times(3).reply(200, PEM_CHAIN)
+
     identifier = await agent.createDIDFromX509({
       domain: x509.cn!,
       certificatePEM: x509.certificatePEM!,
       certificateChainPEM: x509.certificateChainPEM!,
       certificateChainURL: x509.certificateChainURL!,
       privateKeyPEM: x509.privateKeyPEM!,
+      kid: 'test'
     })
   })
 
@@ -52,17 +62,11 @@ describe('@sphereon/gx-compliance-client', () => {
     `Ed25519Signature2018`,
     `Ed25519Signature2020`*/
   afterAll(async () => {
+    nock.cleanAll()
     await dropDatabase(dbConnection, databaseFile)
   })
 
   beforeAll(async () => {
-    nock('https://participant')
-      .get(`/.well-known/did.json`)
-      .times(3)
-      .reply(200, {
-        ...participantDid,
-      })
-
     const agentSetup = await setupAgent({ dbFile: databaseFile, dbEncryptionKey: DB_ENCRYPTION_KEY, customContext })
     dbConnection = agentSetup.dbConnection
     agent = agentSetup.agent

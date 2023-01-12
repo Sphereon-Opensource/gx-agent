@@ -34,14 +34,15 @@ export async function setupAgent(opts: {
     throw Error('Either a db connection or dbFile needs to be supplied. None given')
   }
   const dbConnection: Promise<DataSource> = opts.dbConnection ? opts.dbConnection : newDBConnection(opts.dbFile!)
-  const kms = new BlsKeyManagementSystem(new PrivateKeyStore(dbConnection, new SecretBox(opts.dbEncryptionKey)))
+  const privateKeyStore = new PrivateKeyStore(dbConnection, new SecretBox(opts.dbEncryptionKey))
+  const kms = new BlsKeyManagementSystem(privateKeyStore)
   const webResolver = getResolver()
-
+  const keyStore = new KeyStore(dbConnection)
   const resolver = new Resolver({ ...webResolver })
   const agent = createAgent<GXPluginMethodMap>({
     plugins: [
       new KeyManager({
-        store: new KeyStore(dbConnection),
+        store: keyStore,
         kms: {
           local: kms,
         },
@@ -55,6 +56,7 @@ export async function setupAgent(opts: {
       }),
       new CredentialPlugin(),
       new CredentialHandlerLDLocal({
+        keyStore: privateKeyStore,
         contextMaps: opts?.customContext ? [LdDefaultContexts, opts.customContext] : [LdDefaultContexts],
         suites: [new SphereonJsonWebSignature2020()],
         bindingOverrides: new Map([

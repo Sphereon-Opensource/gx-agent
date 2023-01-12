@@ -197,3 +197,8 @@ export type GXPluginMethodMap = IResolver &
   IDataStore &
   IDataStoreORM
 export type GXRequiredContext = IAgentContext<GXPluginMethodMap>
+
+export interface JWK extends JsonWebKey {
+  x5c?: string
+  x5u?: string
+}
