@@ -311,9 +311,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       context
     )
 
-    // todo: This logic should be a function
-    const credentialType = args.selfDescribedVC['type'].find((el) => el !== 'VerifiableCredential')
-    const apiType = credentialType === IGaiaxCredentialType.LegalPerson || IGaiaxCredentialType.NaturalPerson ? 'participant' : 'service-offering'
+    const apiType = GaiaxComplianceClient.extractApiTypeFromVC(args.selfDescribedVC)
     const URL = `${this.getApiVersionedUrl()}/${apiType}/verify/raw?store=true`
 
     try {
@@ -385,5 +383,10 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       throw new Error("Participant did can't be extracted from received VerifiableCredentials")
     }
     return participantDid
+  }
+
+  private static extractApiTypeFromVC(vc: IVerifiableCredential): string {
+    const credentialType = vc['type'].find((el) => el !== 'VerifiableCredential')
+    return credentialType === IGaiaxCredentialType.LegalPerson || IGaiaxCredentialType.NaturalPerson ? 'participant' : 'service-offering'
   }
 }

@@ -54,13 +54,6 @@ describe('@sphereon/gx-compliance-client', () => {
     })
   })
 
-  /*
-     FIXME: @Sadjad Whut?
-    ,
-    `BbsBlsSignature2020`,
-    `EcdsaSecp256k1RecoverySignature2020`,
-    `Ed25519Signature2018`,
-    `Ed25519Signature2020`*/
   afterAll(async () => {
     nock.cleanAll()
     await dropDatabase(dbConnection, databaseFile)
