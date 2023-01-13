@@ -204,11 +204,18 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiableCredential} */
   private async issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential> {
-    const verifiableCredentialSP = await context.agent.createVerifiableCredentialLDLocal({
-      credential: args.credential,
+    const credential = args.credential
+    if (!credential?.credentialSubject) {
+      throw Error('Credential needs a subject')
+    }
+    if (!credential.credentialSubject?.id) {
+      credential.credentialSubject.id = args.verificationMethodId.split('#')[0]
+    }
+    const verifiableCredential = await context.agent.createVerifiableCredentialLDLocal({
+      credential: credential,
       keyRef: args.keyRef,
     })
-    return verifiableCredentialSP as IVerifiableCredential
+    return verifiableCredential as IVerifiableCredential
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiablePresentation} */
@@ -317,7 +324,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
   private static extractParticipantDidFromVCs(verifiableCredentials: W3CVerifiableCredential[]) {
     const credentialSubject = (verifiableCredentials[0] as IVerifiableCredential).credentialSubject
-    let participantDid = ''
+    let participantDid
     if (Array.isArray(credentialSubject)) {
       const singleCredentialSubject = (credentialSubject as ICredentialSubject[]).filter((s) => !!s.id).pop()
       if (!credentialSubject) {
@@ -327,8 +334,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     } else {
       participantDid = (credentialSubject as ICredentialSubject)['id'] as string
     }
-    if (participantDid === '') {
-      throw new Error("Participant did can't be extracted from received VerifiableCredentials")
+    if (!participantDid) {
+      throw new Error("Participant DID can't be extracted from received VerifiableCredentials. Please make sure the credentialSubject id is set")
     }
     return participantDid
   }

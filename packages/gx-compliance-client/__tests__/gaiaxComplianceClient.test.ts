@@ -2,7 +2,7 @@ import { GXPluginMethodMap, IGaiaxCredentialType } from '../src'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { exampleV1, gxShape } from './schemas'
 import { mockedDID } from './mocks'
-import { IIdentifier, TAgent } from '@veramo/core'
+import { IIdentifier, TAgent, W3CVerifiableCredential } from '@veramo/core'
 // @ts-ignore
 import nock from 'nock'
 import { DataSource } from 'typeorm'
@@ -107,11 +107,14 @@ describe('@sphereon/gx-compliance-client', () => {
         type: [IGaiaxCredentialType.LegalPerson],
       },
 
-      verificationMethodId: `${identifier.controllerKeyId}`,
+      verificationMethodId: `${identifier.did}#test`,
     })
     console.log(JSON.stringify(vc, null, 2))
 
     /*const result = await agent.verifyCredentialLDLocal({credential: vc as VerifiableCredential})
     console.log(result)*/
+
+    const vp  = await agent.issueVerifiablePresentation({keyRef: 'test', verifiableCredentials: [vc as W3CVerifiableCredential], verificationMethodId: `${identifier.did}#test`})
+    console.log(JSON.stringify(vp, null, 2))
   })
 })

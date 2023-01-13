@@ -86,7 +86,9 @@ export interface IIssueVerifiableCredentialArgs {
 export interface IIssueVerifiablePresentationArgs {
   challenge?: string
   keyRef?: string
-  purpose: string
+
+  //fixme: this is not a string, but a proofPurpose object
+  purpose?: string
   verifiableCredentials: W3CVerifiableCredential[]
   verificationMethodId: string
 }
