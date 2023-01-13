@@ -3197,34 +3197,34 @@
     "@trust/keyto" "^2.0.0-alpha1"
     "@veramo/core" "^4.2.0"
 
-"@sphereon/ssi-sdk-core@0.8.1-next.123", "@sphereon/ssi-sdk-core@^0.8.1-next.121", "@sphereon/ssi-sdk-core@^0.8.1-next.123+0204094":
-  version "0.8.1-next.123"
-  resolved "https://registry.yarnpkg.com/@sphereon/ssi-sdk-core/-/ssi-sdk-core-0.8.1-next.123.tgz#6f85135aed1ed7ce4ed2a0eed4bc0abe893f501c"
-  integrity sha512-0J2shlB1rWIO4t3GP7G07lMifZvQX7xXUcTOTYG9rBjpOAiwsDZ1EpEnUM7t65YV9x51/BnS3BAaSETFphXgYQ==
+"@sphereon/ssi-sdk-core@0.8.1-next.159", "@sphereon/ssi-sdk-core@^0.8.1-next.121", "@sphereon/ssi-sdk-core@^0.8.1-next.159+00892e2":
+  version "0.8.1-next.159"
+  resolved "https://registry.yarnpkg.com/@sphereon/ssi-sdk-core/-/ssi-sdk-core-0.8.1-next.159.tgz#5571b1ea3039b674ba5f2186fccf68624edcdb21"
+  integrity sha512-Q0M49IBA6P8t6l4apOSvT2m89RK7bEPPJkzVdiWXM5vcloDs7QYxUe41e7HxCn5Gnd9F1oewqR+YGLwbPedqFQ==
   dependencies:
     "@scure/base" "^1.1.1"
-    "@sphereon/ssi-types" "^0.8.1-next.123+0204094"
+    "@sphereon/ssi-types" "^0.8.1-next.159+00892e2"
     "@veramo/core" "4.2.0"
     typeorm "^0.3.10"
 
-"@sphereon/ssi-sdk-did-utils@0.8.1-next.123", "@sphereon/ssi-sdk-did-utils@^0.8.1-next.121", "@sphereon/ssi-sdk-did-utils@^0.8.1-next.123":
-  version "0.8.1-next.123"
-  resolved "https://registry.yarnpkg.com/@sphereon/ssi-sdk-did-utils/-/ssi-sdk-did-utils-0.8.1-next.123.tgz#4fe5f2d0993bfb39474d9d13cf5bc788714ce496"
-  integrity sha512-hF1/AST/tYtSp04/j8pFHWwZKQsCnfY9bG/TMXaSTZh1HwKYFcW6XUsmRDE+z23YrJHDUUbpKVxsoPo3SO38ng==
+"@sphereon/ssi-sdk-did-utils@0.8.1-next.159", "@sphereon/ssi-sdk-did-utils@^0.8.1-next.121", "@sphereon/ssi-sdk-did-utils@^0.8.1-next.123", "@sphereon/ssi-sdk-did-utils@^0.8.1-next.159":
+  version "0.8.1-next.159"
+  resolved "https://registry.yarnpkg.com/@sphereon/ssi-sdk-did-utils/-/ssi-sdk-did-utils-0.8.1-next.159.tgz#90386ea15c6c47c791b2d0d8a4ffd1b65871f4a8"
+  integrity sha512-MnLQqSGPagZXzcqAUM+pkCKoNn+xyIwmtn2LGWc0O8K0sVvOMSXx0B0k177uxHPAdCd+LwjDb5LYWrfleORGAA==
   dependencies:
     "@sphereon/jsencrypt" "3.3.2-unstable.0"
-    "@sphereon/ssi-sdk-core" "^0.8.1-next.123+0204094"
-    "@sphereon/ssi-types" "^0.8.1-next.123+0204094"
+    "@sphereon/ssi-sdk-core" "^0.8.1-next.159+00892e2"
+    "@sphereon/ssi-types" "^0.8.1-next.159+00892e2"
     "@trust/keyto" "^2.0.0-alpha1"
     "@veramo/core" "^4.2.0"
     "@veramo/utils" "^4.2.0"
     elliptic "^6.5.4"
     uint8arrays "^3.1.1"
 
-"@sphereon/ssi-sdk-vc-handler-ld-local@0.8.1-next.123":
-  version "0.8.1-next.123"
-  resolved "https://registry.yarnpkg.com/@sphereon/ssi-sdk-vc-handler-ld-local/-/ssi-sdk-vc-handler-ld-local-0.8.1-next.123.tgz#fd990de9bf4794750e48041484f979c0bee5213b"
-  integrity sha512-Hpik1THofTLHd8rjhlHCJ8fDM4BhwvfYWFhb54jadJMPnubjvBLkAYAIM5birtb0EbDwd9Q8iKNjNO1xXcF8KA==
+"@sphereon/ssi-sdk-vc-handler-ld-local@0.8.1-next.159":
+  version "0.8.1-next.159"
+  resolved "https://registry.yarnpkg.com/@sphereon/ssi-sdk-vc-handler-ld-local/-/ssi-sdk-vc-handler-ld-local-0.8.1-next.159.tgz#d6a9688186487b158540a6d8762d67c7368c815d"
+  integrity sha512-OI/3v7xeJyMDgPy5k67GjSP1kMEPbBKteV0rR6TRH3nlAi6vK/QlZli5z4lnUheJhmRzrbXLKQLDEOgfjs+9Dw==
   dependencies:
     "@digitalcredentials/did-method-key" "^2.0.3"
     "@digitalcredentials/did-web-resolver" "^1.0.0"
@@ -3255,10 +3255,10 @@
     react-native-securerandom "^1.0.0"
     ts-node "^8.10.2"
 
-"@sphereon/ssi-types@0.8.1-next.123", "@sphereon/ssi-types@^0.8.1-next.123+0204094":
-  version "0.8.1-next.123"
-  resolved "https://registry.yarnpkg.com/@sphereon/ssi-types/-/ssi-types-0.8.1-next.123.tgz#0e77e5960be6460054e15046ef561ce2f6ea2709"
-  integrity sha512-wu6oXgYw5l7REJPpQPo2bGGulLjaEiTRsTkzmzFt6MUgOapum3WyF8NwR6PpXSsOijqNRmcVmCiQh6jlI/VIcA==
+"@sphereon/ssi-types@0.8.1-next.159", "@sphereon/ssi-types@^0.8.1-next.159+00892e2":
+  version "0.8.1-next.159"
+  resolved "https://registry.yarnpkg.com/@sphereon/ssi-types/-/ssi-types-0.8.1-next.159.tgz#14477dfe16e65d3a774306b79d61b56ab06cf2ac"
+  integrity sha512-crRj7vMddWKJ1U2imohj830xZtEQdo1siRN3ilzptEda9F3l3QU66uEuZhJyUjVgAsj8YUL7G1ocqNk8zMdmQg==
   dependencies:
     jwt-decode "^3.1.2"
 

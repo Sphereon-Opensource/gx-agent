@@ -19,6 +19,7 @@ did
     const certificateChainPEM = fs.readFileSync(cmd['ca-chain-file'], 'utf-8')
     const cn = cmd.domain
     const path = cmd['ca-chain-file'].split('/')
+    // fixme: this should be an optional param. If not supplied we can do it like this
     const certificateChainURL = `https://${cn}/.wellknown/${path[path.length - 1]}`
     const agent = getAgent(program.opts().config)
     try {

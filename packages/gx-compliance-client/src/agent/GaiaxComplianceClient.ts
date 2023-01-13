@@ -114,7 +114,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       {
         credential: args.credential,
         verificationMethodId: signatureInfo.verificationMethodId,
-        purpose: signatureInfo.proofPurpose,
         keyRef: signatureInfo.keyRef,
       },
       context
@@ -156,7 +155,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       : (args.complianceCredential! as W3CVerifiableCredential)
     const serviceOfferingVC: W3CVerifiableCredential = (await this.issueVerifiableCredential(
       {
-        purpose: args.purpose,
         keyRef: args.keyRef,
         credential: args.serviceOfferingCredential,
         verificationMethodId: args.verificationMethodId,
@@ -208,7 +206,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   private async issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential> {
     const verifiableCredentialSP = await context.agent.createVerifiableCredentialLDLocal({
       credential: args.credential,
-      purpose: args.purpose,
       keyRef: args.keyRef,
     })
     return verifiableCredentialSP as IVerifiableCredential
@@ -253,7 +250,6 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         {
           credential: vc as CredentialPayload,
           verificationMethodId: signatureInfo.verificationMethodId,
-          purpose: signatureInfo.proofPurpose,
           keyRef: signatureInfo.keyRef,
         },
         context

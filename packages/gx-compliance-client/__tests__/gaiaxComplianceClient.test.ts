@@ -68,7 +68,7 @@ describe('@sphereon/gx-compliance-client', () => {
   it('should create a VC', async () => {
     const vc = await agent.issueVerifiableCredential({
       keyRef: 'test',
-      purpose: 'assertionMethod',
+      // purpose: new ProofPurpose(),
       credential: {
         issuer: `${identifier.did}`,
         id: '3d17bb21-40d8-4c82-8468-fa11dfa8617c',

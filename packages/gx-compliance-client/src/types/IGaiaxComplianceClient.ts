@@ -13,6 +13,7 @@ import {
 } from '@veramo/core'
 import { IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
+import { purposes } from '@digitalcredentials/jsonld-signatures'
 
 export interface IGaiaxComplianceClient extends IPluginMethodMap {
   acquireComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
@@ -78,8 +79,6 @@ export enum IGaiaxCredentialType {
 
 export interface IIssueVerifiableCredentialArgs {
   credential: CredentialPayload
-  // todo: ask Niels, not sure if we need this anymore
-  purpose?: string
   verificationMethodId: string
   keyRef?: string
 }
@@ -218,3 +217,8 @@ export interface JWK extends JsonWebKey {
   x5c?: string
   x5u?: string
 }
+
+export const ProofPurpose = purposes.ProofPurpose
+export const ControllerProofPurpose = purposes.ControllerProofPurpose
+export const AssertionProofPurpose = purposes.AssertionProofPurpose
+export const AuthenticationProofPurpose = purposes.AuthenticationProofPurpose
