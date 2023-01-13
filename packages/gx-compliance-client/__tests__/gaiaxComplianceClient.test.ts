@@ -38,7 +38,7 @@ describe('@sphereon/gx-compliance-client', () => {
     nock.cleanAll()
     nock('https://f825-87-213-241-251.eu.ngrok.io')
       .get(`/.well-known/did.json`)
-      .times(3)
+      .times(6)
       .reply(200, {
         ...mockedDID,
       })
@@ -110,5 +110,8 @@ describe('@sphereon/gx-compliance-client', () => {
       verificationMethodId: `${identifier.controllerKeyId}`,
     })
     console.log(JSON.stringify(vc, null, 2))
+
+    /*const result = await agent.verifyCredentialLDLocal({credential: vc as VerifiableCredential})
+    console.log(result)*/
   })
 })
