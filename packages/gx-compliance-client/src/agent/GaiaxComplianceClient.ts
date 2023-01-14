@@ -1,4 +1,4 @@
-import { CredentialPayload, IAgentPlugin, IIdentifier, W3CVerifiableCredential } from '@veramo/core'
+import { IAgentPlugin, IIdentifier, W3CVerifiableCredential } from '@veramo/core'
 
 import {
   CredentialValidationResult,
@@ -184,7 +184,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     try {
       return (await GaiaxComplianceClient.postRequest(
         this.getApiVersionedUrl() + '/service-offering/verify/raw',
-        args.serviceOfferingVP as unknown as BodyInit
+        JSON.stringify(args.serviceOfferingVP)
       )) as IGaiaxOnboardingResult
     } catch (e) {
       throw new Error('Error on fetching complianceCredential: ' + e)
@@ -249,41 +249,15 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         : ((await context.agent.dataStoreGetVerifiableCredential({
             hash: args.hash as string,
           })) as IVerifiableCredential)
-      const signatureInfo: ISignatureInfo = await this.extractSignatureInfo(
-        (args.verifiableCredential!.credentialSubject as ICredentialSubject)['id'] as string,
-        context
-      )
-      await this.issueVerifiableCredential(
-        {
-          credential: vc as CredentialPayload,
-          verificationMethodId: signatureInfo.verificationMethodId,
-          keyRef: signatureInfo.keyRef,
-        },
-        context
-      )
-      return {
-        conforms: true,
-        content: {
-          conforms: true,
-          results: [],
-        },
-        shape: {
-          results: [],
-          conforms: true,
-        },
+      let address = this.getApiVersionedUrl()
+      if ((vc.type as string[]).indexOf('ServiceOffering') != -1) {
+        address = address + '/service-offering/validate/vc'
+      } else if ((vc.type as string[]).indexOf('LegalPerson') != -1 || (vc.type as string[]).indexOf('NaturalPerson') != -1) {
+        address = address + '/participant/validate/vc'
       }
+      return (await GaiaxComplianceClient.postRequest(address, JSON.stringify(vc))) as CredentialValidationResult
     } catch (e) {
-      return {
-        conforms: false,
-        content: {
-          conforms: false,
-          results: [],
-        },
-        shape: {
-          results: [],
-          conforms: false,
-        },
-      }
+      throw new Error('Error on fetching complianceCredential: ' + e)
     }
   }
 
@@ -404,7 +378,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     const URL = `${this.getApiVersionedUrl()}/${apiType}/verify/raw?store=true`
 
     try {
-      return (await GaiaxComplianceClient.postRequest(URL, onboardingVP as unknown as BodyInit)) as IVerifiableCredential
+      return (await GaiaxComplianceClient.postRequest(URL, JSON.stringify(onboardingVP))) as IVerifiableCredential
     } catch (e) {
       throw new Error('Error on onboarding a complianceCredential: ' + e)
     }
