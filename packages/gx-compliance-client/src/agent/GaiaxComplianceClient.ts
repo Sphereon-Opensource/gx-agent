@@ -1,4 +1,4 @@
-import { CredentialPayload, IAgentPlugin, IIdentifier, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
+import { IAgentPlugin, IIdentifier, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
 
 import {
   CredentialValidationResult,
@@ -178,7 +178,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     try {
       return (await postRequest(
         this.getApiVersionedUrl() + '/service-offering/verify/raw',
-        args.serviceOfferingVP as unknown as BodyInit
+        JSON.stringify(args.serviceOfferingVP)
       )) as IGaiaxOnboardingResult
     } catch (e) {
       throw new Error('Error on fetching complianceVC: ' + e)
@@ -209,42 +209,15 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         : ((await context.agent.dataStoreGetVerifiableCredential({
             hash: args.hash as string,
           })) as IVerifiableCredential)
-      const signatureInfo: ISignatureInfo = await extractSignatureInfo(
-        (args.verifiableCredential!.credentialSubject as ICredentialSubject)['id'] as string,
-        context
-      )
-      //FIXME: Why is a verify method issuing a credential? Also what is up with the return response mimicking the compliance service? This is an agent interacting with the Compliance Service on occasion, not a compliance service itself
-      await this.credentialHandler.issueVerifiableCredential(
-        {
-          credential: vc as CredentialPayload,
-          verificationMethodId: signatureInfo.verificationMethodId,
-          keyRef: signatureInfo.keyRef,
-        },
-        context
-      )
-      return {
-        conforms: true,
-        content: {
-          conforms: true,
-          results: [],
-        },
-        shape: {
-          results: [],
-          conforms: true,
-        },
+      let address = this.getApiVersionedUrl()
+      if ((vc.type as string[]).indexOf('ServiceOffering') != -1) {
+        address = address + '/service-offering/validate/vc'
+      } else if ((vc.type as string[]).indexOf('LegalPerson') != -1 || (vc.type as string[]).indexOf('NaturalPerson') != -1) {
+        address = address + '/participant/validate/vc'
       }
+      return (await postRequest(address, JSON.stringify(vc))) as CredentialValidationResult
     } catch (e) {
-      return {
-        conforms: false,
-        content: {
-          conforms: false,
-          results: [],
-        },
-        shape: {
-          results: [],
-          conforms: false,
-        },
-      }
+      throw new Error('Error on fetching complianceCredential: ' + e)
     }
   }
 
@@ -291,7 +264,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     const URL = `${this.getApiVersionedUrl()}/${apiType}/verify/raw?store=true`
 
     try {
-      return (await postRequest(URL, onboardingVP as unknown as BodyInit)) as VerifiableCredential
+      return (await postRequest(URL, JSON.stringify(onboardingVP))) as VerifiableCredential
     } catch (e) {
       throw new Error('Error on onboarding a complianceVC: ' + e)
     }
