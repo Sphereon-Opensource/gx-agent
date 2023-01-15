@@ -33,5 +33,6 @@ export function createMockedDID(did: string, publicKeyJwk: JWK, vm?: string) {
       },
     ],
     assertionMethod: [vmId],
+    authentication: [vmId],
   }
 }

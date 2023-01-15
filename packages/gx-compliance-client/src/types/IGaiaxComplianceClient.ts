@@ -9,30 +9,42 @@ import {
   IKeyManager,
   IPluginMethodMap,
   IResolver,
-  W3CVerifiableCredential,
+  VerifiableCredential,
+  VerifiablePresentation,
 } from '@veramo/core'
-import { IVerifiableCredential, IVerifiablePresentation } from '@sphereon/ssi-types'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 import { purposes } from '@digitalcredentials/jsonld-signatures'
 
 export interface IGaiaxComplianceClient extends IPluginMethodMap {
-  acquireComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
+  submitComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
+
   acquireComplianceCredentialFromExistingParticipant(
     args: IAcquireComplianceCredentialFromExistingParticipantArgs,
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse>
+
   acquireComplianceCredentialFromUnsignedParticipant(
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse>
-  addServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
-  addServiceOfferingUnsigned(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+
+  submitServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+
+  createAndSubmitServiceOffering(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+
   createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier>
-  issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
-  issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifiablePresentation>
-  onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
-  onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext): Promise<IVerifiableCredential>
-  verifySelfDescribedCredential(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult>
+
+  issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
+
+  issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<VerifiablePresentation>
+
+  checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<boolean>
+
+  onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
+
+  onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext): Promise<VerifiableCredential>
+
+  verifySelfDescription(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult>
 }
 
 /**
@@ -53,7 +65,7 @@ export enum MethodNames {
   verifyUnsignedSelfDescribedCredential = 'verifyUnsignedSelfDescribedCredential',
 }
 
-export interface IGaiaxComplianceClientArgs {
+export interface IGaiaxComplianceConfig {
   defaultKms?: string
   complianceServiceUrl: string
   complianceServiceVersion: string
@@ -87,14 +99,18 @@ export interface IIssueVerifiablePresentationArgs {
   challenge?: string
   keyRef?: string
 
-  //fixme: this is not a string, but a proofPurpose object
-  purpose?: string
-  verifiableCredentials: W3CVerifiableCredential[]
+  purpose?: typeof purposes
+  verifiableCredentials: VerifiableCredential[]
   verificationMethodId: string
 }
 
+export interface ICheckVerifiablePresentationArgs {
+  verifiablePresentation: VerifiablePresentation
+  challenge?: string
+}
+
 export interface IAcquireComplianceCredentialArgs {
-  selfDescribedVP: IVerifiablePresentation
+  selfDescriptionVP: VerifiablePresentation
 }
 
 export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
@@ -103,52 +119,52 @@ export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
 
 export interface IOnboardParticipantWithCredentialArgs {
   verificationMethodId: string
-  selfDescribedVC: IVerifiableCredential
-  complianceCredential: IVerifiableCredential
+  selfDescriptionVC: VerifiableCredential
+  complianceVC: VerifiableCredential
   purpose: string
   challenge?: string
   keyRef: string
 }
 
 export interface IOnboardParticipantWithCredentialIdsArgs {
-  selfDescribedVcHash: string
-  complianceCredentialHash: string
+  selfDescriptionHash: string
+  complianceHash: string
 }
 
 export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
   credential: CredentialPayload
 }
 
-//fixme @nlklomp is this the right approach to handle complianceCredentialHash, complianceCredential
+//fixme @nlklomp is this the right approach to handle complianceHash, complianceVC
 export interface IAddServiceOfferingUnsignedArgs {
   challenge?: string
   serviceOfferingCredential: CredentialPayload
-  complianceCredentialHash?: string
-  complianceCredential?: IVerifiableCredential
+  complianceHash?: string
+  complianceVC?: VerifiableCredential
   keyRef: string
   purpose: string
   verificationMethodId: string
 }
 
 export interface IAddServiceOfferingArgs {
-  serviceOfferingVP: IVerifiablePresentation
+  serviceOfferingVP: VerifiablePresentation
 }
 
 export interface IIssueAndSaveVerifiablePresentationArgs {
   challenge: string
   keyRef: string
   purpose: string
-  verifiableCredentials: IVerifiableCredential[]
+  verifiableCredentials: VerifiableCredential[]
   verificationMethodId: string
 }
 
 export interface VerifiablePresentationResponse {
-  verifiablePresentation: IVerifiablePresentation
+  verifiablePresentation: VerifiablePresentation
   vpHash: string
 }
 
 export interface VerifiableCredentialResponse {
-  verifiableCredential: IVerifiableCredential
+  verifiableCredential: VerifiableCredential
   hash: string
 }
 
@@ -171,7 +187,7 @@ export interface ISignatureInfo {
 }
 
 export interface IVerifySelfDescribedCredential {
-  verifiableCredential?: IVerifiableCredential
+  verifiableCredential?: VerifiableCredential
   hash?: string
 }
 

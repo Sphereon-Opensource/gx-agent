@@ -8,10 +8,10 @@ constants:
   methods:
     - issueVerifiableCredential
       issueVerifiablePresentation
-      acquireComplianceCredential
+      submitComplianceCredential
       getComplianceCredentialFromUnsignedParticipant
-      addServiceOfferingUnsigned
-      addServiceOffering
+      createAndSubmitServiceOffering
+      submitServiceOffering
 server:
   baseUrl:
     $ref: /constants/baseUrl

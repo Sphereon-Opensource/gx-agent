@@ -2,7 +2,7 @@ import { GXPluginMethodMap, IGaiaxCredentialType } from '../src'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { exampleV1, gxShape } from './schemas'
 import { mockedDID } from './mocks'
-import { IIdentifier, TAgent, W3CVerifiableCredential } from '@veramo/core'
+import { IIdentifier, TAgent } from '@veramo/core'
 // @ts-ignore
 import nock from 'nock'
 import { DataSource } from 'typeorm'
@@ -38,7 +38,7 @@ describe('@sphereon/gx-compliance-client', () => {
     nock.cleanAll()
     nock('https://f825-87-213-241-251.eu.ngrok.io')
       .get(`/.well-known/did.json`)
-      .times(6)
+      .times(60)
       .reply(200, {
         ...mockedDID,
       })
@@ -65,10 +65,10 @@ describe('@sphereon/gx-compliance-client', () => {
     agent = agentSetup.agent
   })
 
-  it('should create a VC', async () => {
-    const vc = await agent.issueVerifiableCredential({
+  it('should create a VC, VP and verify them', async () => {
+    console.log(JSON.stringify(mockedDID, null, 2))
+    const verifiableCredential = await agent.issueVerifiableCredential({
       keyRef: 'test',
-      // purpose: new ProofPurpose(),
       credential: {
         issuer: `${identifier.did}`,
         id: '3d17bb21-40d8-4c82-8468-fa11dfa8617c',
@@ -109,12 +109,19 @@ describe('@sphereon/gx-compliance-client', () => {
 
       verificationMethodId: `${identifier.did}#test`,
     })
-    console.log(JSON.stringify(vc, null, 2))
+    console.log(JSON.stringify(verifiableCredential, null, 2))
 
-    /*const result = await agent.verifyCredentialLDLocal({credential: vc as VerifiableCredential})
-    console.log(result)*/
+    const vcResult = await agent.verifyCredentialLDLocal({ credential: verifiableCredential, fetchRemoteContexts: true })
+    console.log(vcResult)
 
-    const vp  = await agent.issueVerifiablePresentation({keyRef: 'test', verifiableCredentials: [vc as W3CVerifiableCredential], verificationMethodId: `${identifier.did}#test`})
-    console.log(JSON.stringify(vp, null, 2))
+    const verifiablePresentation = await agent.issueVerifiablePresentation({
+      keyRef: 'test',
+      verifiableCredentials: [verifiableCredential],
+      verificationMethodId: `${identifier.did}#test`,
+    })
+    console.log(JSON.stringify(verifiablePresentation, null, 2))
+
+    const resultvp = await agent.checkVerifiablePresentation({ verifiablePresentation })
+    console.log(resultvp)
   })
 })
