@@ -1,6 +1,7 @@
 import { IAgentPlugin, IIdentifier, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
 
 import {
+  AssertionProofPurpose,
   CredentialValidationResult,
   GXRequiredContext,
   IAcquireComplianceCredentialFromExistingParticipantArgs,
@@ -23,7 +24,7 @@ import {
   IGaiaxComplianceConfig,
   IGaiaxOnboardingResult,
 } from '../types'
-import { ICredentialSubject, IVerifiableCredential } from '@sphereon/ssi-types'
+import { ICredentialSubject } from '@sphereon/ssi-types'
 
 import { VerifiableCredentialSP } from '@sphereon/ssi-sdk-core'
 import { DID } from './DID'
@@ -203,18 +204,26 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       throw new Error('You should provide either vc hash or vc itself')
     }
 
+    const vc = args.verifiableCredential
+      ? args.verifiableCredential
+      : await context.agent.dataStoreGetVerifiableCredential({
+          hash: args.hash as string,
+        })
+    const valid = context.agent.verifyCredentialLDLocal({
+      credential: vc,
+      purpose: new AssertionProofPurpose(),
+      fetchRemoteContexts: true,
+    })
+    if (!valid) {
+      throw Error(`Invalid verifiable credential supplied`)
+    }
+    let address = this.getApiVersionedUrl()
+    if ((vc.type as string[]).indexOf('ServiceOffering') != -1) {
+      address = address + '/service-offering/validate/vc'
+    } else if ((vc.type as string[]).indexOf('LegalPerson') != -1 || (vc.type as string[]).indexOf('NaturalPerson') != -1) {
+      address = address + '/participant/validate/vc'
+    }
     try {
-      let vc: IVerifiableCredential = args.verifiableCredential
-        ? (args.verifiableCredential as IVerifiableCredential)
-        : ((await context.agent.dataStoreGetVerifiableCredential({
-            hash: args.hash as string,
-          })) as IVerifiableCredential)
-      let address = this.getApiVersionedUrl()
-      if ((vc.type as string[]).indexOf('ServiceOffering') != -1) {
-        address = address + '/service-offering/validate/vc'
-      } else if ((vc.type as string[]).indexOf('LegalPerson') != -1 || (vc.type as string[]).indexOf('NaturalPerson') != -1) {
-        address = address + '/participant/validate/vc'
-      }
       return (await postRequest(address, JSON.stringify(vc))) as CredentialValidationResult
     } catch (e) {
       throw new Error('Error on fetching complianceCredential: ' + e)
