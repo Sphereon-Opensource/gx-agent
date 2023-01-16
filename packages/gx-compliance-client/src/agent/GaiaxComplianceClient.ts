@@ -76,7 +76,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
     const selfDescribedVC = await context.agent.dataStoreGetVerifiableCredential({
-      hash: args.participantSDHash,
+      hash: args.participantSDId,
     })
     const did = (selfDescribedVC.credentialSubject as ICredentialSubject)['id'] as string
 
@@ -217,14 +217,14 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   /** {@inheritDoc IGaiaxComplianceClient.verifyUnsignedSelfDescribedCredential} */
   private async verifySelfDescription(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult> {
     //TODO: right now we're just signing and if there's no error, we're confirming the credential object, later we might want ot incorporate some validations from gx-compliance service itself or even make an api there (just for verification and not saving anything)
-    if (!args.verifiableCredential && !!args.hash) {
-      throw new Error('You should provide either vc hash or vc itself')
+    if (!args.verifiableCredential && !!args.id) {
+      throw new Error('You should provide either vc id or vc itself')
     }
 
     const vc = args.verifiableCredential
       ? args.verifiableCredential
       : await context.agent.dataStoreGetVerifiableCredential({
-          hash: args.hash as string,
+          hash: args.id as string,
         })
     const valid = context.agent.verifyCredentialLDLocal({
       credential: vc,

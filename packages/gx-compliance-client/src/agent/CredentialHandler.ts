@@ -38,7 +38,7 @@ export class CredentialHandler {
       keyRef: signInfo.keyRef,
       // todo: Purpose from signInfo
     })
-    let hash = '' //todo: determine hash, without saving
+    let hash = '' //todo: determine id, without saving
     if (args.persist) {
       hash = await context.agent.dataStoreSaveVerifiableCredential({ verifiableCredential })
     }
@@ -74,7 +74,7 @@ export class CredentialHandler {
       challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
       domain: this.config.complianceServiceUrl,
     })
-    let hash = '' //todo: determine hash, without saving
+    let hash = '' //todo: determine id, without saving
     if (args.persist) {
       hash = await context.agent.dataStoreSaveVerifiablePresentation({ verifiablePresentation })
     }

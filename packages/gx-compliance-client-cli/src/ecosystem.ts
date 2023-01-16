@@ -20,7 +20,7 @@ ecosystem
         createdAt: new Date().toUTCString(),
         data: {
           name: cmd.name,
-          'ecosystem-url': cmd['ecosystem-url'],
+          'ecosystem-url': cmd.ecosystemUrl,
         },
       },
     })
@@ -30,15 +30,15 @@ ecosystem
 ecosystem
   .command('submit')
   .description('Onboards the participant to the new ecosystem')
-  .option('-sd-id, --sd-id <string>', 'id of your self-description')
-  .option('-c-id, --compliance-id <string>', '')
-  .option('-e-url, --ecosystem-url <string>', 'URL of gx-compliance server')
+  .option('-sdid, --sd-id <string>', 'id of your self-description')
+  .option('-cid, --compliance-id <string>', '')
+  .option('-eurl, --ecosystem-url <string>', 'URL of gx-compliance server')
   .option('-e, --ecosystem <string>', 'alias of your ecosystem')
   .action(async (cmd) => {
     try {
       const agent = await getAgent(program.opts().config)
-      const selfDescriptionId = cmd['sd-id']
-      const complianceId = cmd['compliance-id']
+      const selfDescriptionId = cmd.sdId
+      const complianceId = cmd.complianceId
 
       //fixme: Does not take ecosystem into account at all
       const selfDescription = await agent.onboardParticipantWithCredentialIds({

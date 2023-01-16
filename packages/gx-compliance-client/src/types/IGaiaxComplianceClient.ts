@@ -134,7 +134,7 @@ export interface IAcquireComplianceCredentialArgs {
 }
 
 export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
-  participantSDHash: string
+  participantSDId: string
 }
 
 export interface IOnboardParticipantWithCredentialArgs {
@@ -203,7 +203,7 @@ export interface ISignInfo {
 
 export interface IVerifySelfDescribedCredential {
   verifiableCredential?: VerifiableCredential
-  hash?: string
+  id?: string
 }
 
 export interface CredentialValidationResult {

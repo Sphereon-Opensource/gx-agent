@@ -11,28 +11,28 @@ compliance
   .command('compliance')
   .command('status')
   .description('shows the compliance status of the Participant')
-  .option('--sd-id <string>', 'id of your self-description')
+  .option('-sid, --sd-id <string>', 'id of your self-description')
   .action(async (cmd) => {
     console.error('Feature not implemented yet')
   })
 
 compliance
   .command('submit')
-  .description('submits a self-description file to gx-compliance server')
-  .option('--sd-file <string>', 'filesystem location of your self-description file')
-  .option('--sd-id <string>', 'id of your self-description')
+  .description('submits a self-description file to the compliance service')
+  .option('-sf, --sd-file <string>', 'filesystem location of your self-description file')
+  .option('-sid, --sd-id <string>', 'id of your self-description')
   .action(async (cmd) => {
-    if (!cmd['sd-file'] && !cmd['sd-id']) {
+    if (!cmd.sdFile && !cmd.sdId) {
       throw new InvalidArgumentError('sd-id or sd-file need to be provided')
     }
     const agent = await getAgent(program.opts().config)
-    if (!cmd['sd-file']) {
+    if (!cmd.sdFile) {
       const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
-        participantSDHash: cmd['sd-id'],
+        participantSDId: cmd.sdId,
       })
       printTable([{ ...selfDescription }])
     } else {
-      const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
+      const sd = JSON.parse(fs.readFileSync(cmd.sdFile, 'utf-8'))
       const selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
         credential: sd,
       })
@@ -42,11 +42,11 @@ compliance
 
 sd.command('create')
   .description('creates a self-description based on your self-description input file')
-  .option('--sd-input-file <string>', 'filesystem location of your self-description input file (a credential that is not signed)')
+  .option('-sif, --sd-input-file <string>', 'filesystem location of your self-description input file (a credential that is not signed)')
   .action(async (cmd) => {
     try {
       const agent = await getAgent(program.opts().config)
-      const sd = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
+      const sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
       const selfDescription = await agent.issueVerifiableCredential({
         ...sd,
       })
@@ -57,19 +57,19 @@ sd.command('create')
   })
 
 sd.command('verify')
-  .description('verifies a self-description either by VC itself or by the vc id (hash) (experimental)')
-  .option('--sd-id <string>', 'id of your sd')
-  .option('--sd-file <string>', 'your sd file')
+  .description('verifies a self-description either by VC itself or by the vc id (id) (experimental)')
+  .option('-sid, --sd-id <string>', 'id of your sd')
+  .option('-sf, --sd-file <string>', 'your sd file')
   .action(async (cmd) => {
     try {
       const agent = await getAgent(program.opts().config)
       const args: IVerifySelfDescribedCredential = {}
-      if (cmd['sd-id']) {
-        args['hash'] = cmd['sd-id']
-      } else if (cmd['sd-file']) {
-        args['verifiableCredential'] = JSON.parse(fs.readFileSync(cmd['sd-file'], 'utf-8'))
+      if (cmd.sdId) {
+        args.id = cmd.sdId
+      } else if (cmd.sdFile) {
+        args.verifiableCredential = JSON.parse(fs.readFileSync(cmd.sdFile, 'utf-8'))
       }
-      const result = await agent.verifySelfDescribedCredential(args)
+      const result = await agent.verifySelfDescription(args)
       printTable([{ ...result }])
     } catch (e: unknown) {
       console.error(e)

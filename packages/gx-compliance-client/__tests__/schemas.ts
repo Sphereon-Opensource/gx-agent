@@ -285,8 +285,8 @@ export const gxShape = {
             'sh:maxCount': 1,
           },
           {
-            'sh:path': { '@id': 'gx-service-offering:hash' },
-            'sh:description': 'sha256 hash of the above document.',
+            'sh:path': { '@id': 'gx-service-offering:id' },
+            'sh:description': 'sha256 id of the above document.',
             'sh:datatype': { '@id': 'xsd:string' },
             'sh:minCount': 1,
             'sh:maxCount': 1,
