@@ -1,8 +1,9 @@
 import { DIDDocument, IIdentifier, IService } from '@veramo/core'
 import { ExportFileResult, GXRequiredContext, IImportDIDArg } from '../types'
 import { privateKeyHexFromPEM, publicKeyHexFromPEM, x5cToPemCertChain } from '@sphereon/ssi-sdk-did-utils'
-import { exportToDIDDocument } from '../utils/did-utils'
+import { exportToDIDDocument } from '../utils'
 import fs from 'fs'
+import { TKeyType } from "@veramo/core/src/types/IIdentifier";
 
 export class DID {
   public static async createDIDFromX509(
@@ -24,7 +25,7 @@ export class DID {
       did: `did:web:${domain}`,
       provider: 'did:web',
       alias: domain,
-      keys: [{ kid: kid ? kid : kidResult, privateKeyHex, type: 'RSA', meta, kms: kms ? kms : 'local' }],
+      keys: [{ kid: kid ? kid : kidResult, privateKeyHex, type: 'RSA' as TKeyType, meta, kms: kms ? kms : 'local' }],
       controllerKeyId,
     })
   }
@@ -53,7 +54,7 @@ export class DID {
     fs.writeFileSync(didPath, JSON.stringify(doc, null, 2))
 
     id.keys.forEach((key) => {
-      if (key.type !== 'RSA') {
+      if (key.type !== 'RSA' as TKeyType) {
         return
       }
       if (key.meta?.x509?.x5u && key.meta?.x509?.x5c) {

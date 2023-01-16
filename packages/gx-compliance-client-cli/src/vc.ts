@@ -3,7 +3,7 @@ import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import { CredentialPayload, IIdentifier, VerifiableCredential } from '@veramo/core'
-import { convertDidWebToHost, exampleParticipantSD, exportToDIDDocument } from '@sphereon/gx-compliance-client'
+import { convertDidWebToHost, exampleParticipantSD, exampleParticipantSO, exportToDIDDocument } from '@sphereon/gx-compliance-client'
 import nock from 'nock'
 
 const vc = program.command('vc').description('Generic Verifiable Credential and Presentation commands')
@@ -15,9 +15,8 @@ vc.command('export-example-sd')
   .action(async (cmd) => {
     const type = cmd.type.toLowerCase().includes('participant') ? 'participant' : 'service-offering'
     const fileName = `${type}-input-credential.json`
-    //todo: service offering
     const credential =
-      type === 'participant' ? exampleParticipantSD({ did: `did:web:${cmd.domain}` }) : exampleParticipantSD({ did: `did:web:${cmd.domain}` })
+      type === 'participant' ? exampleParticipantSD({ did: `did:web:${cmd.domain}` }) : exampleParticipantSO({ did: `did:web:${cmd.domain}`}, cmd.domain)
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: type, 'sd-file': fileName, did: `did:web:${cmd.domain}` }])
     console.log(`Example self-description file has been written at ${fileName}. Please adjust the contents and use one of the onboarding methods`)

@@ -47,7 +47,7 @@ export async function exportToDIDDocument(identifier: IIdentifier, opts?: { serv
     Bls12381G1: 'Bls12381G1Key2020',
     Bls12381G2: 'Bls12381G2Key2020',
     RSA: 'JsonWebKey2020',
-  }
+  } as Record<TKeyType, string>
 
   const allKeys = identifier.keys.map((key) => ({
     id: identifier.did + '#' + key.kid,

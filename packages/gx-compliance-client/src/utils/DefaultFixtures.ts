@@ -44,3 +44,37 @@ export function exampleParticipantSD({ did }: { did?: string; version?: string }
     type: [IGaiaxCredentialType.LegalPerson],
   }
 }
+
+export function exampleParticipantSO({ did }: { did?: string; version?: string }, url: string) {
+  return {
+    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.gaia-x.eu/v2206/api/shape'],
+    issuer: `${did ? did : 'your DID here'}`,
+    id: uuidv4(),
+    credentialSubject: {
+      id: `${did ? did : 'your DID here'}`,
+      "gx-service-offering:providedBy": `${url? url: 'https://participant'}`+"/.well-known/participant.json",
+      "gx-service-offering:name": "my awesome service",
+      "gx-service-offering:description": `a service by ${url? url: 'https://participant'}`,
+      "gx-service-offering:termsAndConditions": [
+        {
+          "gx-service-offering:url": `${url? url: 'https://participant'}`+"/terms-and-conditions/",
+          "gx-service-offering:hash": "myrandomhash"
+        }
+      ],
+      "gx-service-offering:gdpr": [
+        {
+          "gx-service-offering:imprint": `${url? url: 'https://participant'}`+"/terms-and-conditions/",
+        },
+        {
+          "gx-service-offering:privacyPolicy": `${url? url: 'https://participant'}`+"/personal-data-protection/",
+        }
+      ],
+      "gx-service-offering:dataExport": {
+        "gx-service-offering:requestType": "email",
+        "gx-service-offering:accessType": "digital",
+        "gx-service-offering:formatType": "mime/png"
+      }
+    },
+    type: [IGaiaxCredentialType.LegalPerson],
+  }
+}
