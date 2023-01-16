@@ -1,31 +1,80 @@
-import { GXRequiredContext, ISignatureInfo } from '../types'
-import { InvalidArgumentError } from 'commander'
+import { GXRequiredContext, ISignInfo } from '../types'
+import { DIDDocument, DIDDocumentSection, IIdentifier, IService, TKeyType } from '@veramo/core'
+import { mapIdentifierKeysToDocWithJwkSupport } from '@sphereon/ssi-sdk-did-utils'
 
-function convertDidWebToHost(did: string) {
+export function convertDidWebToHost(did: string) {
   did = did.substring(8)
   did = did.replace(/:/g, '/')
   did = did.replace(/%/g, ':')
   return did
 }
 
-export async function extractSignatureInfo(did: string, context: GXRequiredContext): Promise<ISignatureInfo> {
-  const didResolutionResult = await context.agent.resolveDid({ didUrl: did })
-  if (!didResolutionResult.didDocument?.verificationMethod) {
-    throw new InvalidArgumentError('There is no verification method') // fixme: that is valid, see remark below
+export async function extractSignInfo(
+  { did, section, keyRef }: { did: string; section?: DIDDocumentSection; keyRef?: string },
+  context: GXRequiredContext
+): Promise<ISignInfo> {
+  const verificationRelationship: DIDDocumentSection = section ? section : 'verificationMethod'
+
+  const id = await context.agent.didManagerGet({ did })
+  const didDoc = await exportToDIDDocument(id)
+  const keys = await mapIdentifierKeysToDocWithJwkSupport(id, verificationRelationship, context, didDoc)
+  if (!keys || keys.length === 0) {
+    throw Error(`No suitable keys found to issue a verifiable credential for ${did} and ${verificationRelationship} Verification Relationship`)
   }
-  // fixme: This is too naive. You can have multiple VMs, you can even have full VM types, not listed in Verification Method like for instance in authentication.
-  // Purposes can either be references to a single VM listed in VM, then the purpose is a string. Or it can be it's own standalone VM not listed in VM. Then it is a full json object in for instance authentication
-  // For VC/VP issuance you will want to have one from assertionMethod. The agent already checks for that in the ld-handler-local module.
-  // There are methods in ssi-sdk/ssi-sdk-did-utils to dereference VM relationships against local keys
-  // also this needs to be in a separate file to begin with.
-  const verificationMethodId = didResolutionResult.didDocument.verificationMethod[0].id as string
-  const keyRef = (await context.agent.didManagerGet({ did })).keys[0].kid
+  const key = keyRef ? keys.find((key) => key.kid === keyRef) : keys[0]
+
+  if (!key) {
+    // Can only be keyref, as we already checked for an empty array above
+    throw Error(`Could not find key with keyref ${keyRef}`)
+  }
 
   return {
-    keyRef,
-    participantDid: did,
+    keyRef: keyRef ? keyRef : key.kid,
+    keys,
+    key,
+    participantDID: did,
     participantDomain: convertDidWebToHost(did),
-    verificationMethodId,
-    proofPurpose: 'assertionMethod',
+    verificationRelationship,
   }
+}
+
+export async function exportToDIDDocument(identifier: IIdentifier, opts?: { services?: IService[] }): Promise<DIDDocument> {
+  const keyMapping: Record<TKeyType, string> = {
+    Secp256k1: 'EcdsaSecp256k1VerificationKey2019',
+    Secp256r1: 'EcdsaSecp256r1VerificationKey2019',
+    Ed25519: 'Ed25519VerificationKey2018',
+    X25519: 'X25519KeyAgreementKey2019',
+    Bls12381G1: 'Bls12381G1Key2020',
+    Bls12381G2: 'Bls12381G2Key2020',
+    RSA: 'JsonWebKey2020',
+  }
+
+  const allKeys = identifier.keys.map((key) => ({
+    id: identifier.did + '#' + key.kid,
+    type: keyMapping[key.type],
+    controller: identifier.did,
+    ...(key?.meta?.publicKeyJwk ? { publicKeyJwk: key?.meta?.publicKeyJwk } : {}),
+    ...(!key?.meta?.publicKeyJwk ? { publicKeyHex: key.publicKeyHex } : {}),
+  }))
+  // ed25519 keys can also be converted to x25519 for key agreement
+  const keyAgreementKeyIds = allKeys
+    .filter((key) => ['Ed25519VerificationKey2018', 'X25519KeyAgreementKey2019'].includes(key.type))
+    .map((key) => key.id)
+  const signingKeyIds = allKeys.filter((key) => key.type !== 'X25519KeyAgreementKey2019').map((key) => key.id)
+
+  const didDoc = {
+    '@context': 'https://w3id.org/did/v1',
+    id: identifier.did,
+    verificationMethod: allKeys,
+    ...(signingKeyIds.length > 0
+      ? {
+          authentication: signingKeyIds,
+          assertionMethod: signingKeyIds,
+        }
+      : {}),
+    ...(keyAgreementKeyIds.length > 0 ? { keyAgreement: keyAgreementKeyIds } : {}),
+    service: [...(opts?.services || []), ...(identifier?.services || [])],
+  }
+
+  return didDoc
 }

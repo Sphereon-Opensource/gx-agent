@@ -11,7 +11,7 @@ ecosystem
   .requiredOption('-n, --name <string>', 'ecosystem name')
   .requiredOption('-url, --ecosystem-url <string>', 'gaia-x ecosystem server address')
   .action(async (cmd) => {
-    const agent = getAgent(program.opts().config)
+    const agent = await getAgent(program.opts().config)
     const id = await agent.dataStoreSaveMessage({
       //todo: create an entity here instead of using message
       message: {
@@ -36,7 +36,7 @@ ecosystem
   .option('-e, --ecosystem <string>', 'alias of your ecosystem')
   .action(async (cmd) => {
     try {
-      const agent = getAgent(program.opts().config)
+      const agent = await getAgent(program.opts().config)
       const selfDescriptionHash = cmd['sd-id']
       const complianceHash = cmd['compliance-id']
 

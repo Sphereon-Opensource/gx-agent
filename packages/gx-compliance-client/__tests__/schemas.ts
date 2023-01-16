@@ -344,7 +344,7 @@ export const gxShape = {
           },
           {
             'sh:path': { '@id': 'gx-service-offering:dataExport' },
-            'sh:description': 'list of methods to export data out of the service',
+            'sh:description': 'list of methods to exportDocument data out of the service',
             'sh:node': { '@id': 'gx-service-offering:DataExportShape' },
             'sh:minCount': 1,
           },

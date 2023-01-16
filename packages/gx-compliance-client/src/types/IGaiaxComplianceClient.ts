@@ -1,5 +1,6 @@
 import {
   CredentialPayload,
+  DIDDocument,
   IAgentContext,
   ICredentialIssuer,
   IDataStore,
@@ -9,11 +10,14 @@ import {
   IKeyManager,
   IPluginMethodMap,
   IResolver,
+  IService,
+  UniqueVerifiableCredential,
   VerifiableCredential,
   VerifiablePresentation,
 } from '@veramo/core'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 import { purposes } from '@digitalcredentials/jsonld-signatures'
+import { _ExtendedIKey } from '@veramo/utils'
 
 export interface IGaiaxComplianceClient extends IPluginMethodMap {
   submitComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
@@ -34,9 +38,18 @@ export interface IGaiaxComplianceClient extends IPluginMethodMap {
 
   createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier>
 
-  issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
+  exportDIDDocument({ domain, services }: { domain: string; services?: IService[] }, context: GXRequiredContext): Promise<DIDDocument>
+
+  exportDIDToPath(
+    { domain, services, path }: { domain: string; path?: string; services?: IService[] },
+    context: GXRequiredContext
+  ): Promise<ExportFileResult[]>
+
+  issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<UniqueVerifiableCredential>
 
   issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<VerifiablePresentation>
+
+  checkVerifiableCredential(args: ICheckVerifiableCredentialArgs, context: GXRequiredContext): Promise<boolean>
 
   checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<boolean>
 
@@ -66,7 +79,7 @@ export enum MethodNames {
 }
 
 export interface IGaiaxComplianceConfig {
-  defaultKms?: string
+  kmsName?: string
   complianceServiceUrl: string
   complianceServiceVersion: string
 }
@@ -91,8 +104,10 @@ export enum IGaiaxCredentialType {
 
 export interface IIssueVerifiableCredentialArgs {
   credential: CredentialPayload
-  verificationMethodId: string
+  domain?: string
   keyRef?: string
+
+  persist?: boolean
 }
 
 export interface IIssueVerifiablePresentationArgs {
@@ -109,6 +124,10 @@ export interface ICheckVerifiablePresentationArgs {
   challenge?: string
 }
 
+export interface ICheckVerifiableCredentialArgs {
+  verifiableCredential: VerifiableCredential
+}
+
 export interface IAcquireComplianceCredentialArgs {
   selfDescriptionVP: VerifiablePresentation
 }
@@ -121,7 +140,7 @@ export interface IOnboardParticipantWithCredentialArgs {
   verificationMethodId: string
   selfDescriptionVC: VerifiableCredential
   complianceVC: VerifiableCredential
-  purpose: string
+  purpose?: typeof purposes
   challenge?: string
   keyRef: string
 }
@@ -142,7 +161,7 @@ export interface IAddServiceOfferingUnsignedArgs {
   complianceHash?: string
   complianceVC?: VerifiableCredential
   keyRef: string
-  purpose: string
+  purpose?: typeof purposes
   verificationMethodId: string
 }
 
@@ -153,7 +172,7 @@ export interface IAddServiceOfferingArgs {
 export interface IIssueAndSaveVerifiablePresentationArgs {
   challenge: string
   keyRef: string
-  purpose: string
+  purpose?: typeof purposes
   verifiableCredentials: VerifiableCredential[]
   verificationMethodId: string
 }
@@ -178,12 +197,14 @@ export interface IImportDIDArg {
   kid?: string // The requested KID. A default will be generated when not supplied
 }
 
-export interface ISignatureInfo {
+export interface ISignInfo {
   keyRef: string
-  participantDid: string
+  keys: _ExtendedIKey[]
+
+  key: _ExtendedIKey
+  participantDID: string
   participantDomain: string
-  proofPurpose: string
-  verificationMethodId: string
+  verificationRelationship: string
 }
 
 export interface IVerifySelfDescribedCredential {
@@ -218,6 +239,11 @@ export interface ValidationResult {
    * Error messages
    */
   results: string[]
+}
+
+export interface ExportFileResult {
+  file: string
+  path: string
 }
 
 export type GXPluginMethodMap = IResolver &

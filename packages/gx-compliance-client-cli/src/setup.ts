@@ -1,8 +1,8 @@
 import 'cross-fetch/polyfill'
 import yaml from 'yaml'
 import { TAgent } from '@veramo/core'
-import { createAgentFromConfig } from '@veramo/cli/build/lib/agentCreator'
 import { GXPluginMethodMap } from '@sphereon/gx-compliance-client'
+import { setupGXAgent } from '@sphereon/gx-compliance-client'
 
 const fs = require('fs')
 
@@ -20,14 +20,28 @@ export const getConfig = (fileName: string): any => {
     console.log('Unsupported configuration file version:', config.version)
     process.exit(1)
   }
+  if (!config.gx) {
+    console.log(`No Gaia-X config options found in gx section from ${fileName}`)
+    process.exit(1)
+  }
   return config
 }
 
 export type ConfiguredAgent = TAgent<GXPluginMethodMap>
 
-export function getAgent(fileName: string): ConfiguredAgent {
+export async function getAgent(fileName: string): Promise<ConfiguredAgent> {
   try {
-    return createAgentFromConfig<GXPluginMethodMap>(getConfig(fileName))
+    const config = getConfig(fileName ? fileName : 'agent.yml')
+    if (!config.gx.dbEncryptionKey) {
+      // todo: help user how to change the encryption key
+      console.log(`Warning: default database encryption key is used`)
+    }
+    const dbEncryptionKey = config.gx.dbEncryptionKey ? config.gx.dbEncryptionKey : 'CHANGEME'
+    const dbFile = config.gx.dbFile ? config.gx.dbFile : './db/gx.db.sqlite'
+    return await (
+      await setupGXAgent({ dbEncryptionKey, dbFile, config: config.gx })
+    ).agent
+    // return createAgentFromConfig<GXPluginMethodMap>(getConfig(fileName ? fileName : 'agent.yml'))
   } catch (e: any) {
     console.log('Unable to create agent from ' + fileName + '.', e.message)
     process.exit(1)

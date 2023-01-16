@@ -1,21 +1,23 @@
 import { ICredentialSubject } from '@sphereon/ssi-types'
-import { VerifiableCredential } from '@veramo/core'
+import { CredentialPayload, VerifiableCredential } from '@veramo/core'
 import { IGaiaxCredentialType } from '../types'
 
-export function extractParticipantDidFromVCs(verifiableCredentials: VerifiableCredential[]) {
-  const credentialSubject = verifiableCredentials[0].credentialSubject // todo: check whether other credentials have the same subject?
+export function extractSubjectDIDFromVCs(verifiableCredentials: VerifiableCredential[] | CredentialPayload) {
+  const credentialSubject = Array.isArray(verifiableCredentials)
+    ? verifiableCredentials[0].credentialSubject
+    : verifiableCredentials.credentialSubject // todo: check whether other credentials have the same subject?
   let participantDID
   if (Array.isArray(credentialSubject)) {
     const singleCredentialSubject = (credentialSubject as ICredentialSubject[]).filter((s) => !!s.id).pop()
     if (!credentialSubject) {
-      throw new Error('No participant did provided')
+      throw new Error('No subject DID present')
     }
     participantDID = (singleCredentialSubject as ICredentialSubject)['id'] as string
   } else {
     participantDID = (credentialSubject as ICredentialSubject)['id'] as string
   }
   if (!participantDID) {
-    throw new Error("Participant DID can't be extracted from received VerifiableCredentials. Please make sure the credentialSubject id is set")
+    throw new Error("Subject DID can't be extracted from received VerifiableCredentials. Please make sure the credentialSubject id is set")
   }
   return participantDID
 }

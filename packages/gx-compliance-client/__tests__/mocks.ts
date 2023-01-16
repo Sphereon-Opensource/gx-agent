@@ -14,7 +14,7 @@ export const mockedDID = createMockedDID(
     kty: 'RSA',
     n: '1esfhwiRSpFYG3lFsvYgljhZtSebzZ2zgwzGrBz46fJuz49swanZFLCZ-tnExDYACNG-lQf4k7asMqXWFEMU2oxIZ1Jv_RXkH_L4_At-DiPPND3oYHr4gkKwpVqy84w3HBL6EFUirc_ANWM3N0qrsPLkHxSlajwgysup1Y4U3gx4_bcQSU36Jh_lmB6Q97LpkV7txgecWUBsAuh9t3K2iaVdUcNw_8-5xZapYPQEGcEp47yPixOJ2SmXpoR2iTpvZK4ZNyF3JxqKQg2pGJqVbVovthSwdxQkOqF21obQd6IiJcvDmnHSxLo6DiHBGYEYxJO83PSkTY3Xyh7yZMAkUw',
     e: 'AQAB',
-    x5u: 'https://f825-87-213-241-251.eu.ngrok.io/.wellknown/fullchain.pem',
+    x5u: 'https://f825-87-213-241-251.eu.ngrok.io/.well-known/fullchain.pem',
   },
   'did:web:f825-87-213-241-251.eu.ngrok.io#test'
 )

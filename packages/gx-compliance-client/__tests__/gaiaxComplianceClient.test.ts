@@ -30,7 +30,7 @@ describe('@sphereon/gx-compliance-client', () => {
     certificatePEM: PEM_CERT,
     certificateChainPEM: PEM_CHAIN,
     privateKeyPEM: PEM_PRIV_KEY,
-    certificateChainURL: 'https://f825-87-213-241-251.eu.ngrok.io/.wellknown/fullchain.pem',
+    certificateChainURL: 'https://f825-87-213-241-251.eu.ngrok.io/.well-known/fullchain.pem',
   }
 
   beforeEach(async () => {
@@ -67,12 +67,13 @@ describe('@sphereon/gx-compliance-client', () => {
 
   it('should create a VC, VP and verify them', async () => {
     console.log(JSON.stringify(mockedDID, null, 2))
-    const verifiableCredential = await agent.issueVerifiableCredential({
+    const uniqueVC = await agent.issueVerifiableCredential({
       keyRef: 'test',
       credential: {
         issuer: `${identifier.did}`,
         id: '3d17bb21-40d8-4c82-8468-fa11dfa8617c',
         credentialSubject: {
+          id: identifier.did,
           '@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.gaia-x.eu/v2206/api/shape'],
 
           'gx-participant:name': 'OVH',
@@ -106,17 +107,15 @@ describe('@sphereon/gx-compliance-client', () => {
         },
         type: [IGaiaxCredentialType.LegalPerson],
       },
-
-      verificationMethodId: `${identifier.did}#test`,
     })
-    console.log(JSON.stringify(verifiableCredential, null, 2))
+    console.log(JSON.stringify(uniqueVC, null, 2))
 
-    const vcResult = await agent.verifyCredentialLDLocal({ credential: verifiableCredential, fetchRemoteContexts: true })
+    const vcResult = await agent.verifyCredentialLDLocal({ credential: uniqueVC.verifiableCredential, fetchRemoteContexts: true })
     console.log(vcResult)
 
     const verifiablePresentation = await agent.issueVerifiablePresentation({
       keyRef: 'test',
-      verifiableCredentials: [verifiableCredential],
+      verifiableCredentials: [uniqueVC.verifiableCredential],
       verificationMethodId: `${identifier.did}#test`,
     })
     console.log(JSON.stringify(verifiablePresentation, null, 2))

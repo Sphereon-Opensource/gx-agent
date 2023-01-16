@@ -1,15 +1,16 @@
-import { IAgentPlugin, IIdentifier, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
+import { DIDDocument, IAgentPlugin, IIdentifier, IService, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
 
 import {
   AssertionProofPurpose,
   CredentialValidationResult,
+  ExportFileResult,
   GXRequiredContext,
   IAcquireComplianceCredentialFromExistingParticipantArgs,
   IGaiaxComplianceClient,
   IImportDIDArg,
   IOnboardParticipantWithCredentialArgs,
   IOnboardParticipantWithCredentialIdsArgs,
-  ISignatureInfo,
+  ISignInfo,
   IVerifySelfDescribedCredential,
   schema,
   VerifiableCredentialResponse,
@@ -25,13 +26,11 @@ import {
   IGaiaxOnboardingResult,
 } from '../types'
 import { ICredentialSubject } from '@sphereon/ssi-types'
-
-import { VerifiableCredentialSP } from '@sphereon/ssi-sdk-core'
 import { DID } from './DID'
 import { CredentialHandler } from './CredentialHandler'
 import { extractApiTypeFromVC } from '../utils/vc-extraction'
 import { getApiVersionedUrl, postRequest } from '../utils/http'
-import { extractSignatureInfo } from '../utils/did-utils'
+import { extractSignInfo } from '../utils/did-utils'
 
 /**
  * {@inheritDoc IGaiaxComplianceClient}
@@ -52,8 +51,11 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     submitServiceOffering: this.submitServiceOffering.bind(this),
     createAndSubmitServiceOffering: this.createAndSubmitServiceOffering.bind(this),
     createDIDFromX509: this.createDIDFromX509.bind(this),
+    exportDIDDocument: this.exportDIDDocument.bind(this),
+    exportDIDToPath: this.exportDIDToPath.bind(this),
     issueVerifiableCredential: this.credentialHandler.issueVerifiableCredential.bind(this),
     issueVerifiablePresentation: this.credentialHandler.issueVerifiablePresentation.bind(this),
+    checkVerifiableCredential: this.credentialHandler.checkVerifiableCredential.bind(this),
     checkVerifiablePresentation: this.credentialHandler.checkVerifiablePresentation.bind(this),
     onboardParticipantWithCredential: this.onboardParticipantWithCredential.bind(this),
     onboardParticipantWithCredentialIds: this.onboardParticipantWithCredentialIds.bind(this),
@@ -78,14 +80,14 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       hash: args.participantSDHash,
     })
     const did = (selfDescribedVC.credentialSubject as ICredentialSubject)['id'] as string
-    const signatureInfo: ISignatureInfo = await extractSignatureInfo(did, context)
+
+    const signInfo: ISignInfo = await extractSignInfo({ did, section: 'authentication' }, context)
     const verifiablePresentationResponse: VerifiablePresentationResponse = await this.credentialHandler.issueAndSaveVerifiablePresentation(
       {
-        keyRef: signatureInfo.keyRef,
-        purpose: signatureInfo.proofPurpose,
+        keyRef: signInfo.keyRef,
         verifiableCredentials: [selfDescribedVC],
         challenge: GaiaxComplianceClient.getDateChallenge(),
-        verificationMethodId: signatureInfo.verificationMethodId,
+        verificationMethodId: signInfo.verificationRelationship,
       },
       context
     )
@@ -102,27 +104,29 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
-    const signatureInfo: ISignatureInfo = await extractSignatureInfo(args.credential!.credentialSubject!.id as string, context)
-    const selfDescribedVC: VerifiableCredential = await this.credentialHandler.issueVerifiableCredential(
+    const signInfo: ISignInfo = await extractSignInfo(
       {
-        credential: args.credential,
-        verificationMethodId: signatureInfo.verificationMethodId,
-        keyRef: signatureInfo.keyRef,
+        did: args.credential!.credentialSubject!.id as string,
+        section: 'assertionMethod',
       },
       context
     )
-    const selfDescribedVCHash = await context.agent.dataStoreSaveVerifiableCredential({
-      verifiableCredential: selfDescribedVC as VerifiableCredentialSP,
-    })
-
-    console.log(selfDescribedVCHash)
+    const selfDescription = await this.credentialHandler.issueVerifiableCredential(
+      {
+        credential: args.credential,
+        domain: signInfo.participantDomain,
+        keyRef: signInfo.keyRef,
+        persist: true,
+      },
+      context
+    )
+    console.log(selfDescription.hash)
     const verifiablePresentationResponse: VerifiablePresentationResponse = await this.credentialHandler.issueAndSaveVerifiablePresentation(
       {
         challenge: GaiaxComplianceClient.getDateChallenge(),
-        keyRef: signatureInfo.keyRef,
-        purpose: signatureInfo.proofPurpose,
-        verifiableCredentials: [selfDescribedVC as VerifiableCredential],
-        verificationMethodId: signatureInfo.verificationMethodId,
+        keyRef: signInfo.keyRef,
+        verifiableCredentials: [selfDescription.verifiableCredential],
+        verificationMethodId: signInfo.participantDID,
       },
       context
     )
@@ -142,17 +146,18 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       throw new Error('You should provide either complianceHash or complete complianceVC')
     }
 
-    const complianceCredential = args.complianceHash
+    const complianceIsPersisted = args.complianceHash
+    const complianceCredential = complianceIsPersisted
       ? await context.agent.dataStoreGetVerifiableCredential({
-          hash: args.complianceHash,
+          hash: args.complianceHash!,
         })
       : args.complianceVC!
 
-    const serviceOfferingVC: VerifiableCredential = await this.credentialHandler.issueVerifiableCredential(
+    const serviceOffering = await this.credentialHandler.issueVerifiableCredential(
       {
         keyRef: args.keyRef,
         credential: args.serviceOfferingCredential,
-        verificationMethodId: args.verificationMethodId,
+        persist: true,
       },
       context
     )
@@ -161,7 +166,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
         keyRef: args.keyRef,
         // purpose: args.purpose,
-        verifiableCredentials: [complianceCredential, serviceOfferingVC],
+        verifiableCredentials: [complianceCredential, serviceOffering.verifiableCredential],
         verificationMethodId: args.verificationMethodId,
       },
       context
@@ -191,10 +196,21 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     return DID.createDIDFromX509(
       {
         ...args,
-        kms: args.kms ? args.kms : this.config.defaultKms ? this.config.defaultKms : 'local',
+        kms: args.kms ? args.kms : this.config.kmsName ? this.config.kmsName : 'local',
       },
       context
     )
+  }
+
+  private async exportDIDDocument({ domain, services }: { domain: string; services?: IService[] }, context: GXRequiredContext): Promise<DIDDocument> {
+    return DID.exportDocument({ domain, services }, context)
+  }
+
+  private async exportDIDToPath(
+    { domain, services, path }: { domain: string; path?: string; services?: IService[] },
+    context: GXRequiredContext
+  ): Promise<ExportFileResult[]> {
+    return DID.exportToPath({ domain, path, services }, context)
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.verifyUnsignedSelfDescribedCredential} */
@@ -287,14 +303,13 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       hash: args.selfDescriptionHash,
     })
     const did = (selfDescribedVC.credentialSubject as ICredentialSubject)['id'] as string
-    const signatureInfo: ISignatureInfo = await extractSignatureInfo(did, context)
+    const signInfo: ISignInfo = await extractSignInfo({ did, section: 'authentication' }, context)
     return this.onboardParticipantWithCredential(
       {
         complianceVC: complianceCredential,
         selfDescriptionVC: selfDescribedVC,
-        keyRef: signatureInfo.keyRef,
-        purpose: signatureInfo.proofPurpose,
-        verificationMethodId: signatureInfo.verificationMethodId,
+        keyRef: signInfo.keyRef,
+        verificationMethodId: signInfo.verificationRelationship,
         challenge: GaiaxComplianceClient.getDateChallenge(),
       },
       context

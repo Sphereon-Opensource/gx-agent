@@ -2,6 +2,7 @@ import { GaiaxComplianceClient } from './GaiaxComplianceClient'
 import {
   AuthenticationProofPurpose,
   GXRequiredContext,
+  ICheckVerifiableCredentialArgs,
   ICheckVerifiablePresentationArgs,
   IGaiaxComplianceConfig,
   IIssueAndSaveVerifiablePresentationArgs,
@@ -10,8 +11,8 @@ import {
   VerifiablePresentationResponse,
 } from '../types'
 import { v4 as uuidv4 } from 'uuid'
-import { VerifiableCredential, VerifiablePresentation } from '@veramo/core'
-import { extractParticipantDidFromVCs } from '../utils/vc-extraction'
+import { UniqueVerifiableCredential, VerifiablePresentation } from '@veramo/core'
+import { extractSignInfo, extractSubjectDIDFromVCs } from '../utils'
 import { VerifiablePresentationSP } from '@sphereon/ssi-sdk-core'
 
 export class CredentialHandler {
@@ -21,19 +22,30 @@ export class CredentialHandler {
     this.config = client.config
   }
 
-  public async issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential> {
+  public async issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<UniqueVerifiableCredential> {
     const credential = args.credential
     if (!credential?.credentialSubject) {
       throw Error('Credential needs a subject')
     }
     if (!credential.credentialSubject?.id) {
-      credential.credentialSubject.id = args.verificationMethodId.split('#')[0]
+      if (!args.domain) {
+        throw Error('Either a credentialSubject.id value needs to be set, or a domain value needs to be supplied')
+      }
+      credential.credentialSubject.id = `did:web:${args.domain}`
     }
+    const did = extractSubjectDIDFromVCs(credential)
+    const signInfo = await extractSignInfo({ did, section: 'assertionMethod', keyRef: args.keyRef }, context)
+
     const verifiableCredential = await context.agent.createVerifiableCredentialLDLocal({
       credential: credential,
-      keyRef: args.keyRef,
+      keyRef: signInfo.keyRef,
+      // todo: Purpose from signInfo
     })
-    return verifiableCredential
+    let hash = '' //todo: determine hash, without saving
+    if (args.persist) {
+      hash = await context.agent.dataStoreSaveVerifiableCredential({ verifiableCredential })
+    }
+    return { verifiableCredential, hash }
   }
 
   // TODO: Why not have a save param on the method below and adjust the response a bit with a boolean showing persistence status
@@ -41,16 +53,7 @@ export class CredentialHandler {
     args: IIssueAndSaveVerifiablePresentationArgs,
     context: GXRequiredContext
   ): Promise<VerifiablePresentationResponse> {
-    const vp = await this.issueVerifiablePresentation(
-      {
-        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
-        keyRef: args.keyRef,
-        purpose: args.purpose,
-        verifiableCredentials: args.verifiableCredentials as VerifiableCredential[],
-        verificationMethodId: args.verificationMethodId,
-      },
-      context
-    )
+    const vp = await this.issueVerifiablePresentation({ ...args }, context)
     const selfDescribedVPHash = await context.agent.dataStoreSaveVerifiablePresentation({
       verifiablePresentation: vp as VerifiablePresentationSP,
     })
@@ -60,9 +63,18 @@ export class CredentialHandler {
     }
   }
 
+  public async checkVerifiableCredential(args: ICheckVerifiableCredentialArgs, context: GXRequiredContext): Promise<boolean> {
+    const result = await context.agent.verifyCredentialLDLocal({
+      credential: args.verifiableCredential,
+      fetchRemoteContexts: true,
+    })
+    return result
+  }
+
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiablePresentation} */
   public async issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<VerifiablePresentation> {
-    const participantDid = extractParticipantDidFromVCs(args.verifiableCredentials)
+    const did = extractSubjectDIDFromVCs(args.verifiableCredentials)
+    const signInfo = await extractSignInfo({ did, section: 'authentication', keyRef: args.keyRef }, context)
     return await context.agent.createVerifiablePresentationLDLocal({
       presentation: {
         id: uuidv4(),
@@ -70,10 +82,10 @@ export class CredentialHandler {
         type: ['VerifiablePresentation'],
         '@context': ['https://www.w3.org/2018/credentials/v1'],
         verifiableCredential: args.verifiableCredentials,
-        holder: participantDid,
+        holder: did,
       },
-      purpose: args.purpose,
-      keyRef: args.keyRef,
+      purpose: args.purpose, // todo: Make dynamic basied on signInfo and arg
+      keyRef: signInfo.keyRef,
       challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
       domain: this.config.complianceServiceUrl,
     })
