@@ -5,15 +5,12 @@ import {
   ICheckVerifiableCredentialArgs,
   ICheckVerifiablePresentationArgs,
   IGaiaxComplianceConfig,
-  IIssueAndSaveVerifiablePresentationArgs,
   IIssueVerifiableCredentialArgs,
   IIssueVerifiablePresentationArgs,
-  VerifiablePresentationResponse,
 } from '../types'
 import { v4 as uuidv4 } from 'uuid'
-import { UniqueVerifiableCredential, VerifiablePresentation } from '@veramo/core'
+import { UniqueVerifiableCredential, UniqueVerifiablePresentation } from '@veramo/core'
 import { extractSignInfo, extractSubjectDIDFromVCs } from '../utils'
-import { VerifiablePresentationSP } from '@sphereon/ssi-sdk-core'
 
 export class CredentialHandler {
   public readonly config: IGaiaxComplianceConfig
@@ -48,21 +45,6 @@ export class CredentialHandler {
     return { verifiableCredential, hash }
   }
 
-  // TODO: Why not have a save param on the method below and adjust the response a bit with a boolean showing persistence status
-  public async issueAndSaveVerifiablePresentation(
-    args: IIssueAndSaveVerifiablePresentationArgs,
-    context: GXRequiredContext
-  ): Promise<VerifiablePresentationResponse> {
-    const vp = await this.issueVerifiablePresentation({ ...args }, context)
-    const selfDescribedVPHash = await context.agent.dataStoreSaveVerifiablePresentation({
-      verifiablePresentation: vp as VerifiablePresentationSP,
-    })
-    return {
-      verifiablePresentation: vp,
-      vpHash: selfDescribedVPHash,
-    }
-  }
-
   public async checkVerifiableCredential(args: ICheckVerifiableCredentialArgs, context: GXRequiredContext): Promise<boolean> {
     const result = await context.agent.verifyCredentialLDLocal({
       credential: args.verifiableCredential,
@@ -72,10 +54,13 @@ export class CredentialHandler {
   }
 
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiablePresentation} */
-  public async issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<VerifiablePresentation> {
+  public async issueVerifiablePresentation(
+    args: IIssueVerifiablePresentationArgs,
+    context: GXRequiredContext
+  ): Promise<UniqueVerifiablePresentation> {
     const did = `did:web:${args.domain}`
     const signInfo = await extractSignInfo({ did, section: 'authentication', keyRef: args.keyRef }, context)
-    return await context.agent.createVerifiablePresentationLDLocal({
+    const verifiablePresentation = await context.agent.createVerifiablePresentationLDLocal({
       presentation: {
         id: uuidv4(),
         issuanceDate: new Date(),
@@ -87,8 +72,13 @@ export class CredentialHandler {
       // purpose: args.purpose, // todo: Make dynamic basied on signInfo and arg
       keyRef: signInfo.keyRef,
       challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
-      domain: args.domain ?? this.config.complianceServiceUrl,
+      domain: this.config.complianceServiceUrl,
     })
+    let hash = '' //todo: determine hash, without saving
+    if (args.persist) {
+      hash = await context.agent.dataStoreSaveVerifiablePresentation({ verifiablePresentation })
+    }
+    return { verifiablePresentation, hash }
   }
 
   public async checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<boolean> {

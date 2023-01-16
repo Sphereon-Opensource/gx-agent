@@ -166,6 +166,7 @@ vc.command('issue-presentation')
   .option('-f, --vc-files <string...>', 'File(s) containing Verifiable Credentials')
   .option('-c, --challenge <string>', 'Use a challenge')
   .option('-p, --persist', 'Persist the presentation. If not provided the presentation will not be stored in the agent')
+  .option('--show', 'Print the Verifiable Presentation to console')
 
   .action(async (cmd) => {
     const agent = await getAgent(program.opts().config)
@@ -204,23 +205,26 @@ vc.command('issue-presentation')
           ...didDoc,
         })
 
-      const vp = await agent.issueVerifiablePresentation({
+      const uniqueVP = await agent.issueVerifiablePresentation({
         challenge: cmd.challenge as string,
         verifiableCredentials,
         domain: cmd.domain as string,
         persist: cmd.persist === true,
       })
 
+      const vp = uniqueVP.verifiablePresentation
       printTable([
         {
           types: vp.type?.toString(),
           holder: vp.holder,
-          'issuance-date': vp.issuanceDate,
+          'issuance-date': vp.proof.created,
           id: vp.hash,
           persisted: cmd.persist === true,
         },
       ])
-      console.log(JSON.stringify(vp, null, 2))
+      if (cmd.show) {
+        console.log(JSON.stringify(vp, null, 2))
+      }
     } catch (e: any) {
       console.error(e.message)
     } finally {

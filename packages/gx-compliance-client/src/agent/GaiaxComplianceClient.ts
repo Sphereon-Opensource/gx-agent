@@ -14,7 +14,6 @@ import {
   IVerifySelfDescribedCredential,
   schema,
   VerifiableCredentialResponse,
-  VerifiablePresentationResponse,
 } from '../index'
 
 import {
@@ -82,18 +81,19 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     const did = (selfDescribedVC.credentialSubject as ICredentialSubject)['id'] as string
 
     const signInfo: ISignInfo = await extractSignInfo({ did, section: 'authentication' }, context)
-    const verifiablePresentationResponse: VerifiablePresentationResponse = await this.credentialHandler.issueAndSaveVerifiablePresentation(
+    const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
       {
         keyRef: signInfo.keyRef,
         verifiableCredentials: [selfDescribedVC],
         challenge: GaiaxComplianceClient.getDateChallenge(),
-        verificationMethodId: signInfo.verificationRelationship,
+        domain: signInfo.participantDomain,
+        persist: true,
       },
       context
     )
     return this.acquireComplianceCredential(
       {
-        verifiablePresentation: verifiablePresentationResponse.verifiablePresentation,
+        verifiablePresentation: uniqueVP.verifiablePresentation,
       },
       context
     )
@@ -121,18 +121,18 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       context
     )
     console.log(selfDescription.hash)
-    const verifiablePresentationResponse: VerifiablePresentationResponse = await this.credentialHandler.issueAndSaveVerifiablePresentation(
+    const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
       {
         challenge: GaiaxComplianceClient.getDateChallenge(),
         keyRef: signInfo.keyRef,
         verifiableCredentials: [selfDescription.verifiableCredential],
-        verificationMethodId: signInfo.participantDID,
+        domain: signInfo.participantDomain,
       },
       context
     )
     const verifiableCredentialResponse = (await this.acquireComplianceCredential(
       {
-        verifiablePresentation: verifiablePresentationResponse.verifiablePresentation,
+        verifiablePresentation: uniqueVP.verifiablePresentation,
       },
       context
     )) as VerifiableCredentialResponse
@@ -174,7 +174,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     )
     return await this.submitServiceOffering(
       {
-        serviceOfferingVP: serviceOfferingVP,
+        serviceOfferingVP: serviceOfferingVP.verifiablePresentation,
       },
       context
     )

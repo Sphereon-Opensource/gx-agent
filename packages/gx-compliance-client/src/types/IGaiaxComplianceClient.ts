@@ -12,6 +12,7 @@ import {
   IResolver,
   IService,
   UniqueVerifiableCredential,
+  UniqueVerifiablePresentation,
   VerifiableCredential,
   VerifiablePresentation,
 } from '@veramo/core'
@@ -47,7 +48,7 @@ export interface IGaiaxComplianceClient extends IPluginMethodMap {
 
   issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<UniqueVerifiableCredential>
 
-  issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<VerifiablePresentation>
+  issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<UniqueVerifiablePresentation>
 
   checkVerifiableCredential(args: ICheckVerifiableCredentialArgs, context: GXRequiredContext): Promise<boolean>
 
@@ -173,11 +174,6 @@ export interface IIssueAndSaveVerifiablePresentationArgs {
   purpose?: typeof purposes
   verifiableCredentials: VerifiableCredential[]
   verificationMethodId: string
-}
-
-export interface VerifiablePresentationResponse {
-  verifiablePresentation: VerifiablePresentation
-  vpHash: string
 }
 
 export interface VerifiableCredentialResponse {
