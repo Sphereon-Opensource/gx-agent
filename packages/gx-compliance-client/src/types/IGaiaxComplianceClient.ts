@@ -113,10 +113,10 @@ export interface IIssueVerifiableCredentialArgs {
 export interface IIssueVerifiablePresentationArgs {
   challenge?: string
   keyRef?: string
-
-  purpose?: typeof purposes
   verifiableCredentials: VerifiableCredential[]
-  verificationMethodId: string
+  domain?: string
+
+  persist?: boolean
 }
 
 export interface ICheckVerifiablePresentationArgs {
@@ -137,32 +137,30 @@ export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
 }
 
 export interface IOnboardParticipantWithCredentialArgs {
-  verificationMethodId: string
+  domain?: string
   selfDescriptionVC: VerifiableCredential
   complianceVC: VerifiableCredential
-  purpose?: typeof purposes
+  // purpose?: typeof purposes
   challenge?: string
-  keyRef: string
+  keyRef?: string
 }
 
 export interface IOnboardParticipantWithCredentialIdsArgs {
-  selfDescriptionHash: string
-  complianceHash: string
+  selfDescriptionId: string
+  complianceId: string
 }
 
 export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
   credential: CredentialPayload
 }
 
-//fixme @nlklomp is this the right approach to handle complianceHash, complianceVC
 export interface IAddServiceOfferingUnsignedArgs {
   challenge?: string
   serviceOfferingCredential: CredentialPayload
-  complianceHash?: string
+  complianceId?: string
   complianceVC?: VerifiableCredential
-  keyRef: string
-  purpose?: typeof purposes
-  verificationMethodId: string
+  keyRef?: string
+  domain?: string
 }
 
 export interface IAddServiceOfferingArgs {

@@ -142,14 +142,14 @@ export class GaiaxComplianceClient implements IAgentPlugin {
   /** {@inheritDoc IGaiaxComplianceClient.createAndSubmitServiceOffering} */
   private async createAndSubmitServiceOffering(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult> {
     //TODO: implement fetching compliance VC from data storage
-    if (!args.complianceHash && !args.complianceVC) {
-      throw new Error('You should provide either complianceHash or complete complianceVC')
+    if (!args.complianceId && !args.complianceVC) {
+      throw new Error('You should provide either complianceId or complete complianceVC')
     }
 
-    const complianceIsPersisted = args.complianceHash
+    const complianceIsPersisted = args.complianceId
     const complianceCredential = complianceIsPersisted
       ? await context.agent.dataStoreGetVerifiableCredential({
-          hash: args.complianceHash!,
+          hash: args.complianceId!,
         })
       : args.complianceVC!
 
@@ -167,7 +167,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         keyRef: args.keyRef,
         // purpose: args.purpose,
         verifiableCredentials: [complianceCredential, serviceOffering.verifiableCredential],
-        verificationMethodId: args.verificationMethodId,
+        domain: args.domain,
+        persist: true,
       },
       context
     )
@@ -280,7 +281,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         // purpose: args.purpose,
         verifiableCredentials: [args.complianceVC, args.selfDescriptionVC],
         challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
-        verificationMethodId: args.verificationMethodId,
+        domain: args.domain,
+        persist: true,
       },
       context
     )
@@ -297,19 +299,19 @@ export class GaiaxComplianceClient implements IAgentPlugin {
 
   private async onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext) {
     const complianceCredential = await context.agent.dataStoreGetVerifiableCredential({
-      hash: args.complianceHash,
+      hash: args.complianceId,
     })
-    const selfDescribedVC = await context.agent.dataStoreGetVerifiableCredential({
-      hash: args.selfDescriptionHash,
+    const selfDescriptionVC = await context.agent.dataStoreGetVerifiableCredential({
+      hash: args.selfDescriptionId,
     })
-    const did = (selfDescribedVC.credentialSubject as ICredentialSubject)['id'] as string
+    const did = (selfDescriptionVC.credentialSubject as ICredentialSubject)['id'] as string
     const signInfo: ISignInfo = await extractSignInfo({ did, section: 'authentication' }, context)
     return this.onboardParticipantWithCredential(
       {
         complianceVC: complianceCredential,
-        selfDescriptionVC: selfDescribedVC,
+        selfDescriptionVC: selfDescriptionVC,
         keyRef: signInfo.keyRef,
-        verificationMethodId: signInfo.verificationRelationship,
+        domain: signInfo.participantDomain,
         challenge: GaiaxComplianceClient.getDateChallenge(),
       },
       context

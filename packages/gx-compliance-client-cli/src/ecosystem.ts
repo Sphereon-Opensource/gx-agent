@@ -31,18 +31,19 @@ ecosystem
   .command('submit')
   .description('Onboards the participant to the new ecosystem')
   .option('-sd-id, --sd-id <string>', 'id of your self-description')
-  .option('-compliance-id, --compliance-id <string>', '')
-  .option('-ecosystem-url, --ecosystem-url <string>', 'URL of gx-compliance server')
+  .option('-c-id, --compliance-id <string>', '')
+  .option('-e-url, --ecosystem-url <string>', 'URL of gx-compliance server')
   .option('-e, --ecosystem <string>', 'alias of your ecosystem')
   .action(async (cmd) => {
     try {
       const agent = await getAgent(program.opts().config)
-      const selfDescriptionHash = cmd['sd-id']
-      const complianceHash = cmd['compliance-id']
+      const selfDescriptionId = cmd['sd-id']
+      const complianceId = cmd['compliance-id']
 
+      //fixme: Does not take ecosystem into account at all
       const selfDescription = await agent.onboardParticipantWithCredentialIds({
-        selfDescriptionHash,
-        complianceHash,
+        selfDescriptionId,
+        complianceId,
       })
       printTable([{ ...selfDescription }])
     } catch (e: unknown) {

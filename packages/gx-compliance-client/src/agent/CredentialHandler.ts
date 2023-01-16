@@ -73,7 +73,7 @@ export class CredentialHandler {
 
   /** {@inheritDoc IGaiaxComplianceClient.issueVerifiablePresentation} */
   public async issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<VerifiablePresentation> {
-    const did = extractSubjectDIDFromVCs(args.verifiableCredentials)
+    const did = `did:web:${args.domain}`
     const signInfo = await extractSignInfo({ did, section: 'authentication', keyRef: args.keyRef }, context)
     return await context.agent.createVerifiablePresentationLDLocal({
       presentation: {
@@ -84,10 +84,10 @@ export class CredentialHandler {
         verifiableCredential: args.verifiableCredentials,
         holder: did,
       },
-      purpose: args.purpose, // todo: Make dynamic basied on signInfo and arg
+      // purpose: args.purpose, // todo: Make dynamic basied on signInfo and arg
       keyRef: signInfo.keyRef,
       challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
-      domain: this.config.complianceServiceUrl,
+      domain: args.domain ?? this.config.complianceServiceUrl,
     })
   }
 

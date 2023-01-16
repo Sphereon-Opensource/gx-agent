@@ -42,14 +42,14 @@ vc.command('issue-credential')
         .get(`/.well-known/did.json`)
         .times(10)
         .reply(200, {
-          ...didDoc
+          ...didDoc,
         })
 
       const vc = await agent.issueVerifiableCredential({
         credential,
         keyRef: cmd.keyIdentifier,
         domain: cmd.domain,
-        persist: cmd.persist
+        persist: cmd.persist,
       })
       printTable([
         {
@@ -58,8 +58,8 @@ vc.command('issue-credential')
           subject: vc.verifiableCredential.credentialSubject.id,
           'issuance-date': vc.verifiableCredential.issuanceDate,
           id: vc.hash,
-          persisted: cmd.persisted === true
-        }
+          persisted: cmd.persist === true,
+        },
       ])
       console.log(JSON.stringify(vc.verifiableCredential, null, 2))
     } catch (e: any) {
@@ -75,19 +75,21 @@ vc.command('list-credentials')
     const agent = await getAgent(program.opts().config)
     try {
       const uniqueCredentials = await agent.dataStoreORMGetVerifiableCredentials({
-        order: [{
-          column: 'issuanceDate',
-          direction: 'ASC'
-        }]
+        order: [
+          {
+            column: 'issuanceDate',
+            direction: 'ASC',
+          },
+        ],
       })
       printTable(
-        uniqueCredentials.map(vc => {
+        uniqueCredentials.map((vc) => {
           return {
             types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
             issuer: vc.verifiableCredential.issuer,
             subject: vc.verifiableCredential.credentialSubject.id,
             'issuance-date': vc.verifiableCredential.issuanceDate,
-            id: vc.hash
+            id: vc.hash,
           }
         })
       )
@@ -97,7 +99,6 @@ vc.command('list-credentials')
       nock.cleanAll()
     }
   })
-
 
 vc.command('verify-credential')
   .description('Issues a Verifiable Credential using a Credential from an input file')
@@ -133,7 +134,7 @@ vc.command('verify-credential')
           .get(`/.well-known/did.json`)
           .times(10)
           .reply(200, {
-            ...didDoc
+            ...didDoc,
           })
       }
       const result = await agent.checkVerifiableCredential({ verifiableCredential })
@@ -144,13 +145,82 @@ vc.command('verify-credential')
           issuer: verifiableCredential.issuer,
           subject: verifiableCredential.credentialSubject.id,
           'issuance-date': verifiableCredential.issuanceDate,
-          valid: result
-        }
+          valid: result,
+        },
       ])
 
       if (cmd.show === true) {
         console.log(JSON.stringify(verifiableCredential, null, 2))
       }
+    } catch (e: any) {
+      console.error(e.message)
+    } finally {
+      nock.cleanAll()
+    }
+  })
+
+vc.command('issue-presentation')
+  .description('Issues a Verifiable Presentation using a Credentials from input file(s)')
+  .requiredOption('-d, --domain <string>', 'Use domain')
+  .option('-ids, --vc-ids <string...>', '1 or more Verifiable Credential IDS stored in the agent')
+  .option('-f, --vc-files <string...>', 'File(s) containing Verifiable Credentials')
+  .option('-c, --challenge <string>', 'Use a challenge')
+  .option('-p, --persist', 'Persist the presentation. If not provided the presentation will not be stored in the agent')
+
+  .action(async (cmd) => {
+    const agent = await getAgent(program.opts().config)
+    if (cmd.vcFiles && !cmd.vcIds) {
+      throw Error('Verifiable Credential IDs or files need to be selected. Please check parameters')
+    }
+    try {
+      const fileVCs = cmd.vcFiles
+        ? (cmd.vcFiles as string[]).map((file) => {
+            return JSON.parse(fs.readFileSync(file, 'utf-8')) as VerifiableCredential
+          })
+        : []
+
+      const agentVCs: VerifiableCredential[] = []
+
+      const ids = cmd.vcIds ? (cmd.vcIds as string[]) : []
+      for (const hash of ids) {
+        agentVCs.push(await agent.dataStoreGetVerifiableCredential({ hash }))
+      }
+
+      const verifiableCredentials = fileVCs.concat(agentVCs)
+      if (verifiableCredentials.length === 0) {
+        throw Error('No verifiable credentials were found matching the critery. Did you use the --vc-files and/or --vc-ids options?')
+      }
+
+      const did = `did:web:${cmd.domain}`
+      const id = await agent.didManagerGet({ did })
+      const didDoc = await exportToDIDDocument(id)
+      const url = `https://${convertDidWebToHost(did)}`
+      console.log(url)
+      nock.cleanAll()
+      nock(url)
+        .get(`/.well-known/did.json`)
+        .times(10)
+        .reply(200, {
+          ...didDoc,
+        })
+
+      const vp = await agent.issueVerifiablePresentation({
+        challenge: cmd.challenge as string,
+        verifiableCredentials,
+        domain: cmd.domain as string,
+        persist: cmd.persist === true,
+      })
+
+      printTable([
+        {
+          types: vp.type?.toString(),
+          holder: vp.holder,
+          'issuance-date': vp.issuanceDate,
+          id: vp.hash,
+          persisted: cmd.persist === true,
+        },
+      ])
+      console.log(JSON.stringify(vp, null, 2))
     } catch (e: any) {
       console.error(e.message)
     } finally {
