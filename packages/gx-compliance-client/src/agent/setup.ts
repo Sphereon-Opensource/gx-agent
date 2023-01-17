@@ -1,6 +1,6 @@
 import { GaiaxComplianceClient } from './GaiaxComplianceClient'
 import { BlsKeyManagementSystem } from '@sphereon/ssi-sdk-bls-kms-local/dist/BlsKeyManagementSystem'
-import { CredentialHandlerLDLocal, LdDefaultContexts, MethodNames, SphereonJsonWebSignature2020 } from '@sphereon/ssi-sdk-vc-handler-ld-local'
+import { CredentialHandlerLDLocal, LdDefaultContexts, MethodNames } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 import { CredentialPlugin } from '@veramo/credential-w3c'
 import { KeyManager } from '@veramo/key-manager'
 import { SecretBox } from '@veramo/kms-local'
@@ -16,6 +16,7 @@ import fs from 'fs'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { GXPluginMethodMap, IGaiaxComplianceConfig } from '../types'
+import { GaiaXJsonWebSignature2020 } from '../suites/JsonWebSignature2020'
 
 export async function setupGXAgent(opts: {
   dbFile?: string
@@ -56,7 +57,7 @@ export async function setupGXAgent(opts: {
       new CredentialHandlerLDLocal({
         keyStore: privateKeyStore,
         contextMaps: opts?.customContext ? [LdDefaultContexts, opts.customContext] : [LdDefaultContexts],
-        suites: [new SphereonJsonWebSignature2020()],
+        suites: [new GaiaXJsonWebSignature2020()],
         bindingOverrides: new Map([
           ['createVerifiableCredentialLD', MethodNames.createVerifiableCredentialLDLocal],
           ['createVerifiablePresentationLD', MethodNames.createVerifiablePresentationLDLocal],
