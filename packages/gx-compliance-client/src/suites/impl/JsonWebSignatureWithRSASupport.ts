@@ -3,6 +3,7 @@ import jsonld from 'jsonld'
 
 import { subtle } from '@transmute/web-crypto-key-pair'
 import { JsonWebKey } from './JsonWebKeyWithRSASupport'
+import * as u8a from 'uint8arrays'
 import { Verifier } from '@transmute/jose-ld'
 
 import sec from '@transmute/security-context'
@@ -211,23 +212,19 @@ export class JsonWebSignature {
   async verifySignature({ verifyData, verificationMethod, proof }: any) {
     if (verificationMethod.publicKey) {
       const key = verificationMethod.publicKey as CryptoKey
-      // const headerString = proof.jws.split('.')[0]
-      // const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), verifyData])
-      console.log(`in verifySignature, proof.jws: ${proof.jws}`)
-      const messageBuffer = Buffer.from(verifyData, "utf-8");
-      console.log(`220 - verifyData: ${messageBuffer}`)
+      const signature = proof.jws.split('.')[2]
+      const messageBuffer = Buffer.from(verifyData, 'utf-8')
       return await subtle.verify(
         {
           name: key.algorithm?.name ? key.algorithm.name : 'RSASSA-PKCS1-V1_5',
           hash: 'SHA-256',
         },
         key,
-        Buffer.from(proof.jws.replace('..', `.${verifyData}.`)),
+        u8a.fromString(signature, 'base64url'),
         messageBuffer
       )
     }
     const verifier = await verificationMethod.verifier()
-    console.log(`232 - signature: ${proof.jws.replace('..', `.${verifyData}.`)}`)
     return verifier.verify({ data: verifyData, signature: proof.jws.replace('..', `.${verifyData}.`) })
   }
 
