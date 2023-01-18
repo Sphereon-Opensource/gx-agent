@@ -3,10 +3,10 @@ import jsonld from 'jsonld'
 
 import { subtle } from '@transmute/web-crypto-key-pair'
 import { JsonWebKey } from './JsonWebKeyWithRSASupport'
-import * as u8a from 'uint8arrays'
 import { Verifier } from '@transmute/jose-ld'
 
 import sec from '@transmute/security-context'
+import { createHash } from 'crypto'
 
 const sha256 = async (data: any) => {
   return Buffer.from(await subtle.digest('SHA-256', Buffer.from(data)))
@@ -48,10 +48,9 @@ export class JsonWebSignature {
   }
 
   async canonize(input: any, { documentLoader }: any) {
-    return jsonld.canonize(input, {
+    return await jsonld.canonize(input, {
       algorithm: 'URDNA2015',
       format: 'application/n-quads',
-      skipExpansion: true,
       documentLoader: documentLoader,
     })
   }
@@ -213,34 +212,37 @@ export class JsonWebSignature {
   async verifySignature({ verifyData, verificationMethod, proof }: any) {
     if (verificationMethod.publicKey) {
       const key = verificationMethod.publicKey as CryptoKey
-      const signature = proof.jws.split('.')[2]
-      const headerString = proof.jws.split('.')[0]
-      const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), verifyData])
+      // const headerString = proof.jws.split('.')[0]
+      // const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), verifyData])
+      console.log(`in verifySignature, proof.jws: ${proof.jws}`)
+      const messageBuffer = Buffer.from(verifyData, "utf-8");
+      console.log(`220 - verifyData: ${messageBuffer}`)
       return await subtle.verify(
         {
           name: key.algorithm?.name ? key.algorithm.name : 'RSASSA-PKCS1-V1_5',
           hash: 'SHA-256',
         },
         key,
-        typeof proof.jws === 'string' ? u8a.fromString(signature, 'base64url') : proof.jws,
+        Buffer.from(proof.jws.replace('..', `.${verifyData}.`)),
         messageBuffer
       )
     }
     const verifier = await verificationMethod.verifier()
-    return verifier.verify({ data: verifyData, signature: proof.jws })
+    console.log(`232 - signature: ${proof.jws.replace('..', `.${verifyData}.`)}`)
+    return verifier.verify({ data: verifyData, signature: proof.jws.replace('..', `.${verifyData}.`) })
   }
 
   async verifyProof({ proof, document, purpose, documentLoader, expansionMap, compactProof }: any) {
     try {
       // create data to verify
-      const verifyData = await this.createVerifyData({
+      /*const verifyData = await this.createVerifyData({
         document,
         proof,
         documentLoader,
         expansionMap,
         compactProof,
-      })
-
+      })*/
+      const normalizedHash = await this.createVerifyDataWithoutProof({ document, documentLoader })
       // fetch verification method
       const verificationMethod = await this.getVerificationMethod({
         proof,
@@ -252,7 +254,7 @@ export class JsonWebSignature {
 
       // verify signature on data
       const verified = await this.verifySignature({
-        verifyData,
+        verifyData: normalizedHash,
         verificationMethod, // key pair class instance here.
         document,
         proof,
@@ -279,6 +281,22 @@ export class JsonWebSignature {
       return { verified: true, purposeResult }
     } catch (error) {
       return { verified: false, error }
+    }
+  }
+
+  private async createVerifyDataWithoutProof({ document, documentLoader }: any): Promise<string> {
+    delete document.proof
+    try {
+      const canonized: string = await jsonld.canonize(document, {
+        algorithm: 'URDNA2015',
+        format: 'application/n-quads',
+        documentLoader: documentLoader,
+      })
+
+      if (canonized === '') throw new Error()
+      return createHash('sha256').update(canonized).digest('hex')
+    } catch (error) {
+      throw new Error('Provided input is not a valid Self Description.')
     }
   }
 }
