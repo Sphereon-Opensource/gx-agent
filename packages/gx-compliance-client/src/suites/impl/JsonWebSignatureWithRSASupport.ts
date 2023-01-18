@@ -6,7 +6,6 @@ import { JsonWebKey } from './JsonWebKeyWithRSASupport'
 import { Verifier } from '@transmute/jose-ld'
 
 import sec from '@transmute/security-context'
-import { createHash } from 'crypto'
 
 const sha256 = async (data: any) => {
   return Buffer.from(await subtle.digest('SHA-256', Buffer.from(data)))
@@ -235,14 +234,14 @@ export class JsonWebSignature {
   async verifyProof({ proof, document, purpose, documentLoader, expansionMap, compactProof }: any) {
     try {
       // create data to verify
-      /*const verifyData = await this.createVerifyData({
+      delete document.proof
+      const verifyData = await this.createVerifyData({
         document,
         proof,
         documentLoader,
         expansionMap,
         compactProof,
-      })*/
-      const normalizedHash = await this.createVerifyDataWithoutProof({ document, documentLoader })
+      })
       // fetch verification method
       const verificationMethod = await this.getVerificationMethod({
         proof,
@@ -254,7 +253,7 @@ export class JsonWebSignature {
 
       // verify signature on data
       const verified = await this.verifySignature({
-        verifyData: normalizedHash,
+        verifyData,
         verificationMethod, // key pair class instance here.
         document,
         proof,
@@ -281,22 +280,6 @@ export class JsonWebSignature {
       return { verified: true, purposeResult }
     } catch (error) {
       return { verified: false, error }
-    }
-  }
-
-  private async createVerifyDataWithoutProof({ document, documentLoader }: any): Promise<string> {
-    delete document.proof
-    try {
-      const canonized: string = await jsonld.canonize(document, {
-        algorithm: 'URDNA2015',
-        format: 'application/n-quads',
-        documentLoader: documentLoader,
-      })
-
-      if (canonized === '') throw new Error()
-      return createHash('sha256').update(canonized).digest('hex')
-    } catch (error) {
-      throw new Error('Provided input is not a valid Self Description.')
     }
   }
 }
