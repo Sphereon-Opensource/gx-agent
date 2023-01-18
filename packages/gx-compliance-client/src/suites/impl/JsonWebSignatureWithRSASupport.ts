@@ -90,6 +90,7 @@ export class JsonWebSignature {
       proof = await jsonld.compact(this.proof, context, {
         documentLoader,
         skipExpansion: true,
+        expansionMap,
         compactToRelative: false,
       })
     } else {
@@ -132,7 +133,7 @@ export class JsonWebSignature {
       document,
       suite: this,
       documentLoader,
-      skipExpansion: true,
+      expansionMap,
     })
 
     // create data to sign
@@ -152,7 +153,6 @@ export class JsonWebSignature {
       documentLoader,
       expansionMap,
     })
-
     delete proof['@context']
     return proof
   }
@@ -213,14 +213,17 @@ export class JsonWebSignature {
   async verifySignature({ verifyData, verificationMethod, proof }: any) {
     if (verificationMethod.publicKey) {
       const key = verificationMethod.publicKey as CryptoKey
+      const signature = proof.jws.split('.')[2]
+      const headerString = proof.jws.split('.')[0]
+      const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), verifyData])
       return await subtle.verify(
         {
           name: key.algorithm?.name ? key.algorithm.name : 'RSASSA-PKCS1-V1_5',
           hash: 'SHA-256',
         },
         key,
-        typeof proof.jws === 'string' ? u8a.fromString(proof.jws, 'base64url') : proof.jws,
-        verifyData
+        typeof proof.jws === 'string' ? u8a.fromString(signature, 'base64url') : proof.jws,
+        messageBuffer
       )
     }
     const verifier = await verificationMethod.verifier()
