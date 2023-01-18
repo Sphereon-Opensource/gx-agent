@@ -51,21 +51,10 @@ export class JsonWebSignature {
     return await jsonld.canonize(input, {
       algorithm: 'URDNA2015',
       format: 'application/n-quads',
-      documentLoader: documentLoader,
+      documentLoader: documentLoader
     })
   }
 
-  async createVerifyData({ document, documentLoader }: any) {
-    // concatenate hash of c14n proof options and hash of c14n document
-    const c14nDocument = await this.canonize(document, {
-      documentLoader,
-    })
-    return await sha256(c14nDocument)
-  }
-
-  async matchProof({ proof }: any) {
-    return proof.type === 'JsonWebSignature2020'
-  }
 
   async sign({ verifyData, proof }: any) {
     try {
@@ -90,12 +79,12 @@ export class JsonWebSignature {
         documentLoader,
         skipExpansion: true,
         expansionMap,
-        compactToRelative: false,
+        compactToRelative: false
       })
     } else {
       // create proof JSON-LD document
       proof = {
-        '@context': context,
+        '@context': context
       }
     }
 
@@ -132,7 +121,7 @@ export class JsonWebSignature {
       document,
       suite: this,
       documentLoader,
-      expansionMap,
+      expansionMap
     })
 
     // create data to sign
@@ -141,7 +130,7 @@ export class JsonWebSignature {
       proof,
       documentLoader,
       expansionMap,
-      compactProof,
+      compactProof
     })
 
     // sign data
@@ -150,7 +139,7 @@ export class JsonWebSignature {
       document,
       proof,
       documentLoader,
-      expansionMap,
+      expansionMap
     })
     delete proof['@context']
     return proof
@@ -182,7 +171,7 @@ export class JsonWebSignature {
       {
         '@context': document['@context'],
         '@embed': '@always',
-        id: verificationMethod,
+        id: verificationMethod
       },
       {
         // use the cache of the document we just resolved when framing
@@ -190,11 +179,11 @@ export class JsonWebSignature {
           if (iri.startsWith(document.id)) {
             return {
               documentUrl: iri,
-              document,
+              document
             }
           }
           return documentLoader(iri)
-        },
+        }
       }
     )
 
@@ -213,11 +202,14 @@ export class JsonWebSignature {
     if (verificationMethod.publicKey) {
       const key = verificationMethod.publicKey as CryptoKey
       const signature = proof.jws.split('.')[2]
-      const messageBuffer = Buffer.from(verifyData, 'utf-8')
+      const headerString = proof.jws.split('.')[0]
+
+
+      const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), verifyData])
       return await subtle.verify(
         {
           name: key.algorithm?.name ? key.algorithm.name : 'RSASSA-PKCS1-V1_5',
-          hash: 'SHA-256',
+          hash: 'SHA-256'
         },
         key,
         u8a.fromString(signature, 'base64url'),
@@ -245,7 +237,7 @@ export class JsonWebSignature {
         document,
         documentLoader,
         expansionMap,
-        instance: true, // this means we get a key pair class instance, not just json.
+        instance: true // this means we get a key pair class instance, not just json.
       })
 
       // verify signature on data
@@ -255,7 +247,7 @@ export class JsonWebSignature {
         document,
         proof,
         documentLoader,
-        expansionMap,
+        expansionMap
       })
       if (!verified) {
         throw new Error('Invalid signature.')
@@ -267,7 +259,7 @@ export class JsonWebSignature {
         suite: this,
         verificationMethod,
         documentLoader,
-        expansionMap,
+        expansionMap
       })
 
       if (!purposeResult.valid) {
@@ -279,4 +271,18 @@ export class JsonWebSignature {
       return { verified: false, error }
     }
   }
+
+  async createVerifyData({ document, documentLoader }: any) {
+    // concatenate hash of c14n proof options and hash of c14n document
+    const c14nDocument = await this.canonize(document, {
+      documentLoader
+    })
+    console.log(`INPUT verify data: ${c14nDocument}`)
+    return await sha256(c14nDocument)
+  }
+
+  async matchProof({ proof }: any) {
+    return proof.type === 'JsonWebSignature2020'
+  }
+
 }
