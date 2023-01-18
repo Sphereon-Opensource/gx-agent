@@ -15,7 +15,7 @@ import { getResolver } from 'web-did-resolver'
 import fs from 'fs'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
-import { GaiaXJsonWebSignature2020 } from '../dist/suites/JsonWebSignature2020'
+import { GaiaXJsonWebSignature2020 } from '../src/suites/JsonWebSignature2020'
 
 export async function setupAgent(opts: {
   dbFile?: string
