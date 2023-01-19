@@ -44,7 +44,7 @@ export class JsonWebSignature {
       // document already includes the required context
       return
     }
-    throw new TypeError(`The document to be signed must contain this suite's @context, ` + `"${contextUrl}".`)
+    // throw new TypeError(`The document to be signed must contain this suite's @context, ` + `"${contextUrl}".`)
   }
 
   async canonize(input: any, { documentLoader }: any) {
@@ -203,9 +203,11 @@ export class JsonWebSignature {
       const key = verificationMethod.publicKey as CryptoKey
       const signature = proof.jws.split('.')[2]
       const headerString = proof.jws.split('.')[0]
+      // const verif = u8a.fromString(verifyData, 'base16')
+      // const data = u8a.fromString(u8a.toString(verif, 'base64url'), 'utf-8')
+      const dataBuffer = u8a.fromString(verifyData, 'utf-8')
 
-
-      const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), verifyData])
+      const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), dataBuffer])
       return await subtle.verify(
         {
           name: key.algorithm?.name ? key.algorithm.name : 'RSASSA-PKCS1-V1_5',
@@ -278,7 +280,9 @@ export class JsonWebSignature {
       documentLoader
     })
     console.log(`INPUT verify data: ${c14nDocument}`)
-    return await sha256(c14nDocument)
+    const hexHash =  u8a.toString(await sha256(c14nDocument), 'base16')
+    console.log(`HASH verify data: ${hexHash}`)
+    return hexHash
   }
 
   async matchProof({ proof }: any) {

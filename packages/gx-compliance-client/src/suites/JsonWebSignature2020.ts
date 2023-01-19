@@ -1,8 +1,16 @@
-import { CredentialPayload, DIDDocument, IAgentContext, IKey, PresentationPayload, TKeyType, VerifiableCredential } from '@veramo/core'
+import {
+  CredentialPayload,
+  DIDDocument,
+  IAgentContext,
+  IKey,
+  PresentationPayload,
+  TKeyType,
+  VerifiableCredential
+} from '@veramo/core'
 import { RequiredAgentMethods } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 import { SphereonLdSignature } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/ld-suites'
 import * as u8a from 'uint8arrays'
-import { asArray, encodeJoseBlob } from '@veramo/utils'
+import { encodeJoseBlob } from '@veramo/utils'
 import { JsonWebKey } from './impl/JsonWebKeyWithRSASupport'
 import { JsonWebSignature } from './impl/JsonWebSignatureWithRSASupport'
 
@@ -41,7 +49,7 @@ export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
 
     const signer = {
       // returns a JWS detached
-      sign: async (args: { data: Uint8Array }): Promise<string> => {
+      sign: async (args: { data: string }): Promise<string> => {
         const header = {
           alg,
           b64: false,
@@ -49,7 +57,10 @@ export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
         }
 
         const headerString = encodeJoseBlob(header)
-        const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), args.data])
+        const dataBuffer = u8a.fromString(args.data, 'utf-8')
+
+        const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), dataBuffer])
+        console.log(`Message buffer length: ${messageBuffer.length}. char 0: ${messageBuffer[0]}, last char: ${messageBuffer[messageBuffer.length -1]}`)
         const messageString = u8a.toString(messageBuffer, 'base64') //will be decoded to bytes in the keyManagerSign, hence the base64 arg to the method below
 
         const signature = await context.agent.keyManagerSign({
@@ -58,6 +69,8 @@ export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
           data: messageString,
           encoding: 'base64',
         }) // returns base64url signature
+        console.log(`SIGN result: ${headerString}..${signature}     INPUT: ${args.data}`)
+        console.log(`signature length: ${u8a.fromString(signature, 'base64url').length}`)
         return `${headerString}..${signature}`
       },
     }
@@ -100,12 +113,12 @@ export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
   }
 
   preSigningCredModification(credential: CredentialPayload): void {
-    credential['@context'] = [...(credential['@context'] || []), this.getContext()]
+    /*credential['@context'] = [...(credential['@context'] || []), this.getContext()]*/
   }
 
   preSigningPresModification(presentation: PresentationPayload): void {
-    super.preSigningPresModification(presentation)
-    presentation['@context'] = [...(presentation['@context'] || []), this.getContext()]
+   /* super.preSigningPresModification(presentation)
+    presentation['@context'] = [...(presentation['@context'] || []), this.getContext()]*/
   }
 
   preDidResolutionModification(didUrl: string, didDoc: DIDDocument): void {
@@ -117,11 +130,11 @@ export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
   }
 
   preVerificationCredModification(credential: VerifiableCredential): void {
-    const vcJson = JSON.stringify(credential)
+   /* const vcJson = JSON.stringify(credential)
     if (vcJson.indexOf('JsonWebKey2020') > -1) {
       if (vcJson.indexOf(this.getContext()) === -1) {
         credential['@context'] = [...asArray(credential['@context'] || []), this.getContext()]
       }
-    }
+    }*/
   }
 }
