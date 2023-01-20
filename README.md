@@ -8,7 +8,7 @@
 
 ---
 
-__Warning: These packages still is in a very early development stage. Breaking changes without notice will happen at this
+__Warning: These packages are in a very early development stage. Breaking changes without notice will occur at this
 point!__
 
 ---
@@ -17,10 +17,11 @@ point!__
 
 This is mono repository, with packages that handles steps for creating gaia-x compliant entites with [Veramo](https://veramo.io) modules.
 
-This mono repo has thwe following packages:
+This mono repo has the following packages:
 - compliance-client
-    - a client for connecting to gaia-x's compliance service
-      TODO: add addtional packages
+  - an agent managing GX credentials, presentations and compliance service
+- compliance-cli
+  - CLI support for the agent
 
 ## Building and testing
 

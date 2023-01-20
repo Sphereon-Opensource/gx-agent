@@ -1,0 +1,745 @@
+{
+  "IGaiaxComplianceClient": {
+    "components": {
+      "schemas": {
+        "IAddServiceOfferingArgs": {
+          "type": "object",
+          "properties": {
+            "serviceOfferingVP": {
+              "$ref": "#/components/schemas/IVerifiablePresentation"
+            }
+          },
+          "required": ["serviceOfferingVP"]
+        },
+        "IVerifiablePresentation": {
+          "type": "object",
+          "properties": {
+            "proof": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/IProof"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IProof"
+                  }
+                }
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "@context": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ICredentialContextType"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ICredentialContextType"
+                  }
+                }
+              ]
+            },
+            "type": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "verifiableCredential": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/W3CVerifiableCredential"
+              }
+            },
+            "presentation_submission": {
+              "$ref": "#/components/schemas/PresentationSubmission"
+            },
+            "holder": {
+              "type": "string"
+            }
+          },
+          "required": ["@context", "proof", "type", "verifiableCredential"]
+        },
+        "IProof": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/IProofType"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "created": {
+              "type": "string"
+            },
+            "proofPurpose": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/IProofPurpose"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "verificationMethod": {
+              "type": "string"
+            },
+            "challenge": {
+              "type": "string"
+            },
+            "domain": {
+              "type": "string"
+            },
+            "proofValue": {
+              "type": "string"
+            },
+            "jws": {
+              "type": "string"
+            },
+            "nonce": {
+              "type": "string"
+            },
+            "requiredRevealStatements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["type", "created", "proofPurpose", "verificationMethod"]
+        },
+        "IProofType": {
+          "type": "string",
+          "enum": [
+            "Ed25519Signature2018",
+            "Ed25519Signature2020",
+            "EcdsaSecp256k1Signature2019",
+            "EcdsaSecp256k1RecoverySignature2020",
+            "JsonWebSignature2020",
+            "RsaSignature2018",
+            "GpgSignature2020",
+            "JcsEd25519Signature2020",
+            "BbsBlsSignatureProof2020",
+            "BbsBlsBoundSignatureProof2020"
+          ]
+        },
+        "IProofPurpose": {
+          "type": "string",
+          "enum": [
+            "verificationMethod",
+            "assertionMethod",
+            "authentication",
+            "keyAgreement",
+            "contactAgreement",
+            "capabilityInvocation",
+            "capabilityDelegation"
+          ]
+        },
+        "ICredentialContextType": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "did": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "W3CVerifiableCredential": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/IVerifiableCredential"
+            },
+            {
+              "$ref": "#/components/schemas/CompactJWT"
+            }
+          ],
+          "description": "Represents a signed Verifiable Credential (includes proof), in either JSON or compact JWT format. See  {@link  https://www.w3.org/TR/vc-data-model/#credentials | VC data model } \nSee  {@link  https://www.w3.org/TR/vc-data-model/#proof-formats | proof formats }"
+        },
+        "IVerifiableCredential": {
+          "type": "object",
+          "properties": {
+            "proof": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/IProof"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IProof"
+                  }
+                }
+              ]
+            },
+            "@context": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ICredentialContextType"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ICredentialContextType"
+                  }
+                }
+              ]
+            },
+            "type": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "credentialSchema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/ICredentialSchemaType"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ICredentialSchemaType"
+                  }
+                }
+              ]
+            },
+            "issuer": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/IIssuerId"
+                },
+                {
+                  "$ref": "#/components/schemas/IIssuer"
+                }
+              ]
+            },
+            "issuanceDate": {
+              "type": "string"
+            },
+            "credentialSubject": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "expirationDate": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "credentialStatus": {
+              "$ref": "#/components/schemas/ICredentialStatus"
+            },
+            "description": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": ["@context", "credentialSubject", "issuanceDate", "issuer", "proof", "type"]
+        },
+        "ICredentialSchemaType": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/ICredentialSchema"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "ICredentialSchema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "required": ["id"]
+        },
+        "IIssuerId": {
+          "type": "string"
+        },
+        "IIssuer": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": ["id"]
+        },
+        "ICredentialStatus": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "required": ["id", "type"]
+        },
+        "CompactJWT": {
+          "type": "string",
+          "description": "Represents a Json Web Token in compact form."
+        },
+        "PresentationSubmission": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "A UUID or some other unique ID to identify this Presentation Submission"
+            },
+            "definition_id": {
+              "type": "string",
+              "description": "A UUID or some other unique ID to identify this Presentation Definition"
+            },
+            "descriptor_map": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Descriptor"
+              },
+              "description": "List of descriptors of how the claims are being mapped to presentation definition"
+            }
+          },
+          "required": ["id", "definition_id", "descriptor_map"],
+          "description": "It expresses how the inputs are presented as proofs to a Verifier."
+        },
+        "Descriptor": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "ID to identify the descriptor from Presentation Definition Input Descriptor it coresponds to."
+            },
+            "path": {
+              "type": "string",
+              "description": "The path where the verifiable credential is located in the presentation submission json"
+            },
+            "path_nested": {
+              "$ref": "#/components/schemas/Descriptor"
+            },
+            "format": {
+              "type": "string",
+              "description": "The Proof or JWT algorith that the proof is in"
+            }
+          },
+          "required": ["id", "path", "format"],
+          "description": "descriptor map laying out the structure of the presentation submission."
+        },
+        "IGaiaxOnboardingResult": {
+          "type": "object",
+          "properties": {
+            "conforms": {
+              "type": "boolean"
+            },
+            "isValidSignature": {
+              "type": "boolean"
+            },
+            "shape": {
+              "$ref": "#/components/schemas/IGaiaxConformityResult"
+            },
+            "content": {
+              "$ref": "#/components/schemas/IGaiaxConformityResult"
+            }
+          },
+          "required": ["conforms", "isValidSignature", "shape", "content"]
+        },
+        "IGaiaxConformityResult": {
+          "type": "object",
+          "properties": {
+            "conforms": {
+              "type": "boolean"
+            },
+            "results": {
+              "type": "array",
+              "items": {}
+            }
+          },
+          "required": ["conforms", "results"]
+        },
+        "IAddServiceOfferingUnsignedArgs": {
+          "type": "object",
+          "properties": {
+            "challenge": {
+              "type": "string"
+            },
+            "customContext": {
+              "type": "string"
+            },
+            "key": {
+              "$ref": "#/components/schemas/IKey"
+            },
+            "purpose": {
+              "type": "string"
+            },
+            "subject": {
+              "$ref": "#/components/schemas/ICredentialSubject"
+            },
+            "type": {
+              "$ref": "#/components/schemas/IGaiaxCredentialType"
+            },
+            "verificationMethodId": {
+              "type": "string"
+            }
+          },
+          "required": ["customContext", "key", "purpose", "subject", "type", "verificationMethodId"]
+        },
+        "IKey": {
+          "type": "object",
+          "properties": {
+            "kid": {
+              "type": "string",
+              "description": "Key ID"
+            },
+            "kms": {
+              "type": "string",
+              "description": "Key Management System"
+            },
+            "type": {
+              "$ref": "#/components/schemas/TKeyType",
+              "description": "Key type"
+            },
+            "publicKeyHex": {
+              "type": "string",
+              "description": "Public key"
+            },
+            "privateKeyHex": {
+              "type": "string",
+              "description": "Optional. Private key"
+            },
+            "meta": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/KeyMetadata"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional. Key metadata. This should be used to determine which algorithms are supported."
+            }
+          },
+          "required": ["kid", "kms", "type", "publicKeyHex"],
+          "description": "Cryptographic key"
+        },
+        "TKeyType": {
+          "type": "string",
+          "enum": ["Ed25519", "Secp256k1", "Secp256r1", "X25519", "Bls12381G1", "Bls12381G2"],
+          "description": "Cryptographic key type."
+        },
+        "KeyMetadata": {
+          "type": "object",
+          "properties": {
+            "algorithms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "This encapsulates data about a key.\n\nImplementations of  {@link  @veramo/key-manager#AbstractKeyManagementSystem | AbstractKeyManagementSystem }  should populate this object, for each key, with the algorithms that can be performed using it.\n\nThis can also be used to add various tags to the keys under management."
+        },
+        "ICredentialSubject": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          }
+        },
+        "IGaiaxCredentialType": {
+          "type": "string",
+          "enum": ["ServiceOffering", "LegalPerson", "NaturalPerson"]
+        },
+        "IGetComplianceCredentialArgs": {
+          "type": "object",
+          "properties": {
+            "selfDescribedVP": {
+              "$ref": "#/components/schemas/IVerifiablePresentation"
+            }
+          },
+          "required": ["selfDescribedVP"]
+        },
+        "IGetComplianceCredentialFromUnsignedParticipantArgs": {
+          "type": "object",
+          "properties": {
+            "challenge": {
+              "type": "string"
+            },
+            "purpose": {
+              "type": "string"
+            },
+            "verificationMethodId": {
+              "type": "string"
+            },
+            "key": {
+              "$ref": "#/components/schemas/IKey"
+            },
+            "customContext": {
+              "type": "string"
+            },
+            "subject": {
+              "$ref": "#/components/schemas/ICredentialSubject"
+            },
+            "type": {
+              "$ref": "#/components/schemas/IGaiaxCredentialType"
+            }
+          },
+          "required": ["purpose", "verificationMethodId", "key", "customContext", "subject", "type"]
+        },
+        "IIssueVerifiableCredentialArgs": {
+          "type": "object",
+          "properties": {
+            "customContext": {
+              "type": "string"
+            },
+            "key": {
+              "$ref": "#/components/schemas/IKey"
+            },
+            "purpose": {
+              "type": "string"
+            },
+            "subject": {
+              "$ref": "#/components/schemas/ICredentialSubject"
+            },
+            "type": {
+              "$ref": "#/components/schemas/IGaiaxCredentialType"
+            },
+            "verificationMethodId": {
+              "type": "string"
+            }
+          },
+          "required": ["customContext", "key", "purpose", "subject", "type", "verificationMethodId"]
+        },
+        "IIssueVerifiablePresentationArgs": {
+          "type": "object",
+          "properties": {
+            "challenge": {
+              "type": "string"
+            },
+            "customContext": {
+              "type": "string"
+            },
+            "key": {
+              "$ref": "#/components/schemas/IKey"
+            },
+            "purpose": {
+              "type": "string"
+            },
+            "verifiableCredentials": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/W3CVerifiableCredential"
+              }
+            },
+            "verificationMethodId": {
+              "type": "string"
+            }
+          },
+          "required": ["customContext", "key", "purpose", "verifiableCredentials", "verificationMethodId"]
+        },
+        "VerifiableCredential": {
+          "type": "object",
+          "properties": {
+            "proof": {
+              "$ref": "#/components/schemas/ProofType"
+            },
+            "issuer": {
+              "$ref": "#/components/schemas/IssuerType"
+            },
+            "credentialSubject": {
+              "$ref": "#/components/schemas/CredentialSubject"
+            },
+            "type": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "@context": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "issuanceDate": {
+              "type": "string"
+            },
+            "expirationDate": {
+              "type": "string"
+            },
+            "credentialStatus": {
+              "$ref": "#/components/schemas/CredentialStatusReference"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": ["@context", "credentialSubject", "issuanceDate", "issuer", "proof"],
+          "description": "Represents a signed Verifiable Credential payload (includes proof), using a JSON representation. See  {@link  https://www.w3.org/TR/vc-data-model/#credentials | VC data model }"
+        },
+        "ProofType": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          },
+          "description": "A proof property of a  {@link  VerifiableCredential }  or  {@link  VerifiablePresentation }"
+        },
+        "IssuerType": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              },
+              "required": ["id"]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The issuer of a  {@link  VerifiableCredential }  or the holder of a  {@link  VerifiablePresentation } .\n\nThe value of the issuer property MUST be either a URI or an object containing an id property. It is RECOMMENDED that the URI in the issuer or its id be one which, if de-referenced, results in a document containing machine-readable information about the issuer that can be used to verify the information expressed in the credential.\n\nSee  {@link  https://www.w3.org/TR/vc-data-model/#issuer | Issuer data model }"
+        },
+        "CredentialSubject": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "description": "The value of the credentialSubject property is defined as a set of objects that contain one or more properties that are each related to a subject of the verifiable credential. Each object MAY contain an id.\n\nSee  {@link  https://www.w3.org/TR/vc-data-model/#credential-subject | Credential Subject }"
+        },
+        "CredentialStatusReference": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "required": ["id", "type"],
+          "description": "Used for the discovery of information about the current status of a verifiable credential, such as whether it is suspended or revoked. The precise contents of the credential status information is determined by the specific `credentialStatus` type definition, and varies depending on factors such as whether it is simple to implement or if it is privacy-enhancing.\n\nSee  {@link  https://www.w3.org/TR/vc-data-model/#status | Credential Status }"
+        }
+      },
+      "methods": {
+        "addServiceOffering": {
+          "description": "",
+          "arguments": {
+            "$ref": "#/components/schemas/IAddServiceOfferingArgs"
+          },
+          "returnType": {
+            "$ref": "#/components/schemas/IGaiaxOnboardingResult"
+          }
+        },
+        "addServiceOfferingUnsigned": {
+          "description": "",
+          "arguments": {
+            "$ref": "#/components/schemas/IAddServiceOfferingUnsignedArgs"
+          },
+          "returnType": {
+            "$ref": "#/components/schemas/IGaiaxOnboardingResult"
+          }
+        },
+        "getComplianceCredential": {
+          "description": "",
+          "arguments": {
+            "$ref": "#/components/schemas/IGetComplianceCredentialArgs"
+          },
+          "returnType": {
+            "$ref": "#/components/schemas/IVerifiableCredential"
+          }
+        },
+        "getComplianceCredentialFromUnsignedParticipant": {
+          "description": "",
+          "arguments": {
+            "$ref": "#/components/schemas/IGetComplianceCredentialFromUnsignedParticipantArgs"
+          },
+          "returnType": {
+            "$ref": "#/components/schemas/IVerifiableCredential"
+          }
+        },
+        "issueVerifiableCredential": {
+          "description": "",
+          "arguments": {
+            "$ref": "#/components/schemas/IIssueVerifiableCredentialArgs"
+          },
+          "returnType": {
+            "$ref": "#/components/schemas/IVerifiableCredential"
+          }
+        },
+        "issueVerifiablePresentation": {
+          "description": "",
+          "arguments": {
+            "$ref": "#/components/schemas/IIssueVerifiablePresentationArgs"
+          },
+          "returnType": {
+            "$ref": "#/components/schemas/IVerifiablePresentation"
+          }
+        }
+      }
+    }
+  }
+}
