@@ -19,7 +19,7 @@ An Agent compatible with Veramo to connect to gaia-x compliance servers. You can
 ### Installation
 
 ```shell
-yarn add @sphereon/gx-compliance-client
+yarn add @sphereon/gx-agent
 ```
 
 ### Build

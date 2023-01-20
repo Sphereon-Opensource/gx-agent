@@ -5,5 +5,5 @@
     "outDir": "dist",
     "declarationDir": "dist"
   },
-  "references": [{ "path": "../gx-compliance-client" }]
+  "references": [{ "path": "../gx-agent"}]
 }

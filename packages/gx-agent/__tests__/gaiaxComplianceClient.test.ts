@@ -18,7 +18,7 @@ const customContext = new Map<string, ContextDoc>([
   ['https://registry.gaia-x.eu/v2206/api/shape', gxShape as unknown as ContextDoc],
 ])
 
-describe('@sphereon/gx-compliance-client', () => {
+describe('@sphereon/gx-agent', () => {
   let agent: TAgent<GXPluginMethodMap>
   let dbConnection: Promise<DataSource>
   const databaseFile = './tmp/test-db2.sqlite'

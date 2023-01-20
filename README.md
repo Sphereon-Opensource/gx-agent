@@ -20,13 +20,13 @@ Lastly the agent can export well-known resources, like DID:web and X.509 Certifi
 # Multiple scenario's
 The Agent can be deployed and used in multiple scenarios:
 
-- As a [Command Line tool (CLI)](./packages/gx-compliance-client-cli/README.md)
+- As a [Command Line tool (CLI)](packages/gx-agent-cli/README.md)
 - As a REST API
 - Directly integrated into a typescript and/or React-Native project
 
 ![Overview](./fixtures/overview.png)
 
-If you quickly want to test out the agent features, we suggest the [CLI](./packages/gx-compliance-client-cli/README.md)
+If you quickly want to test out the agent features, we suggest the [CLI](packages/gx-agent-cli/README.md)
 
 # Developers
 

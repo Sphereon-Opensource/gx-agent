@@ -12,7 +12,7 @@ import { createDatabase, dropDatabase, setupAgent } from './commonTest'
 import { PEM_CERT, PEM_CHAIN, PEM_PRIV_KEY } from './certs'
 import { privateKeyHexFromPEM, X509Opts } from '@sphereon/ssi-sdk-did-utils'
 
-describe('@sphereon/gx-compliance-client DID support', () => {
+describe('@sphereon/gx-agent DID support', () => {
   let agent: TAgent<GXPluginMethodMap>
   let dbConnection: Promise<DataSource>
   let kms: KeyManagementSystem

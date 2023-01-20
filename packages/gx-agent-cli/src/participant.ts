@@ -2,7 +2,7 @@ import { InvalidArgumentError, program } from 'commander'
 import { getAgent } from './setup'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import { exampleParticipantSD, exampleParticipantSO, IVerifySelfDescribedCredential } from '@sphereon/gx-compliance-client'
+import { exampleParticipantSD, exampleParticipantSO, IVerifySelfDescribedCredential } from '@sphereon/gx-agent'
 
 const participant = program.command('participant').description('Participant commands')
 const compliance = participant.command('compliance').description('Compliance and self-descriptions')

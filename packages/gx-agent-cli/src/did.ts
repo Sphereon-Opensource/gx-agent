@@ -3,7 +3,7 @@ import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import { DIDResolutionResult, IIdentifier } from '@veramo/core'
-import { asDID, convertDidWebToHost } from '@sphereon/gx-compliance-client'
+import { asDID, convertDidWebToHost } from '@sphereon/gx-agent'
 
 const did = program.command('did').description('Decentralized Identifiers (DID) commands')
 

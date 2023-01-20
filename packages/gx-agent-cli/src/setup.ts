@@ -1,8 +1,8 @@
 import 'cross-fetch/polyfill'
 import yaml from 'yaml'
 import { TAgent } from '@veramo/core'
-import { GXPluginMethodMap } from '@sphereon/gx-compliance-client'
-import { setupGXAgent } from '@sphereon/gx-compliance-client'
+import { GXPluginMethodMap } from '@sphereon/gx-agent'
+import { setupGXAgent } from '@sphereon/gx-agent'
 
 const fs = require('fs')
 

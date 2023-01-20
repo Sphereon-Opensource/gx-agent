@@ -3,7 +3,7 @@ import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import { IIdentifier, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
-import { asDID, convertDidWebToHost, exportToDIDDocument } from '@sphereon/gx-compliance-client'
+import { asDID, convertDidWebToHost, exportToDIDDocument } from '@sphereon/gx-agent'
 import nock from 'nock'
 
 const vp = program.command('vp').description('Generic Verifiable Presentation commands')

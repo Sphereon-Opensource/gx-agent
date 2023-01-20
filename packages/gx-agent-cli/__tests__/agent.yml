@@ -88,6 +88,6 @@ agent:
     - schemaValidation: false
       plugins:
         - $require: '@sphereon/ssi-sdk-vc-handler-ld-local/dist#CredentialHandlerLDLocal'
-        - $require: '@sphereon/gx-compliance-client/dist#GXComplianceClient'
+        - $require: '@sphereon/gx-agent/dist#GXComplianceClient'
           $args:
             $ref: /gx

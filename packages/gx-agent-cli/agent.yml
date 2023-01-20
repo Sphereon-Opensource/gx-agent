@@ -283,7 +283,7 @@ agent:
   $args:
     - schemaValidation: false
       plugins:
-        - $require: '@sphereon/gx-compliance-client/dist#GXComplianceClient'
+        - $require: '@sphereon/gx-agent/dist#GXComplianceClient'
           $args:
             - $ref: /gx
         #        - $require: '@sphereon/ssi-sdk-vc-handler-ld-local/dist#CredentialHandlerLDLocal'
