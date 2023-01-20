@@ -74,7 +74,7 @@ agent:
   $args:
     - schemaValidation: false
       plugins:
-        - $require: ./packages/gx-compliance-client/dist#GaiaxComplianceClient
+        - $require: ./packages/gx-compliance-client/dist#GXComplianceClient
           $args:
             # please use your own variables, these are just for test
             - complianceServiceUrl: compliance

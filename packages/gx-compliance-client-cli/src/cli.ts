@@ -7,6 +7,7 @@ import './did'
 import './participant'
 import './ecosystem'
 import './vc'
+import './vp'
 
 if (!process.argv.slice(2).length) {
   program.outputHelp()

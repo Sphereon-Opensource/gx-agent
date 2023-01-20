@@ -2,7 +2,7 @@ version: 3.0
 
 # GAIA-X configuration options. These are the options you can change
 gx:
-  complianceServiceUrl: http://localhost:3000
+  complianceServiceUrl: http://localhost:3002
   complianceServiceVersion: v2206
   dbEncryptionKey: 12739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830a
   # The Key Management System name. Normally shouldn't be changed. Currently only 1 KMS is supported
@@ -88,6 +88,6 @@ agent:
     - schemaValidation: false
       plugins:
         - $require: '@sphereon/ssi-sdk-vc-handler-ld-local/dist#CredentialHandlerLDLocal'
-        - $require: '@sphereon/gx-compliance-client/dist#GaiaxComplianceClient'
+        - $require: '@sphereon/gx-compliance-client/dist#GXComplianceClient'
           $args:
             $ref: /gx

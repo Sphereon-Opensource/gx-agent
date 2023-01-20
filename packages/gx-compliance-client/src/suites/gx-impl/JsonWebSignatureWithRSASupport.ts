@@ -7,6 +7,12 @@ import * as u8a from 'uint8arrays'
 import { Verifier } from '@transmute/jose-ld'
 
 import sec from '@transmute/security-context'
+/**
+ * WARNING:
+ *
+ * This suite is made specifically to be interoperable with Gaia-X. Do not use this suite for other purposes, as the current Gaia-X implementation contains multiple errors and does not conform to JsonWebSignature2020.
+ * If you do need regular JsonWebSignature2020 support, please configure the SphereonWebSignature2020 class when setting up the agent
+ */
 
 const sha256 = async (data: any) => {
   return Buffer.from(await subtle.digest('SHA-256', Buffer.from(data)))
@@ -51,10 +57,9 @@ export class JsonWebSignature {
     return await jsonld.canonize(input, {
       algorithm: 'URDNA2015',
       format: 'application/n-quads',
-      documentLoader: documentLoader
+      documentLoader: documentLoader,
     })
   }
-
 
   async sign({ verifyData, proof }: any) {
     try {
@@ -79,16 +84,14 @@ export class JsonWebSignature {
         documentLoader,
         skipExpansion: true,
         expansionMap,
-        compactToRelative: false
+        compactToRelative: false,
       })
     } else {
       // create proof JSON-LD document
       proof = {
-        '@context': context
+        '@context': context,
       }
     }
-
-    // console.log(document);
 
     // ensure proof type is set
     proof.type = this.type
@@ -121,7 +124,7 @@ export class JsonWebSignature {
       document,
       suite: this,
       documentLoader,
-      expansionMap
+      expansionMap,
     })
 
     // create data to sign
@@ -130,7 +133,7 @@ export class JsonWebSignature {
       proof,
       documentLoader,
       expansionMap,
-      compactProof
+      compactProof,
     })
 
     // sign data
@@ -139,7 +142,7 @@ export class JsonWebSignature {
       document,
       proof,
       documentLoader,
-      expansionMap
+      expansionMap,
     })
     delete proof['@context']
     return proof
@@ -171,7 +174,7 @@ export class JsonWebSignature {
       {
         '@context': document['@context'],
         '@embed': '@always',
-        id: verificationMethod
+        id: verificationMethod,
       },
       {
         // use the cache of the document we just resolved when framing
@@ -179,11 +182,11 @@ export class JsonWebSignature {
           if (iri.startsWith(document.id)) {
             return {
               documentUrl: iri,
-              document
+              document,
             }
           }
           return documentLoader(iri)
-        }
+        },
       }
     )
 
@@ -203,15 +206,13 @@ export class JsonWebSignature {
       const key = verificationMethod.publicKey as CryptoKey
       const signature = proof.jws.split('.')[2]
       const headerString = proof.jws.split('.')[0]
-      // const verif = u8a.fromString(verifyData, 'base16')
-      // const data = u8a.fromString(u8a.toString(verif, 'base64url'), 'utf-8')
       const dataBuffer = u8a.fromString(verifyData, 'utf-8')
 
       const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), dataBuffer])
       return await subtle.verify(
         {
           name: key.algorithm?.name ? key.algorithm.name : 'RSASSA-PKCS1-V1_5',
-          hash: 'SHA-256'
+          hash: 'SHA-256',
         },
         key,
         u8a.fromString(signature, 'base64url'),
@@ -239,7 +240,7 @@ export class JsonWebSignature {
         document,
         documentLoader,
         expansionMap,
-        instance: true // this means we get a key pair class instance, not just json.
+        instance: true, // this means we get a key pair class instance, not just json.
       })
 
       // verify signature on data
@@ -249,7 +250,7 @@ export class JsonWebSignature {
         document,
         proof,
         documentLoader,
-        expansionMap
+        expansionMap,
       })
       if (!verified) {
         throw new Error('Invalid signature.')
@@ -261,7 +262,7 @@ export class JsonWebSignature {
         suite: this,
         verificationMethod,
         documentLoader,
-        expansionMap
+        expansionMap,
       })
 
       if (!purposeResult.valid) {
@@ -277,16 +278,12 @@ export class JsonWebSignature {
   async createVerifyData({ document, documentLoader }: any) {
     // concatenate hash of c14n proof options and hash of c14n document
     const c14nDocument = await this.canonize(document, {
-      documentLoader
+      documentLoader,
     })
-    console.log(`INPUT verify data: ${c14nDocument}`)
-    const hexHash =  u8a.toString(await sha256(c14nDocument), 'base16')
-    console.log(`HASH verify data: ${hexHash}`)
-    return hexHash
+    return u8a.toString(await sha256(c14nDocument), 'base16')
   }
 
   async matchProof({ proof }: any) {
     return proof.type === 'JsonWebSignature2020'
   }
-
 }

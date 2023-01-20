@@ -1,25 +1,18 @@
-import {
-  CredentialPayload,
-  DIDDocument,
-  IAgentContext,
-  IKey,
-  PresentationPayload,
-  TKeyType,
-  VerifiableCredential
-} from '@veramo/core'
+import { CredentialPayload, DIDDocument, IAgentContext, IKey, PresentationPayload, TKeyType, VerifiableCredential } from '@veramo/core'
 import { RequiredAgentMethods } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 import { SphereonLdSignature } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/ld-suites'
 import * as u8a from 'uint8arrays'
 import { encodeJoseBlob } from '@veramo/utils'
-import { JsonWebKey } from './impl/JsonWebKeyWithRSASupport'
-import { JsonWebSignature } from './impl/JsonWebSignatureWithRSASupport'
+import { JsonWebKey } from './gx-impl/JsonWebKeyWithRSASupport'
+import { JsonWebSignature } from './gx-impl/JsonWebSignatureWithRSASupport'
 
 /**
- * Veramo wrapper for the JsonWebSignature2020 suite by Transmute Industries
+ * WARNING:
  *
- * @alpha This API is experimental and is very likely to change or disappear in future releases without notice.
+ * This suite is made specifically to be interoperable with Gaia-X. Do not use this suite for other purposes, as the current Gaia-X implementation contains multiple errors and does not conform to JsonWebSignature2020.
+ * If you do need regular JsonWebSignature2020 support, please configure the SphereonWebSignature2020 class when setting up the agent
  */
-export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
+export class GXJsonWebSignature2020 extends SphereonLdSignature {
   getSupportedVerificationType(): 'JsonWebKey2020' {
     return 'JsonWebKey2020'
   }
@@ -34,19 +27,7 @@ export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
     // DID Key ID
     let id = verificationMethodId
 
-    let alg = 'RS256'
-    if (key.type === 'Ed25519' || key.type === 'X25519') {
-      alg = 'EdDSA'
-    } else if (key.type === 'Secp256k1') {
-      alg = 'ES256k'
-      throw Error('ES256k keys not supported yet (to JWK missing)')
-    } else if (key.type === 'Secp256r1') {
-      alg = 'ES256'
-      throw Error('ES256 keys not supported yet (to JWK missing)')
-    } else if (key.type === 'Bls12381G1') {
-      throw Error('BLS keys as jsonwebkey2020 not implemented yet')
-    }
-
+    const alg = 'RS256'
     const signer = {
       // returns a JWS detached
       sign: async (args: { data: string }): Promise<string> => {
@@ -60,7 +41,6 @@ export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
         const dataBuffer = u8a.fromString(args.data, 'utf-8')
 
         const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), dataBuffer])
-        console.log(`Message buffer length: ${messageBuffer.length}. char 0: ${messageBuffer[0]}, last char: ${messageBuffer[messageBuffer.length -1]}`)
         const messageString = u8a.toString(messageBuffer, 'base64') //will be decoded to bytes in the keyManagerSign, hence the base64 arg to the method below
 
         const signature = await context.agent.keyManagerSign({
@@ -69,8 +49,6 @@ export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
           data: messageString,
           encoding: 'base64',
         }) // returns base64url signature
-        console.log(`SIGN result: ${headerString}..${signature}     INPUT: ${args.data}`)
-        console.log(`signature length: ${u8a.fromString(signature, 'base64url').length}`)
         return `${headerString}..${signature}`
       },
     }
@@ -113,12 +91,11 @@ export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
   }
 
   preSigningCredModification(credential: CredentialPayload): void {
-    /*credential['@context'] = [...(credential['@context'] || []), this.getContext()]*/
+    // do nothing
   }
 
   preSigningPresModification(presentation: PresentationPayload): void {
-   /* super.preSigningPresModification(presentation)
-    presentation['@context'] = [...(presentation['@context'] || []), this.getContext()]*/
+    // do nothing
   }
 
   preDidResolutionModification(didUrl: string, didDoc: DIDDocument): void {
@@ -130,11 +107,6 @@ export class GaiaXJsonWebSignature2020 extends SphereonLdSignature {
   }
 
   preVerificationCredModification(credential: VerifiableCredential): void {
-   /* const vcJson = JSON.stringify(credential)
-    if (vcJson.indexOf('JsonWebKey2020') > -1) {
-      if (vcJson.indexOf(this.getContext()) === -1) {
-        credential['@context'] = [...asArray(credential['@context'] || []), this.getContext()]
-      }
-    }*/
+    // do nothing
   }
 }

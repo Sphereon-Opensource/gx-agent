@@ -1,4 +1,4 @@
-import { GaiaxComplianceClient, GXPluginMethodMap } from '../src'
+import { GXComplianceClient, GXPluginMethodMap } from '../src'
 import { BlsKeyManagementSystem } from '@sphereon/ssi-sdk-bls-kms-local/dist/BlsKeyManagementSystem'
 import { CredentialHandlerLDLocal, LdDefaultContexts, MethodNames } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 import { CredentialPlugin } from '@veramo/credential-w3c'
@@ -15,7 +15,7 @@ import { getResolver } from 'web-did-resolver'
 import fs from 'fs'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
-import { GaiaXJsonWebSignature2020 } from '../src/suites/JsonWebSignature2020'
+import { GXJsonWebSignature2020 } from '../src/suites/GXJsonWebSignature2020'
 
 export async function setupAgent(opts: {
   dbFile?: string
@@ -51,7 +51,7 @@ export async function setupAgent(opts: {
       new CredentialHandlerLDLocal({
         keyStore: privateKeyStore,
         contextMaps: opts?.customContext ? [LdDefaultContexts, opts.customContext] : [LdDefaultContexts],
-        suites: [new GaiaXJsonWebSignature2020()],
+        suites: [new GXJsonWebSignature2020()],
         bindingOverrides: new Map([
           ['createVerifiableCredentialLD', MethodNames.createVerifiableCredentialLDLocal],
           ['createVerifiablePresentationLD', MethodNames.createVerifiablePresentationLDLocal],
@@ -60,10 +60,10 @@ export async function setupAgent(opts: {
       }),
       new DataStore(dbConnection),
       new DataStoreORM(dbConnection),
-      new GaiaxComplianceClient({
+      new GXComplianceClient({
         kmsName: 'local',
         complianceServiceVersion: 'v2206',
-        complianceServiceUrl: 'http://compliance',
+        complianceServiceUrl: 'http://localhost:3000',
       }),
       new DIDResolverPlugin({
         resolver,

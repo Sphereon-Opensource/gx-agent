@@ -3,7 +3,7 @@ import { ExportFileResult, GXRequiredContext, IImportDIDArg } from '../types'
 import { privateKeyHexFromPEM, publicKeyHexFromPEM, x5cToPemCertChain } from '@sphereon/ssi-sdk-did-utils'
 import { exportToDIDDocument } from '../utils'
 import fs from 'fs'
-import { TKeyType } from "@veramo/core/src/types/IIdentifier";
+import { TKeyType } from '@veramo/core/src/types/IIdentifier'
 
 export class DID {
   public static async createDIDFromX509(
@@ -54,7 +54,7 @@ export class DID {
     fs.writeFileSync(didPath, JSON.stringify(doc, null, 2))
 
     id.keys.forEach((key) => {
-      if (key.type !== 'RSA' as TKeyType) {
+      if (key.type !== ('RSA' as TKeyType)) {
         return
       }
       if (key.meta?.x509?.x5u && key.meta?.x509?.x5c) {

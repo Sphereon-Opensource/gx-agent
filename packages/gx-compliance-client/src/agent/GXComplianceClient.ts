@@ -1,12 +1,14 @@
 import { DIDDocument, IAgentPlugin, IIdentifier, IService, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
 
 import {
+  asDID,
   AssertionProofPurpose,
   CredentialValidationResult,
   ExportFileResult,
+  extractSubjectDIDFromVCs,
   GXRequiredContext,
   IAcquireComplianceCredentialFromExistingParticipantArgs,
-  IGaiaxComplianceClient,
+  IGXComplianceClient,
   IImportDIDArg,
   IOnboardParticipantWithCredentialArgs,
   IOnboardParticipantWithCredentialIdsArgs,
@@ -27,23 +29,31 @@ import {
 import { ICredentialSubject } from '@sphereon/ssi-types'
 import { DID } from './DID'
 import { CredentialHandler } from './CredentialHandler'
-import { extractApiTypeFromVC } from '../utils/vc-extraction'
-import { getApiVersionedUrl, postRequest } from '../utils/http'
-import { extractSignInfo } from '../utils/did-utils'
+import { extractApiTypeFromVC } from '../utils'
+import { getApiVersionedUrl, postRequest } from '../utils'
+import { extractSignInfo } from '../utils'
 
 /**
- * {@inheritDoc IGaiaxComplianceClient}
+ * {@inheritDoc IGXComplianceClient}
  */
-export class GaiaxComplianceClient implements IAgentPlugin {
-  public readonly config: IGaiaxComplianceConfig
+export class GXComplianceClient implements IAgentPlugin {
+  public readonly _config: IGaiaxComplianceConfig
   private readonly credentialHandler: CredentialHandler = new CredentialHandler(this)
   readonly schema = schema.IGaiaxComplianceClient
 
   constructor(config: IGaiaxComplianceConfig) {
-    this.config = config
+    this._config = config
   }
 
-  readonly methods: IGaiaxComplianceClient = {
+  public client() {
+    return this
+  }
+
+  public config() {
+    return this.client()._config
+  }
+
+  readonly methods: IGXComplianceClient = {
     submitComplianceCredential: this.submitComplianceCredential.bind(this),
     acquireComplianceCredentialFromExistingParticipant: this.acquireComplianceCredentialFromExistingParticipant.bind(this),
     acquireComplianceCredentialFromUnsignedParticipant: this.acquireComplianceCredentialFromUnsignedParticipant.bind(this),
@@ -61,16 +71,17 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     verifySelfDescription: this.verifySelfDescription.bind(this),
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.submitComplianceCredential} */
+  /** {@inheritDoc IGXComplianceClient.submitComplianceCredential} */
   private async submitComplianceCredential(args: IAcquireComplianceCredentialArgs, _context: GXRequiredContext): Promise<VerifiableCredential> {
+    console.log(JSON.stringify(args.selfDescriptionVP, null, 2))
     try {
-      return (await postRequest(this.getApiVersionedUrl() + '/sign', JSON.stringify(args.selfDescriptionVP))) as VerifiableCredential
+      return (await postRequest(this.getApiVersionedUrl() + '/compliance', JSON.stringify(args.selfDescriptionVP))) as VerifiableCredential
     } catch (e) {
       throw new Error('Error on fetching complianceVC: ' + e)
     }
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.acquireComplianceCredentialFromExistingParticipant} */
+  /** {@inheritDoc IGXComplianceClient.acquireComplianceCredentialFromExistingParticipant} */
   private async acquireComplianceCredentialFromExistingParticipant(
     args: IAcquireComplianceCredentialFromExistingParticipantArgs,
     context: GXRequiredContext
@@ -85,7 +96,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
       {
         keyRef: signInfo.keyRef,
         verifiableCredentials: [selfDescribedVC],
-        challenge: GaiaxComplianceClient.getDateChallenge(),
+        challenge: GXComplianceClient.getDateChallenge(),
         domain: signInfo.participantDomain,
         persist: true,
       },
@@ -99,7 +110,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     )
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.acquireComplianceCredentialFromUnsignedParticipant} */
+  /** {@inheritDoc IGXComplianceClient.acquireComplianceCredentialFromUnsignedParticipant} */
   private async acquireComplianceCredentialFromUnsignedParticipant(
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
@@ -123,7 +134,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     console.log(selfDescription.hash)
     const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
       {
-        challenge: GaiaxComplianceClient.getDateChallenge(),
+        challenge: GXComplianceClient.getDateChallenge(),
         keyRef: signInfo.keyRef,
         verifiableCredentials: [selfDescription.verifiableCredential],
         domain: signInfo.participantDomain,
@@ -139,7 +150,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     return verifiableCredentialResponse
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.createAndSubmitServiceOffering} */
+  /** {@inheritDoc IGXComplianceClient.createAndSubmitServiceOffering} */
   private async createAndSubmitServiceOffering(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult> {
     //TODO: implement fetching compliance VC from data storage
     if (!args.complianceId && !args.complianceVC) {
@@ -153,8 +164,10 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         })
       : args.complianceVC!
 
+    const did = asDID(args.domain ?? extractSubjectDIDFromVCs([complianceCredential]))
     const serviceOffering = await this.credentialHandler.issueVerifiableCredential(
       {
+        domain: did,
         keyRef: args.keyRef,
         credential: args.serviceOfferingCredential,
         persist: true,
@@ -163,11 +176,11 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     )
     const serviceOfferingVP = await this.credentialHandler.issueVerifiablePresentation(
       {
-        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
+        challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
         keyRef: args.keyRef,
         // purpose: args.purpose,
         verifiableCredentials: [complianceCredential, serviceOffering.verifiableCredential],
-        domain: args.domain,
+        domain: did,
         persist: true,
       },
       context
@@ -180,7 +193,7 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     )
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.submitServiceOffering} */
+  /** {@inheritDoc IGXComplianceClient.submitServiceOffering} */
   private async submitServiceOffering(args: IAddServiceOfferingArgs, _context: GXRequiredContext): Promise<IGaiaxOnboardingResult> {
     try {
       return (await postRequest(
@@ -192,12 +205,12 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     }
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.createDIDFromX509} */
+  /** {@inheritDoc IGXComplianceClient.createDIDFromX509} */
   private async createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier> {
     return DID.createDIDFromX509(
       {
         ...args,
-        kms: args.kms ? args.kms : this.config.kmsName ? this.config.kmsName : 'local',
+        kms: args.kms ? args.kms : this._config.kmsName ? this._config.kmsName : 'local',
       },
       context
     )
@@ -214,10 +227,9 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     return DID.exportToPath({ domain, path, services }, context)
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.verifyUnsignedSelfDescribedCredential} */
+  /** {@inheritDoc IGXComplianceClient.verifyUnsignedSelfDescribedCredential} */
   private async verifySelfDescription(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult> {
-    //TODO: right now we're just signing and if there's no error, we're confirming the credential object, later we might want ot incorporate some validations from gx-compliance service itself or even make an api there (just for verification and not saving anything)
-    if (!args.verifiableCredential && !!args.id) {
+    if (!args.verifiableCredential && !args.id) {
       throw new Error('You should provide either vc id or vc itself')
     }
 
@@ -234,16 +246,16 @@ export class GaiaxComplianceClient implements IAgentPlugin {
     if (!valid) {
       throw Error(`Invalid verifiable credential supplied`)
     }
-    let address = this.getApiVersionedUrl()
+    let url = this.getApiVersionedUrl()
     if ((vc.type as string[]).indexOf('ServiceOffering') != -1) {
-      address = address + '/service-offering/validate/vc'
+      url = url + '/service-offering/validate/vc'
     } else if ((vc.type as string[]).indexOf('LegalPerson') != -1 || (vc.type as string[]).indexOf('NaturalPerson') != -1) {
-      address = address + '/participant/validate/vc'
+      url = url + '/participant/validate/vc'
     }
     try {
-      return (await postRequest(address, JSON.stringify(vc))) as CredentialValidationResult
-    } catch (e) {
-      throw new Error('Error on fetching complianceCredential: ' + e)
+      return (await postRequest(url, JSON.stringify(vc))) as CredentialValidationResult
+    } catch (e: any) {
+      throw new Error('Error on fetching complianceCredential: ' + e.message)
     }
   }
 
@@ -280,8 +292,8 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         keyRef: args.keyRef,
         // purpose: args.purpose,
         verifiableCredentials: [args.complianceVC, args.selfDescriptionVC],
-        challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
-        domain: args.domain,
+        challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
+        domain: asDID(args.domain ?? extractSubjectDIDFromVCs([args.selfDescriptionVC])),
         persist: true,
       },
       context
@@ -312,13 +324,13 @@ export class GaiaxComplianceClient implements IAgentPlugin {
         selfDescriptionVC: selfDescriptionVC,
         keyRef: signInfo.keyRef,
         domain: signInfo.participantDomain,
-        challenge: GaiaxComplianceClient.getDateChallenge(),
+        challenge: GXComplianceClient.getDateChallenge(),
       },
       context
     )
   }
 
   private getApiVersionedUrl() {
-    return getApiVersionedUrl(this.config)
+    return getApiVersionedUrl(this._config)
   }
 }

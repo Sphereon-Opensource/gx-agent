@@ -2,19 +2,19 @@
 <h1 align="center">
   <br>
   <a href="https://www.sphereon.com"><img src="https://sphereon.com/content/themes/sphereon/assets/img/logo.svg" alt="Sphereon" width="400"></a>
-  <br>GX Compliance client (Typescript) 
+  <br>Gaia-X Compliance client (Typescript) 
   <br>
 </h1>
 
 ---
 
-**Warning: This package still is in every early development. Breaking changes without notice will happen at this point!**
+**Warning: This package still is in very early development. Breaking changes without notice will happen at this point!**
 
 ---
 
 # gx-compliance-client
 
-A Veramo plugin to connect to gaia-x compliance servers. You can use this library to create Self-Descriptions, Service Offerings and send them to a gaia-x compliance server.
+An Agent compatible with Veramo to connect to gaia-x compliance servers. You can use this library to create Self-Descriptions, Service Offerings and send them to a gaia-x compliance server.
 
 ### Installation
 

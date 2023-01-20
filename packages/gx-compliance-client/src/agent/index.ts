@@ -1,4 +1,4 @@
 export * from './setup'
-export * from './GaiaxComplianceClient'
+export * from './GXComplianceClient'
 export * from './DID'
 export * from './CredentialHandler'

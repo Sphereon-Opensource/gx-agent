@@ -20,7 +20,7 @@ import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local
 import { purposes } from '@digitalcredentials/jsonld-signatures'
 import { _ExtendedIKey } from '@veramo/utils'
 
-export interface IGaiaxComplianceClient extends IPluginMethodMap {
+export interface IGXComplianceClient extends IPluginMethodMap {
   submitComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
 
   acquireComplianceCredentialFromExistingParticipant(
@@ -115,7 +115,7 @@ export interface IIssueVerifiablePresentationArgs {
   challenge?: string
   keyRef?: string
   verifiableCredentials: VerifiableCredential[]
-  domain?: string
+  domain: string
 
   persist?: boolean
 }
@@ -245,7 +245,7 @@ export type GXPluginMethodMap = IResolver &
   IDIDManager &
   ICredentialHandlerLDLocal &
   ICredentialIssuer &
-  IGaiaxComplianceClient &
+  IGXComplianceClient &
   IDataStore &
   IDataStoreORM
 

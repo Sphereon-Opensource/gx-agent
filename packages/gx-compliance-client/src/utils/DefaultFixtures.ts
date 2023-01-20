@@ -52,28 +52,28 @@ export function exampleParticipantSO({ did }: { did?: string; version?: string }
     id: uuidv4(),
     credentialSubject: {
       id: `${did ? did : 'your DID here'}`,
-      "gx-service-offering:providedBy": `${url? url: 'https://participant'}`+"/.well-known/participant.json",
-      "gx-service-offering:name": "my awesome service",
-      "gx-service-offering:description": `a service by ${url? url: 'https://participant'}`,
-      "gx-service-offering:termsAndConditions": [
+      'gx-service-offering:providedBy': `${url ? url : 'https://participant'}` + '/.well-known/participant.json',
+      'gx-service-offering:name': 'my awesome service',
+      'gx-service-offering:description': `a service by ${url ? url : 'https://participant'}`,
+      'gx-service-offering:termsAndConditions': [
         {
-          "gx-service-offering:url": `${url? url: 'https://participant'}`+"/terms-and-conditions/",
-          "gx-service-offering:hash": "myrandomhash"
-        }
+          'gx-service-offering:url': `${url ? url : 'https://participant'}` + '/terms-and-conditions/',
+          'gx-service-offering:hash': 'myrandomhash',
+        },
       ],
-      "gx-service-offering:gdpr": [
+      'gx-service-offering:gdpr': [
         {
-          "gx-service-offering:imprint": `${url? url: 'https://participant'}`+"/terms-and-conditions/",
+          'gx-service-offering:imprint': `${url ? url : 'https://participant'}` + '/terms-and-conditions/',
         },
         {
-          "gx-service-offering:privacyPolicy": `${url? url: 'https://participant'}`+"/personal-data-protection/",
-        }
+          'gx-service-offering:privacyPolicy': `${url ? url : 'https://participant'}` + '/personal-data-protection/',
+        },
       ],
-      "gx-service-offering:dataExport": {
-        "gx-service-offering:requestType": "email",
-        "gx-service-offering:accessType": "digital",
-        "gx-service-offering:formatType": "mime/png"
-      }
+      'gx-service-offering:dataExport': {
+        'gx-service-offering:requestType': 'email',
+        'gx-service-offering:accessType': 'digital',
+        'gx-service-offering:formatType': 'mime/png',
+      },
     },
     type: [IGaiaxCredentialType.LegalPerson],
   }

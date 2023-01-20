@@ -1,22 +1,29 @@
-import { GaiaxComplianceClient } from './GaiaxComplianceClient'
+import { GXComplianceClient } from './GXComplianceClient'
 import {
   AuthenticationProofPurpose,
   GXRequiredContext,
   ICheckVerifiableCredentialArgs,
   ICheckVerifiablePresentationArgs,
-  IGaiaxComplianceConfig,
   IIssueVerifiableCredentialArgs,
   IIssueVerifiablePresentationArgs,
 } from '../types'
 import { v4 as uuidv4 } from 'uuid'
 import { UniqueVerifiableCredential, UniqueVerifiablePresentation } from '@veramo/core'
-import { extractSignInfo, extractSubjectDIDFromVCs } from '../utils'
+import { asDID, extractSignInfo, extractSubjectDIDFromVCs } from '../utils'
 
 export class CredentialHandler {
-  public readonly config: IGaiaxComplianceConfig
+  public readonly _client: GXComplianceClient
 
-  constructor(client: GaiaxComplianceClient) {
-    this.config = client.config
+  constructor(client: GXComplianceClient) {
+    this._client = client
+  }
+
+  private client() {
+    return this._client
+  }
+
+  public config() {
+    return this.client().config()
   }
 
   public async issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<UniqueVerifiableCredential> {
@@ -28,7 +35,7 @@ export class CredentialHandler {
       if (!args.domain) {
         throw Error('Either a credentialSubject.id value needs to be set, or a domain value needs to be supplied')
       }
-      credential.credentialSubject.id = `did:web:${args.domain}`
+      credential.credentialSubject.id = asDID(args.domain)
     }
     const did = extractSubjectDIDFromVCs(credential)
     const signInfo = await extractSignInfo({ did, section: 'assertionMethod', keyRef: args.keyRef }, context)
@@ -53,13 +60,14 @@ export class CredentialHandler {
     return result
   }
 
-  /** {@inheritDoc IGaiaxComplianceClient.issueVerifiablePresentation} */
+  /** {@inheritDoc IGXComplianceClient.issueVerifiablePresentation} */
   public async issueVerifiablePresentation(
     args: IIssueVerifiablePresentationArgs,
     context: GXRequiredContext
   ): Promise<UniqueVerifiablePresentation> {
-    const did = `did:web:${args.domain}`
+    const did = asDID(args.domain!)
     const signInfo = await extractSignInfo({ did, section: 'authentication', keyRef: args.keyRef }, context)
+
     const verifiablePresentation = await context.agent.createVerifiablePresentationLDLocal({
       presentation: {
         id: uuidv4(),
@@ -71,8 +79,8 @@ export class CredentialHandler {
       },
       // purpose: args.purpose, // todo: Make dynamic basied on signInfo and arg
       keyRef: signInfo.keyRef,
-      challenge: args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge(),
-      domain: this.config.complianceServiceUrl,
+      challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
+      domain: this.config().complianceServiceUrl,
     })
     let hash = '' //todo: determine id, without saving
     if (args.persist) {
@@ -82,14 +90,14 @@ export class CredentialHandler {
   }
 
   public async checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<boolean> {
-    const domain = this.config.complianceServiceUrl
-    const challenge = args.challenge ? args.challenge : GaiaxComplianceClient.getDateChallenge()
+    const domain = this.config().complianceServiceUrl
+    const challenge = args.challenge ? args.challenge : GXComplianceClient.getDateChallenge()
     const result = await context.agent.verifyPresentationLDLocal({
       presentation: args.verifiablePresentation,
       challenge,
       domain,
       fetchRemoteContexts: true,
-      presentationPurpose: new AuthenticationProofPurpose({ domain, challenge }),
+      presentationPurpose: new AuthenticationProofPurpose({ domain: args.verifiablePresentation.holder, challenge }),
     })
     console.log(result)
     return result

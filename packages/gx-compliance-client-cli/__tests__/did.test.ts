@@ -6,11 +6,12 @@ import { DataSource } from 'typeorm'
 // @ts-ignore
 import fs from 'fs'
 import { PEM_CHAIN } from '../../gx-compliance-client/__tests__/certs'
-import { dropDatabase } from '@sphereon/gx-compliance-client'
+import { asDID, dropDatabase } from '@sphereon/gx-compliance-client'
 import { mockedDID } from '../../gx-compliance-client/__tests__/mocks'
 import '../src/did'
 import '../src/participant'
 import '../src/ecosystem'
+
 let cmd: Command
 
 export async function newDBConnection(databaseFile: string): Promise<DataSource> {
@@ -54,5 +55,16 @@ describe('@gx-compliance did', () => {
     cmd.parse('node ../dist/bin/gx-participant.js did'.split(' '))
 
     // cmd.parse("node ../dist/bin/gx-participant.js did create --private-key-file ./fixtures/private-key.pem --cert-file ./fixtures/cert.pem --ca-chain-file ./fixtures/ca-chain.pem -d f825-87-213-241-251.eu.ngrok.io".split(" "))
+  })
+
+  it('should convert to did', () => {
+    expect(asDID('did:web:test')).toEqual('did:web:test')
+    expect(asDID('test')).toEqual('did:web:test')
+    expect(asDID('http://test')).toEqual('did:web:test')
+    expect(asDID('https://test')).toEqual('did:web:test')
+    expect(asDID('https://test/123')).toEqual('did:web:test')
+    expect(asDID('https://test?123')).toEqual('did:web:test')
+    expect(asDID('https://test#123')).toEqual('did:web:test')
+    expect(asDID('https://test:123')).toEqual('did:web:test:123') // Ports are allowed
   })
 })

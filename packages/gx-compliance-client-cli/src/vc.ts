@@ -3,39 +3,27 @@ import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import { CredentialPayload, IIdentifier, VerifiableCredential } from '@veramo/core'
-import { convertDidWebToHost, exampleParticipantSD, exampleParticipantSO, exportToDIDDocument } from '@sphereon/gx-compliance-client'
+import { asDID, convertDidWebToHost, exportToDIDDocument } from '@sphereon/gx-compliance-client'
 import nock from 'nock'
 
-const vc = program.command('vc').description('Generic Verifiable Credential and Presentation commands')
+const vc = program.command('vc').description('Generic Verifiable Credential commands')
 
-vc.command('export-example-sd')
-  .description('Creates an example self-description input credential')
-  .requiredOption('-d, --domain <string>', 'the domain which will be used')
-  .requiredOption('-t, --type <string>', 'Credential type. One of: "participant" or "service-offering"')
-  .action(async (cmd) => {
-    const type = cmd.type.toLowerCase().includes('participant') ? 'participant' : 'service-offering'
-    const fileName = `${type}-input-credential.json`
-    const credential =
-      type === 'participant' ? exampleParticipantSD({ did: `did:web:${cmd.domain}` }) : exampleParticipantSO({ did: `did:web:${cmd.domain}`}, cmd.domain)
-    fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
-    printTable([{ type: type, 'sd-file': fileName, did: `did:web:${cmd.domain}` }])
-    console.log(`Example self-description file has been written at ${fileName}. Please adjust the contents and use one of the onboarding methods`)
-  })
-vc.command('issue-credential')
+vc.command('issue')
   .description('Issues a Verifiable Credential using a Credential from an input file')
   .requiredOption('-f, --input-file <string>', 'File containing an unsigned credential')
-  .option('-d, --domain <string>', 'Use domain, otherwise will be deducted from the input credential issuer value')
+  .option('-d, --did <string>', 'Use domain or did, otherwise will be deducted from the input credential issuer value')
   .option('-kid, --key-identifier <string>', 'Use a specific key identifier, otherwise will be deducted from the input credential issuer value')
   .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
+  .option('--show', 'Print the Verifiable Credential to console')
   .action(async (cmd) => {
     const agent = await getAgent(program.opts().config)
     try {
       const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.inputFile, 'utf-8')) as CredentialPayload
-      const did = cmd.domain ? `did:web:${cmd.domain}` : typeof credential.issuer === 'string' ? credential.issuer : credential.issuer.id
+      const did = cmd.did ? asDID(cmd.did) : typeof credential.issuer === 'string' ? credential.issuer : credential.issuer.id
       const id = await agent.didManagerGet({ did })
       const didDoc = await exportToDIDDocument(id)
       const url = `https://${convertDidWebToHost(did)}`
-      console.log(url)
+
       nock.cleanAll()
       nock(url)
         .get(`/.well-known/did.json`)
@@ -47,7 +35,7 @@ vc.command('issue-credential')
       const vc = await agent.issueVerifiableCredential({
         credential,
         keyRef: cmd.keyIdentifier,
-        domain: cmd.domain,
+        domain: did,
         persist: cmd.persist,
       })
       printTable([
@@ -60,7 +48,9 @@ vc.command('issue-credential')
           persisted: cmd.persist === true,
         },
       ])
-      console.log(JSON.stringify(vc.verifiableCredential, null, 2))
+      if (cmd.show) {
+        console.log(JSON.stringify(vc.verifiableCredential, null, 2))
+      }
     } catch (e: any) {
       console.error(e.message)
     } finally {
@@ -68,7 +58,7 @@ vc.command('issue-credential')
     }
   })
 
-vc.command('list-credentials')
+vc.command('list')
   .description('Lists al persisted Verifiable Credentials')
   .action(async (cmd) => {
     const agent = await getAgent(program.opts().config)
@@ -99,8 +89,8 @@ vc.command('list-credentials')
     }
   })
 
-vc.command('verify-credential')
-  .description('Issues a Verifiable Credential using a Credential from an input file')
+vc.command('verify')
+  .description('Verifies a Verifiable Credential using a Credential from an input file or stored in the agent')
   .option('-f, --input-file <string>', 'File containing a Verifiable Credential')
   .option('-id, --vc-id <string>', 'Use a persisted VC as input for verification')
   .option('--show', 'Print the Verifiable Credential to console')
@@ -150,79 +140,6 @@ vc.command('verify-credential')
 
       if (cmd.show === true) {
         console.log(JSON.stringify(verifiableCredential, null, 2))
-      }
-    } catch (e: any) {
-      console.error(e.message)
-    } finally {
-      nock.cleanAll()
-    }
-  })
-
-vc.command('issue-presentation')
-  .description('Issues a Verifiable Presentation using a Credentials from input file(s)')
-  .requiredOption('-d, --domain <string>', 'Use domain')
-  .option('-ids, --vc-ids <string...>', '1 or more Verifiable Credential IDS stored in the agent')
-  .option('-f, --vc-files <string...>', 'File(s) containing Verifiable Credentials')
-  .option('-c, --challenge <string>', 'Use a challenge')
-  .option('-p, --persist', 'Persist the presentation. If not provided the presentation will not be stored in the agent')
-  .option('--show', 'Print the Verifiable Presentation to console')
-
-  .action(async (cmd) => {
-    const agent = await getAgent(program.opts().config)
-    if (cmd.vcFiles && !cmd.vcIds) {
-      throw Error('Verifiable Credential IDs or files need to be selected. Please check parameters')
-    }
-    try {
-      const fileVCs = cmd.vcFiles
-        ? (cmd.vcFiles as string[]).map((file) => {
-            return JSON.parse(fs.readFileSync(file, 'utf-8')) as VerifiableCredential
-          })
-        : []
-
-      const agentVCs: VerifiableCredential[] = []
-
-      const ids = cmd.vcIds ? (cmd.vcIds as string[]) : []
-      for (const hash of ids) {
-        agentVCs.push(await agent.dataStoreGetVerifiableCredential({ hash }))
-      }
-
-      const verifiableCredentials = fileVCs.concat(agentVCs)
-      if (verifiableCredentials.length === 0) {
-        throw Error('No verifiable credentials were found matching the critery. Did you use the --vc-files and/or --vc-ids options?')
-      }
-
-      const did = `did:web:${cmd.domain}`
-      const id = await agent.didManagerGet({ did })
-      const didDoc = await exportToDIDDocument(id)
-      const url = `https://${convertDidWebToHost(did)}`
-      console.log(url)
-      nock.cleanAll()
-      nock(url)
-        .get(`/.well-known/did.json`)
-        .times(10)
-        .reply(200, {
-          ...didDoc,
-        })
-
-      const uniqueVP = await agent.issueVerifiablePresentation({
-        challenge: cmd.challenge as string,
-        verifiableCredentials,
-        domain: cmd.domain as string,
-        persist: cmd.persist === true,
-      })
-
-      const vp = uniqueVP.verifiablePresentation
-      printTable([
-        {
-          types: vp.type?.toString(),
-          holder: vp.holder,
-          'issuance-date': vp.proof.created,
-          id: vp.hash,
-          persisted: cmd.persist === true,
-        },
-      ])
-      if (cmd.show) {
-        console.log(JSON.stringify(vp, null, 2))
       }
     } catch (e: any) {
       console.error(e.message)

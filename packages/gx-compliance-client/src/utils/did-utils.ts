@@ -78,3 +78,10 @@ export async function exportToDIDDocument(identifier: IIdentifier, opts?: { serv
 
   return didDoc
 }
+
+export function asDID(input: string) {
+  if (input.startsWith(`did:web:`)) {
+    return input
+  }
+  return `did:web:${input.replace(/https?:\/\/([^/?#]+).*/i, '$1').toLowerCase()}`
+}

@@ -113,7 +113,7 @@ describe('@sphereon/gx-compliance-client', () => {
     const vcResult = await agent.verifyCredentialLDLocal({ credential: uniqueVC.verifiableCredential, fetchRemoteContexts: true })
     console.log(vcResult)
 
-   /* const uniqueVP = await agent.issueVerifiablePresentation({
+    /* const uniqueVP = await agent.issueVerifiablePresentation({
       keyRef: 'test',
       verifiableCredentials: [uniqueVC.verifiableCredential],
       domain: `f825-87-213-241-251.eu.ngrok.io`,

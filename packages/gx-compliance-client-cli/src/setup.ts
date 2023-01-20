@@ -9,8 +9,8 @@ const fs = require('fs')
 export const getConfig = (fileName: string): any => {
   if (!fs.existsSync(fileName)) {
     console.log('Config file not found: ' + fileName)
-    // fixme: We should provide an example file and provide rename/copy instructions here, as veramo config create will never create a valid GX config
-    console.log('Use "veramo config create" to create one')
+    // fixme: We should provide an example file and provide rename/copy instructions here, as veramo _config create will never create a valid GX _config
+    console.log('Use "veramo _config create" to create one')
     process.exit(1)
   }
 
@@ -38,6 +38,8 @@ export async function getAgent(fileName: string): Promise<ConfiguredAgent> {
     }
     const dbEncryptionKey = config.gx.dbEncryptionKey ? config.gx.dbEncryptionKey : 'CHANGEME'
     const dbFile = config.gx.dbFile ? config.gx.dbFile : './db/gx.db.sqlite'
+
+    console.log(JSON.stringify(config.gx, null, 2))
     return await (
       await setupGXAgent({ dbEncryptionKey, dbFile, config: config.gx })
     ).agent

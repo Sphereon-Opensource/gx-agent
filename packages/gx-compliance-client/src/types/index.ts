@@ -1,1 +1,1 @@
-export * from './IGaiaxComplianceClient'
+export * from './IGXComplianceClient'
