@@ -14,8 +14,23 @@ point!__
 ---
 
 # Gaia-X agent
+The Gaia-X agent is an agent that can create Verifiable Credentials and Presentations out of Gaia-X self-descriptions. It can submit these to the Gaia-X Compliance Server, to get back Compliance Credentials. The agent can also issue and verify generic Verifiable Credentials and Presentations.
+Lastly the agent can export well-known resources, like DID:web and X.509 Certificate chains needed in a Gaia-X context.
 
-This is mono repository, with packages that handles steps for creating gaia-x compliant entites with [Veramo](https://veramo.io) modules.
+# Multiple scenario's
+The Agent can be deployed and used in multiple scenarios:
+
+- As a [Command Line tool (CLI)](./packages/gx-compliance-client-cli/README.md)
+- As a REST API
+- Directly integrated into a typescript and/or React-Native project
+
+![Overview](./fixtures/overview.png)
+
+If you quickly want to test out the agent features, we suggest the [CLI](./packages/gx-compliance-client-cli/README.md)
+
+# Developers
+
+This is mono repository, with packages that handle steps for creating Gaia-X compliant Entities like self-descriptions compatible with [Veramo](https://veramo.io) modules.
 
 This mono repo has the following packages:
 - compliance-client
