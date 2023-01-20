@@ -17,13 +17,13 @@
 ## Commands
 
 ```shell
-gx-participant did create --private-key-file=privkey.pem --cert-file=cert.pem --ca-chain=cacerts.pem --domain=example.com
-gx-participant participant compliance submit –sd-file=self-description.json
-gx-participant participant self-description create –sd-file=self-description.json
-gx-participant participant compliance submit –sd-id=<abcd>
-gx-participant participant self-description verify –sd-file=self-description.json
-gx-participant participant compliance status –sd-id=<abcd>
-gx-participant ecosystem add –name=FMA –ecosystem-url=https://compliance.future-mobility-alliance.org
-gx-participant participant ecosystem submit  --ecosystem=FMA –sd-id=<abcd> --compliance-id=<efgh>
-gx-participant participant ecosystem submit  --ecosystem-url=https://compliance.future-mobility-alliance.org –sd-id=<abcd> --compliance-id=<efgh>
+gx-agent did create --private-key-file=privkey.pem --cert-file=cert.pem --ca-chain=cacerts.pem --domain=example.com
+gx-agent participant compliance submit –sd-file=self-description.json
+gx-agent participant self-description create –sd-file=self-description.json
+gx-agent participant compliance submit –sd-id=<abcd>
+gx-agent participant self-description verify –sd-file=self-description.json
+gx-agent participant compliance status –sd-id=<abcd>
+gx-agent ecosystem add –name=FMA –ecosystem-url=https://compliance.future-mobility-alliance.org
+gx-agent participant ecosystem submit  --ecosystem=FMA –sd-id=<abcd> --compliance-id=<efgh>
+gx-agent participant ecosystem submit  --ecosystem-url=https://compliance.future-mobility-alliance.org –sd-id=<abcd> --compliance-id=<efgh>
 ```

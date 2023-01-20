@@ -5,7 +5,7 @@
   "main": "build/cli.js",
   "types": "build/cli.d.ts",
   "bin": {
-    "gx-participant": "bin/gx-participant.js"
+    "gx-agent": "bin/gx-agent.js"
   },
   "scripts": {
     "build": "tsc",
