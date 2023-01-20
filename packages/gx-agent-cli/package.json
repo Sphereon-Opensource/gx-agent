@@ -2,8 +2,8 @@
   "name": "@sphereon/gx-agent-cli",
   "description": "Gaia-X Compliance Client CLI",
   "version": "0.0.1",
-  "main": "build/cli.js",
-  "types": "build/cli.d.ts",
+  "main": "dist/cli.js",
+  "types": "dist/cli.d.ts",
   "bin": {
     "gx-agent": "bin/gx-agent.js"
   },
