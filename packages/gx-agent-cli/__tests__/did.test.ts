@@ -8,9 +8,9 @@ import fs from 'fs'
 import { PEM_CHAIN } from '../../gx-agent/__tests__/certs'
 import { asDID, dropDatabase } from '@sphereon/gx-agent'
 import { mockedDID } from '../../gx-agent/__tests__/mocks'
-import '../src/did'
-import '../src/participant'
-import '../src/ecosystem'
+import '../lib/did'
+import '../lib/participant'
+import '../lib/ecosystem'
 
 let cmd: Command
 
