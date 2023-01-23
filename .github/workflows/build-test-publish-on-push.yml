@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'master'
       - 'develop'
       - 'feature/**'
       - 'feat/**'
@@ -72,6 +73,10 @@ jobs:
 
       - name: publish @latest when on main
         if: github.ref == 'refs/heads/main'
+        run: yarn publish:latest
+        
+      - name: publish @latest when on master
+        if: github.ref == 'refs/heads/master'
         run: yarn publish:latest
 
       - name: publish @next when on develop
