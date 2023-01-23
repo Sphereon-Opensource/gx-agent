@@ -125,17 +125,21 @@ vc.command('verify')
             ...didDoc,
           })
       }
-      const result = await agent.checkVerifiableCredential({ verifiableCredential })
+      try {
+        const result = await agent.checkVerifiableCredential({ verifiableCredential })
 
-      printTable([
-        {
-          types: verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
-          issuer: verifiableCredential.issuer,
-          subject: verifiableCredential.credentialSubject.id,
-          'issuance-date': verifiableCredential.issuanceDate,
-          valid: result,
-        },
-      ])
+        printTable([
+          {
+            types: verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
+            issuer: verifiableCredential.issuer,
+            subject: verifiableCredential.credentialSubject.id,
+            'issuance-date': verifiableCredential.issuanceDate,
+            valid: result,
+          },
+        ])
+      } catch (e: any) {
+        console.log(e.message)
+      }
 
       if (cmd.show === true) {
         console.log(JSON.stringify(verifiableCredential, null, 2))

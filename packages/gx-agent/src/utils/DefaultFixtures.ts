@@ -75,6 +75,6 @@ export function exampleServiceOfferingSD({ url, did }: { url: string; did?: stri
         'gx-service-offering:formatType': 'mime/png',
       },
     },
-    type: [IGaiaxCredentialType.LegalPerson],
+    type: [IGaiaxCredentialType.ServiceOffering],
   }
 }

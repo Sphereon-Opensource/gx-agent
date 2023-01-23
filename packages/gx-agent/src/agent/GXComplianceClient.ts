@@ -32,6 +32,7 @@ import { CredentialHandler } from './CredentialHandler'
 import { extractApiTypeFromVC } from '../utils'
 import { getApiVersionedUrl, postRequest } from '../utils'
 import { extractSignInfo } from '../utils'
+import * as process from 'process'
 
 /**
  * {@inheritDoc IGXComplianceClient}
@@ -233,29 +234,43 @@ export class GXComplianceClient implements IAgentPlugin {
       throw new Error('You should provide either vc id or vc itself')
     }
 
+    let valid = false
     const vc = args.verifiableCredential
       ? args.verifiableCredential
       : await context.agent.dataStoreGetVerifiableCredential({
           hash: args.id as string,
         })
-    const valid = context.agent.verifyCredentialLDLocal({
-      credential: vc,
-      purpose: new AssertionProofPurpose(),
-      fetchRemoteContexts: true,
-    })
-    if (!valid) {
-      throw Error(`Invalid verifiable credential supplied`)
+    try {
+      valid = await context.agent.verifyCredentialLDLocal({
+        credential: vc,
+        purpose: new AssertionProofPurpose(),
+        fetchRemoteContexts: true,
+      })
+
+      if (!valid) {
+        throw Error(`Invalid verifiable credential supplied`)
+      }
+    } catch (e: any) {
+      console.log(e.message)
     }
+    console.log('Agent validation of the self-description. Valid: ' + valid)
+
     let url = this.getApiVersionedUrl()
-    if ((vc.type as string[]).indexOf('ServiceOffering') != -1) {
+    if (vc && vc.type!.includes('ServiceOffering')) {
       url = url + '/service-offering/validate/vc'
-    } else if ((vc.type as string[]).indexOf('LegalPerson') != -1 || (vc.type as string[]).indexOf('NaturalPerson') != -1) {
+    } else if (vc.type!.includes('LegalPerson') || vc.type!.includes('NaturalPerson')) {
       url = url + '/participant/validate/vc'
     }
+
+    if (args.show) {
+      console.log(JSON.stringify(vc, null, 2))
+    }
+
     try {
       return (await postRequest(url, JSON.stringify(vc))) as CredentialValidationResult
     } catch (e: any) {
-      throw new Error('Error on fetching complianceCredential: ' + e.message)
+      console.log('Error on fetching complianceCredential: ' + e.message)
+      process.exit(1)
     }
   }
 

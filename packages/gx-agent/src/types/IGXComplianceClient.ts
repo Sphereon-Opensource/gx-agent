@@ -204,6 +204,8 @@ export interface ISignInfo {
 export interface IVerifySelfDescribedCredential {
   verifiableCredential?: VerifiableCredential
   id?: string
+
+  show?: boolean
 }
 
 export interface CredentialValidationResult {

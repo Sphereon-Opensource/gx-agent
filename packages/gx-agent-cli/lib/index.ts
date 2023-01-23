@@ -5,10 +5,11 @@ inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'))
 
 import './config'
 import './did'
-import './participant'
-import './ecosystem'
 import './vc'
 import './vp'
+import './ecosystem'
+import './participant'
+import './service-offering'
 
 if (!process.argv.slice(2).length) {
   program.outputHelp()

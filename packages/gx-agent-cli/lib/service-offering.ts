@@ -5,32 +5,22 @@ import fs from 'fs'
 import {
   asDID,
   convertDidWebToHost,
-  exampleParticipantSD,
   exampleServiceOfferingSD,
   getAgent,
   IVerifySelfDescribedCredential
 } from '@sphereon/gx-agent'
 
-const participant = program.command('participant').description('Participant commands')
+const service = program.command('so').alias('service').alias('service-offering').description('Service Offering commands')
 // const compliance = participant.command('compliance').description('Compliance and self-descriptions')
-const sd = participant.command('sd').alias('self-description').description('Participant self-description commands')
-/*
-compliance
-  .command('compliance')
-  .command('status')
-  .description('shows the compliance status of the Participant')
-  .option('-sid, --sd-id <string>', 'id of your self-description')
-  .action(async (cmd) => {
-    console.error('Feature not implemented yet')
-  })
-*/
+const serviceOffering = service.command('sd').alias('self-description').description('Service offering self-description commands')
 
-sd.command('submit')
+serviceOffering
+  .command('submit')
   .description(
-    'submits a self-description file to the compliance service. This can either be an input file (unsigned credential) from the filesystem, or a signed self-description stored in the agent'
+    'submits a service offering self-description file to the compliance service. This can either be an input file (unsigned credential) from the filesystem, or a signed self-description stored in the agent'
   )
-  .option('-if, --sd-input-file <string>', 'Unsigned self-description input file location')
-  .option('-id, --sd-id <string>', 'id of a signed self-description stored in the agent')
+  .option('-sif, --sd-input-file <string>', 'Unsigned self-description input file location')
+  .option('-sid, --sd-id <string>', 'id of a signed self-description stored in the agent')
   .action(async (cmd) => {
     try {
       if (!cmd.sdInputFile && !cmd.sdId) {
@@ -56,8 +46,9 @@ sd.command('submit')
     }
   })
 
-sd.command('verify')
-  .description('verifies a self-description')
+serviceOffering
+  .command('verify')
+  .description('verifies a service-offering self-description')
   .option('-id, --sd-id <string>', 'id of your self-description')
   .option('-s, --show', 'Show self descriptions')
   // .option('-sf, --sd-file <string>', 'your sd file')
@@ -73,39 +64,42 @@ sd.command('verify')
     }
   })
 
-sd.command('export-example')
+serviceOffering
+  .command('export-example')
   .description('Creates an example participant self-description input credential file')
   // .argument('<type>', 'Credential type. One of: "participant" or "service-offering"')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option('-s, --show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
-    const typeStr = 'participant' //type.toLowerCase().includes('participant') ? 'participant' : 'service-offering'
+    const typeStr = 'service-offering' //type.toLowerCase().includes('participant') ? 'participant' : 'service-offering'
     const fileName = `${typeStr}-input-credential.json`
-    const credential =
-      typeStr === 'participant'
-        ? exampleParticipantSD({ did })
-        : exampleServiceOfferingSD({ did, url: `https://${convertDidWebToHost(did)}` })
+    const credential = exampleServiceOfferingSD({
+      did,
+      url: `https://${convertDidWebToHost(did)}`
+    })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
-    console.log(`Example self-description file has been written to ${fileName}. Please adjust the contents and use one of the onboarding methods`)
+    console.log(
+      `Example service-offering self-description file has been written to ${fileName}. Please adjust the contents and use one of the onboarding methods`
+    )
     if (cmd.show) {
       console.log(JSON.stringify(credential, null, 2))
     }
   })
 
-sd.command('list')
-  .description('List participant self-description(s)')
-  .option('-d, --did <string>', 'the domain which will be used')
-  .option('-s, --show', 'Show self descriptions')
+serviceOffering
+  .command('list')
+  .description('List service-offering self-description(s)')
+  .option('-d, --did <string>', 'the DID or domain which will be used')
+  .option('-s, --show', 'Show self-descriptions')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()
       const vcs = await agent.dataStoreORMGetVerifiableCredentials()
       const did = cmd.did ? await asDID(cmd.did) : undefined
-      const sds = await vcs.filter(
-        (vc) => vc.verifiableCredential.type!.includes('LegalPerson') && (!did || vc.verifiableCredential.issuer === did)
-        // vc?.verifiableCredential?.type?.includes('LegalPerson') && (!cmd.domain || vc.verifiableCredential.issuer === (await asDID(cmd.domain)))
+      const sds = vcs.filter(
+        (vc) => vc.verifiableCredential.type!.includes('ServiceOffering') && (!did || vc.verifiableCredential.issuer === did)
       )
       printTable(
         sds.map((sd) => {
@@ -128,15 +122,16 @@ sd.command('list')
     }
   })
 
-sd.command('show')
-  .description('List participant self-description(s)')
-  .argument('<id>', 'The participant self-description id')
+serviceOffering
+  .command('show')
+  .description('List service-offering self-description(s)')
+  .argument('<id>', 'The service-offering self-description id')
   .action(async (id) => {
     try {
       const agent = await getAgent()
       const vc = await agent.dataStoreGetVerifiableCredential({ hash: id })
       if (!vc) {
-        console.log(`Participant self-description with id ${id} not found`)
+        console.log(`Service offering self-description with id ${id} not found`)
       } else {
         printTable([
           {
@@ -153,24 +148,26 @@ sd.command('show')
     }
   })
 
-sd.command('delete')
-  .description('Delete participant self-description(s)')
-  .argument('<id>', 'The participant self-description id')
+serviceOffering
+  .command('delete')
+  .description('Delete service offering self-description(s)')
+  .argument('<id>', 'The service offering self-description id')
   .action(async (id) => {
     try {
       const agent = await getAgent()
       const vc = await agent.dataStoreDeleteVerifiableCredential({ hash: id })
       if (!vc) {
-        console.log(`Participant self-description with id ${id} not found`)
+        console.log(`Service offering self-description with id ${id} not found`)
       } else {
-        console.log(`Participant self-description with id ${id} deleted`)
+        console.log(`Service offering self-description with id ${id} deleted`)
       }
     } catch (e: unknown) {
       console.error(e)
     }
   })
 
-sd.command('create')
+serviceOffering
+  .command('create')
   .description('creates a signed self-description based on your self-description input file')
   .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of your self-description input file (a credential that is not signed)')
   .option('--show', 'Show the resulting self-description Verifiable Credential')
@@ -178,9 +175,9 @@ sd.command('create')
     try {
       const agent = await getAgent()
       const sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
-      if (!sd.type.includes('LegalPerson')) {
+      if (!sd.type.includes('ServiceOffering')) {
         throw new Error(
-          'Self-description input file is not of the correct type. Please use `participant sd export-example-sd` command and update the content to create a correct input file'
+          'Self-description input file is not of the correct type. Please use `gx-agent so export-example` command and update the content to create a correct input file'
         )
       }
       const selfDescription = await agent.issueVerifiableCredential({
