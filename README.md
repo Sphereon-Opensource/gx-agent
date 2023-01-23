@@ -8,9 +8,10 @@
 
 ---
 
-__Warning: These packages are in a very early development stage. Breaking changes without notice will occur at this
+__These packages are in a very early development stage. Breaking changes without notice will occur at this
 point!__
 
+**WARNING: This Gaia-X agent is compatible only with a non-official Gaia-X compliance service with Verifiable Presentation support**
 ---
 
 # Gaia-X agent

@@ -302,13 +302,19 @@ export class GXComplianceClient implements IAgentPlugin {
   }
 
   private async onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext) {
+    if (!args.selfDescriptionVC) {
+      throw Error('Please provide the participant self-description')
+    } else if (!args.complianceVC) {
+      throw Error('Please provide the Gaia-X compliance credential')
+    }
+    const did = await asDID(args.domain)
     const onboardingVP = await this.credentialHandler.issueVerifiablePresentation(
       {
         keyRef: args.keyRef,
         // purpose: args.purpose,
         verifiableCredentials: [args.complianceVC, args.selfDescriptionVC],
         challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
-        domain: await asDID(args.domain ?? extractSubjectDIDFromVCs([args.selfDescriptionVC])),
+        domain: did ?? extractSubjectDIDFromVCs([args.selfDescriptionVC]),
         persist: true,
       },
       context

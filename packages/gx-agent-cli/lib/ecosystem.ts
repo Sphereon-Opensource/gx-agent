@@ -30,9 +30,9 @@ ecosystem
 ecosystem
   .command('submit')
   .description('Onboards the participant to the new ecosystem')
-  .option('-sdid, --sd-id <string>', 'id of your self-description')
+  .option('-sid, --sd-id <string>', 'id of your self-description')
   .option('-cid, --compliance-id <string>', '')
-  .option('-eurl, --ecosystem-url <string>', 'URL of gx-compliance server')
+  // .option('-eurl, --ecosystem-url <string>', 'URL of gx-compliance server')
   .option('-e, --ecosystem <string>', 'alias of your ecosystem')
   .action(async (cmd) => {
     try {

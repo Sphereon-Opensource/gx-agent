@@ -2,13 +2,7 @@ import { InvalidArgumentError, program } from 'commander'
 
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import {
-  asDID,
-  convertDidWebToHost,
-  exampleServiceOfferingSD,
-  getAgent,
-  IVerifySelfDescribedCredential
-} from '@sphereon/gx-agent'
+import { asDID, convertDidWebToHost, exampleServiceOfferingSD, getAgent, IVerifySelfDescribedCredential } from '@sphereon/gx-agent'
 
 const service = program.command('so').alias('service').alias('service-offering').description('Service Offering commands')
 // const compliance = participant.command('compliance').description('Compliance and self-descriptions')
@@ -31,13 +25,13 @@ serviceOffering
       const agent = await getAgent()
       if (cmd.sdId) {
         const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
-          participantSDId: cmd.sdId
+          participantSDId: cmd.sdId,
         })
         printTable([{ ...selfDescription }])
       } else {
         const sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
         const selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
-          credential: sd
+          credential: sd,
         })
         printTable([{ ...selfDescription }])
       }
@@ -76,7 +70,7 @@ serviceOffering
     const fileName = `${typeStr}-input-credential.json`
     const credential = exampleServiceOfferingSD({
       did,
-      url: `https://${convertDidWebToHost(did)}`
+      url: `https://${convertDidWebToHost(did)}`,
     })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
@@ -98,16 +92,14 @@ serviceOffering
       const agent = await getAgent()
       const vcs = await agent.dataStoreORMGetVerifiableCredentials()
       const did = cmd.did ? await asDID(cmd.did) : undefined
-      const sds = vcs.filter(
-        (vc) => vc.verifiableCredential.type!.includes('ServiceOffering') && (!did || vc.verifiableCredential.issuer === did)
-      )
+      const sds = vcs.filter((vc) => vc.verifiableCredential.type!.includes('ServiceOffering') && (!did || vc.verifiableCredential.issuer === did))
       printTable(
         sds.map((sd) => {
           return {
             issuer: sd.verifiableCredential.issuer,
             subject: sd.verifiableCredential.id,
             'issuance-data': sd.verifiableCredential.issuanceDate,
-            id: sd.hash
+            id: sd.hash,
           }
         })
       )
@@ -138,8 +130,8 @@ serviceOffering
             issuer: vc.issuer,
             subject: vc.id,
             'issuance-data': vc.issuanceDate,
-            id: vc.hash
-          }
+            id: vc.hash,
+          },
         ])
         console.log(`id: ${id}\n${JSON.stringify(vc, null, 2)}`)
       }
@@ -182,7 +174,7 @@ serviceOffering
       }
       const selfDescription = await agent.issueVerifiableCredential({
         ...sd,
-        persist: true
+        persist: true,
       })
       printTable([{ ...selfDescription }])
       if (cmd.show) {

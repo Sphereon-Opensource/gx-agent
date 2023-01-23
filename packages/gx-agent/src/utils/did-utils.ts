@@ -80,7 +80,7 @@ export async function exportToDIDDocument(identifier: IIdentifier, opts?: { serv
   return didDoc
 }
 
-export async function asDID(input: string): Promise<string> {
+export async function asDID(input?: string): Promise<string> {
   let did = input ? input : globalConfig?.gx?.particpantDID
   if (!did) {
     const ids = await (await getAgent()).didManagerFind()

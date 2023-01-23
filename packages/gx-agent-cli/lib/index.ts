@@ -1,6 +1,7 @@
 import { program } from 'commander'
 import inquirer from 'inquirer'
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'))
 
 import './config'
