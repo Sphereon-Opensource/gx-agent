@@ -8,7 +8,7 @@ import {
   exampleParticipantSD,
   exampleServiceOfferingSD,
   getAgent,
-  IVerifySelfDescribedCredential,
+  IVerifySelfDescribedCredential
 } from '@sphereon/gx-agent'
 
 const participant = program.command('participant').description('Participant commands')
@@ -31,6 +31,7 @@ sd.command('submit')
   )
   .option('-if, --sd-input-file <string>', 'Unsigned self-description input file location')
   .option('-id, --sd-id <string>', 'id of a signed self-description stored in the agent')
+  .option('-s, --show', 'Show self descriptions')
   .action(async (cmd) => {
     try {
       if (!cmd.sdInputFile && !cmd.sdId) {
@@ -39,17 +40,22 @@ sd.command('submit')
         throw new InvalidArgumentError('sd-id and sd-file options cannot both be provided at the same time')
       }
       const agent = await getAgent()
-      if (cmd.sdId) {
-        const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
-          participantSDId: cmd.sdId,
-        })
-        printTable([{ ...selfDescription }])
-      } else {
-        const sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
-        const selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
-          credential: sd,
-        })
-        printTable([{ ...selfDescription }])
+      const selfDescription = cmd.sdId ? await agent.acquireComplianceCredentialFromExistingParticipant({
+        participantSDId: cmd.sdId
+      }) : await agent.acquireComplianceCredentialFromUnsignedParticipant({
+        credential: JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
+      })
+
+      printTable([{
+        type: selfDescription.verifiableCredential.type!.toString(),
+        issuer: selfDescription.verifiableCredential.issuer,
+        subject: selfDescription.verifiableCredential.credentialSubject.id,
+        'issuance-date': selfDescription.verifiableCredential.issuanceDate,
+        id: selfDescription.hash
+      }])
+
+      if (cmd.show) {
+        console.log(JSON.stringify(selfDescription, null, 2))
       }
     } catch (error: any) {
       console.error(error.message)
@@ -83,7 +89,10 @@ sd.command('export-example')
     const typeStr = 'participant' //type.toLowerCase().includes('participant') ? 'participant' : 'service-offering'
     const fileName = `${typeStr}-input-credential.json`
     const credential =
-      typeStr === 'participant' ? exampleParticipantSD({ did }) : exampleServiceOfferingSD({ did, url: `https://${convertDidWebToHost(did)}` })
+      typeStr === 'participant' ? exampleParticipantSD({ did }) : exampleServiceOfferingSD({
+        did,
+        url: `https://${convertDidWebToHost(did)}`
+      })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
     console.log(`Example self-description file has been written to ${fileName}. Please adjust the contents and use one of the onboarding methods`)
@@ -111,7 +120,7 @@ sd.command('list')
             issuer: sd.verifiableCredential.issuer,
             subject: sd.verifiableCredential.id,
             'issuance-data': sd.verifiableCredential.issuanceDate,
-            id: sd.hash,
+            id: sd.hash
           }
         })
       )
@@ -141,8 +150,8 @@ sd.command('show')
             issuer: vc.issuer,
             subject: vc.id,
             'issuance-data': vc.issuanceDate,
-            id: vc.hash,
-          },
+            id: vc.hash
+          }
         ])
         console.log(`id: ${id}\n${JSON.stringify(vc, null, 2)}`)
       }
@@ -183,7 +192,7 @@ sd.command('create')
       }
       const selfDescription = await agent.issueVerifiableCredential({
         ...sd,
-        persist: true,
+        persist: true
       })
       printTable([{ ...selfDescription }])
       if (cmd.show) {

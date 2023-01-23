@@ -18,7 +18,13 @@ The Gaia-X Compliance Agent Command Line interface, allows you to manage the age
 methods, like creating a DID, generating self-descriptions, acquiring Compliance Credentials from the Compliance Service
 are supported.
 
+
 # Prerequisites
+
+## NodeJS version 16
+Please download NodeJS version 16. You can find NodeJS for your computer on the following page: https://nodejs.org/en/blog/release/v16.16.0/
+Follow the installation instructions 
+
 
 ## Create X.509 keys and get SSL certificate
 
@@ -42,7 +48,7 @@ generated from the public certificate you received in the previous step.
 have to get a X509 certificate for your domain and DID:WEB, before you can proceed with creating the DID in the agent.
 More information can be found [here](./todo)
 
-### Create a DID and import the X.509 certificate
+## Create a DID and import the X.509 certificate
 
 After having followed the instructions to obtain an X.509 certificate, you should have the private-key PEM file, the
 certificate PEM file and the Certificate Authority Chain PEM file ready.
@@ -63,7 +69,7 @@ The DID Document is now created. You will either export it later, or serve it di
 agent (described later in this document). If you do want to have a quick peek, you could use the below command to
 explore the database of the agent
 
-### List DIDs
+## List DIDs
 
 Lists all DIDs known to the agent. Normally you will only have one DID:web for your organization. When only one DID is
 present, the agent will automatically select this DID for it's commands. If you have more DIDs available, you should use
@@ -80,7 +86,7 @@ example output:
 └──────────┴──────────────────────────────────────┴──────────────────────────────────────┘
 ```
 
-### Resolve a DID
+## Resolve a DID
 
 Resolving a DID, means retrieving the DID Document associated with that particular DID document. Since Gaia-X uses did:
 web, it means accessing the domain name with a well-known location for the DID document,
@@ -150,7 +156,7 @@ DID Document:
 }
 ```
 
-### Export a DID and the CA chain
+## Export a DID and the CA chain
 
 You will need to host the DID on your domain. For now you will have to copy the files to your webserver (the agent can
 host them for you, but that option is not yet available). The document will have to be served from your domain in the
@@ -180,6 +186,91 @@ Please copy everything from my-export/nk-gx-compliance.eu.ngrok.io, to your webs
 
 After you copied the file to the webserver, you should be able to resolve the DID, without using the `-l/--local-only`
 option (see above)
+
+## Delete a DID
+
+Warning, normally you shouldn't be deleting DIDs from your agent. Only do so if you are sure what you are doing.
+
+````shell
+gx-agent did delete did:web:nk-gx-compliance.eu.ngrok.io
+````
+
+# Participant onboarding
+
+You first need to become a Gaia-X compliant participant. In order to do so, you first need to create a participant
+self-description. This is a so called Credential in a specific order. You will need to sign this self-description, using
+your DID, making it a Verifiable Credential. The compliance service will issue an attestation, in the form of a
+Participant Credential, signed by it’s DID. This allows you to prove to others that you are a Gaia-X participant.
+
+You can either become compliant in 1 step, or by having 2 extra steps. The benefit of using 2 steps is that you can
+verify the self-description, before sending it in to become compliant. The agent internally creates the same objects, no
+matter what choice you make.
+
+## Export example participant-input-credential.json
+
+There is a command to export a template/example participant self-description to disk. You can then edit this example self-description with your information.
+The `--show` argument, displays the example self-description to your console.
+
+````shell
+gx-agent participant sd export-example --show
+
+output:
+┌─────────────┬───────────────────────────────────┬──────────────────────────────────────┐
+│        type │                           sd-file │                                  did │
+├─────────────┼───────────────────────────────────┼──────────────────────────────────────┤
+│ participant │ participant-input-credential.json │ did:web:nk-gx-compliance.eu.ngrok.io │
+└─────────────┴───────────────────────────────────┴──────────────────────────────────────┘
+Example self-description file has been written to participant-input-credential.json. Please adjust the contents and use one of the onboarding methods
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://registry.gaia-x.eu/v2206/api/shape"
+  ],
+  "issuer": "did:web:nk-gx-compliance.eu.ngrok.io",
+  "id": "be284e34-665e-4759-b2f0-4e9af6b9f742",
+  "credentialSubject": {
+    "id": "did:web:nk-gx-compliance.eu.ngrok.io",
+    "gx-participant:name": "Example Company",
+    "gx-participant:legalName": "Example Company ltd.",
+    "gx-participant:website": "https://participant",
+    "gx-participant:registrationNumber": [
+      {
+        "gx-participant:registrationNumberType": "localCode",
+        "gx-participant:registrationNumberNumber": "NL001234567B01"
+      },
+      {
+        "gx-participant:registrationNumberType": "leiCode",
+        "gx-participant:registrationNumberNumber": "9695007586GCAKPYJ703"
+      },
+      {
+        "gx-participant:registrationNumberType": "EUID",
+        "gx-participant:registrationNumberNumber": "FR5910.424761419"
+      }
+    ],
+    "gx-participant:headquarterAddress": {
+      "gx-participant:addressCountryCode": "FR",
+      "gx-participant:addressCode": "FR-HDF",
+      "gx-participant:streetAddress": "2 rue Kellermann",
+      "gx-participant:postalCode": "59100",
+      "gx-participant:locality": "Roubaix"
+    },
+    "gx-participant:legalAddress": {
+      "gx-participant:addressCountryCode": "FR",
+      "gx-participant:addressCode": "FR-HDF",
+      "gx-participant:streetAddress": "2 rue Kellermann",
+      "gx-participant:postalCode": "59100",
+      "gx-participant:locality": "Roubaix"
+    },
+    "gx-participant:termsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+  },
+  "type": [
+    "LegalPerson"
+  ]
+}
+````
+
+
+
 
 ```shell
 
