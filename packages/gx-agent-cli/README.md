@@ -19,11 +19,46 @@ methods, like creating a DID, generating self-descriptions, acquiring Compliance
 are supported.
 
 
-# Prerequisites
+# Prerequisites and installation
 
 ## NodeJS version 16
 Please download NodeJS version 16. You can find NodeJS for your computer on the following page: https://nodejs.org/en/blog/release/v16.16.0/
-Follow the installation instructions 
+Follow the installation instructions on the nodejs website
+
+## Install the Gaia-X agent CLI tool
+After installing nodejs open a terminal window or command prompt on your computer. Ideally with elevated permissions. Type in the following command:
+
+```shell
+npm install -g @sphereon/gx-agent-cli --no-audit
+```
+
+If you are using yarn instead of npm (required you to install yarn first separately from nodejs)
+````shell
+yarn global add @sphereon/gx-agent-cli
+````
+
+## Check that the CLI is available to you
+Open a new terminal or command prompt on your computer and type
+
+```shell
+gx-agent --help
+
+Usage: cli [options] [command]
+
+Options:
+  -h, --help      display help for command
+
+Commands:
+  config          Agent configuration
+  did             Decentralized Identifiers (DID) commands
+  vc              Generic Verifiable Credential commands
+  vp              Generic Verifiable Presentation commands
+  ecosystem       gx-participant ecosystem
+  participant     Participant commands
+  so|service      Service Offering commands
+  help [command]  display help for command
+```
+If you see an output similar like the above, the Gaia-X Agent CLI is properly installed.
 
 
 ## Create X.509 keys and get SSL certificate
