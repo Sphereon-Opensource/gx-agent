@@ -20,6 +20,7 @@
     "@sphereon/ssi-sdk-did-utils": "0.8.1-unstable.179",
     "@sphereon/ssi-sdk-vc-handler-ld-local": "0.8.1-unstable.179",
     "@sphereon/ssi-types": "0.8.1-unstable.179",
+    "@transmute/lds-ecdsa-secp256k1-recovery2020": "^0.0.7",
     "@types/uuid": "^9.0.0",
     "@veramo/cli": "4.2.0",
     "@veramo/core": "4.2.0",
@@ -36,7 +37,6 @@
   "devDependencies": {
     "@babel/core": "^7.20.7",
     "@babel/preset-env": "^7.20.2",
-    "@transmute/lds-ecdsa-secp256k1-recovery2020": "^0.0.7",
     "@types/debug": "^4.1.7",
     "@types/jest": "^27.0.2",
     "@veramo/cli": "4.2.0",
