@@ -5,4 +5,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## 0.1.1 (2023-01-23)
 
-**Note:** Version bump only for package @sphereon/gx-agent
+**Note:** Version bump only for package @sphereon/gx-agent-cli
