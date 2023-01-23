@@ -1,8 +1,15 @@
 import { InvalidArgumentError, program } from 'commander'
-import { getAgent } from './setup'
+
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import { exampleParticipantSD, exampleParticipantSO, IVerifySelfDescribedCredential } from '@sphereon/gx-agent'
+import {
+  asDID,
+  convertDidWebToHost,
+  exampleParticipantSD,
+  exampleServiceOfferingSD,
+  getAgent,
+  IVerifySelfDescribedCredential,
+} from '@sphereon/gx-agent'
 
 const participant = program.command('participant').description('Participant commands')
 const compliance = participant.command('compliance').description('Compliance and self-descriptions')
@@ -30,7 +37,7 @@ compliance
       } else if (cmd.sdInputFile && cmd.sdId) {
         throw new InvalidArgumentError('sd-id and sd-file options cannot both be provided at the same time')
       }
-      const agent = await getAgent(program.opts().config)
+      const agent = await getAgent()
       if (cmd.sdId) {
         const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
           participantSDId: cmd.sdId,
@@ -55,7 +62,7 @@ compliance
   // .option('-sf, --sd-file <string>', 'your sd file')
   .action(async (cmd) => {
     try {
-      const agent = await getAgent(program.opts().config)
+      const agent = await getAgent()
       const args: IVerifySelfDescribedCredential = {}
       if (cmd.sdId) {
         args.id = cmd.sdId
@@ -71,18 +78,18 @@ compliance
 
 sd.command('export-example-sd')
   .description('Creates an example self-description input credential file')
-  .requiredOption('-d, --domain <string>', 'the domain which will be used')
-  .requiredOption('-t, --type <string>', 'Credential type. One of: "participant" or "service-offering"')
-  .action(async (cmd) => {
-    const type = cmd.type.toLowerCase().includes('participant') ? 'participant' : 'service-offering'
-    const fileName = `${type}-input-credential.json`
+  .argument('<type>', 'Credential type. One of: "participant" or "service-offering"')
+  .option('-d, --domain <string>', 'the domain which will be used')
+  .action(async (type, cmd) => {
+    const typeStr = type.toLowerCase().includes('participant') ? 'participant' : 'service-offering'
+    const fileName = `${typeStr}-input-credential.json`
     const credential =
-      type === 'participant'
-        ? exampleParticipantSD({ did: `did:web:${cmd.domain}` })
-        : exampleParticipantSO({ did: `did:web:${cmd.domain}` }, cmd.domain)
+      typeStr === 'participant'
+        ? exampleParticipantSD({ did: await asDID(cmd.domain) })
+        : exampleServiceOfferingSD({ did: await asDID(cmd.domain), url: `https://${convertDidWebToHost(cmd.domain)}` })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
-    printTable([{ type: type, 'sd-file': fileName, did: `did:web:${cmd.domain}` }])
-    console.log(`Example self-description file has been written at ${fileName}. Please adjust the contents and use one of the onboarding methods`)
+    printTable([{ type: typeStr, 'sd-file': fileName, did: await asDID(cmd.domain) }])
+    console.log(`Example self-description file has been written to ${fileName}. Please adjust the contents and use one of the onboarding methods`)
   })
 
 sd.command('create')
@@ -91,7 +98,7 @@ sd.command('create')
   .option('--show', 'Show the resulting self-description Verifiable Credential')
   .action(async (cmd) => {
     try {
-      const agent = await getAgent(program.opts().config)
+      const agent = await getAgent()
       const sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
       if (!sd.type.includes('LegalPerson')) {
         throw new Error(

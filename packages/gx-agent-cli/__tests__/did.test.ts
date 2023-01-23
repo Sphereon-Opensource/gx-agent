@@ -57,14 +57,14 @@ describe('@gx-compliance did', () => {
     // cmd.parse("node ../dist/bin/gx-participant.js did create --private-key-file ./fixtures/private-key.pem --cert-file ./fixtures/cert.pem --ca-chain-file ./fixtures/ca-chain.pem -d f825-87-213-241-251.eu.ngrok.io".split(" "))
   })
 
-  it('should convert to did', () => {
-    expect(asDID('did:web:test')).toEqual('did:web:test')
-    expect(asDID('test')).toEqual('did:web:test')
-    expect(asDID('http://test')).toEqual('did:web:test')
-    expect(asDID('https://test')).toEqual('did:web:test')
-    expect(asDID('https://test/123')).toEqual('did:web:test')
-    expect(asDID('https://test?123')).toEqual('did:web:test')
-    expect(asDID('https://test#123')).toEqual('did:web:test')
-    expect(asDID('https://test:123')).toEqual('did:web:test:123') // Ports are allowed
+  it('should convert to did', async () => {
+    expect(await asDID('did:web:test')).toEqual('did:web:test')
+    expect(await asDID('test')).toEqual('did:web:test')
+    expect(await asDID('http://test')).toEqual('did:web:test')
+    expect(await asDID('https://test')).toEqual('did:web:test')
+    expect(await asDID('https://test/123')).toEqual('did:web:test')
+    expect(await asDID('https://test?123')).toEqual('did:web:test')
+    expect(await asDID('https://test#123')).toEqual('did:web:test')
+    expect(await asDID('https://test:123')).toEqual('did:web:test:123') // Ports are allowed
   })
 })

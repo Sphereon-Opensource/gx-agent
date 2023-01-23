@@ -1,9 +1,8 @@
-import { getAgent } from './setup'
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import { CredentialPayload, IIdentifier, VerifiableCredential } from '@veramo/core'
-import { asDID, convertDidWebToHost, exportToDIDDocument } from '@sphereon/gx-agent'
+import { asDID, convertDidWebToHost, exportToDIDDocument, getAgent } from '@sphereon/gx-agent'
 import nock from 'nock'
 
 const vc = program.command('vc').description('Generic Verifiable Credential commands')
@@ -16,10 +15,10 @@ vc.command('issue')
   .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
   .option('--show', 'Print the Verifiable Credential to console')
   .action(async (cmd) => {
-    const agent = await getAgent(program.opts().config)
+    const agent = await getAgent()
     try {
       const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.inputFile, 'utf-8')) as CredentialPayload
-      const did = cmd.did ? asDID(cmd.did) : typeof credential.issuer === 'string' ? credential.issuer : credential.issuer.id
+      const did = cmd.did ? await asDID(cmd.did) : typeof credential.issuer === 'string' ? credential.issuer : credential.issuer.id
       const id = await agent.didManagerGet({ did })
       const didDoc = await exportToDIDDocument(id)
       const url = `https://${convertDidWebToHost(did)}`
@@ -61,7 +60,7 @@ vc.command('issue')
 vc.command('list')
   .description('Lists al persisted Verifiable Credentials')
   .action(async (cmd) => {
-    const agent = await getAgent(program.opts().config)
+    const agent = await getAgent()
     try {
       const uniqueCredentials = await agent.dataStoreORMGetVerifiableCredentials({
         order: [
@@ -95,7 +94,7 @@ vc.command('verify')
   .option('-id, --vc-id <string>', 'Use a persisted VC as input for verification')
   .option('--show', 'Print the Verifiable Credential to console')
   .action(async (cmd) => {
-    const agent = await getAgent(program.opts().config)
+    const agent = await getAgent()
     try {
       if (!cmd.inputFile && !cmd.vcId) {
         throw Error('Either a Verifiable Credential input file or the id of a stored Verifiable Credential needs to be supplied')

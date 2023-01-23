@@ -1,9 +1,10 @@
 import { DIDDocument, IIdentifier, IService } from '@veramo/core'
 import { ExportFileResult, GXRequiredContext, IImportDIDArg } from '../types'
 import { privateKeyHexFromPEM, publicKeyHexFromPEM, x5cToPemCertChain } from '@sphereon/ssi-sdk-did-utils'
-import { exportToDIDDocument } from '../utils'
+import { asDID, convertDidWebToHost, exportToDIDDocument } from '../utils'
 import fs from 'fs'
 import { TKeyType } from '@veramo/core/src/types/IIdentifier'
+import { dirname } from 'path'
 
 export class DID {
   public static async createDIDFromX509(
@@ -22,7 +23,7 @@ export class DID {
     const kidResult = kid ? kid : publicKeyHexFromPEM(privateKeyPEM)
     const controllerKeyId = kidResult //kid ? (kidResult.includes(domain) ? kidResult : `${domain}#${kid}`) : `${domain}#JWK2020-RSA`
     return await context.agent.didManagerImport({
-      did: `did:web:${domain}`,
+      did: await asDID(domain),
       provider: 'did:web',
       alias: domain,
       keys: [{ kid: kid ? kid : kidResult, privateKeyHex, type: 'RSA' as TKeyType, meta, kms: kms ? kms : 'local' }],
@@ -34,7 +35,7 @@ export class DID {
     { domain, services }: { domain: string; services?: IService[] },
     context: GXRequiredContext
   ): Promise<DIDDocument> {
-    const id = await context.agent.didManagerGet({ did: `did:web:${domain}` })
+    const id = await context.agent.didManagerGet({ did: await asDID(domain) })
     return await exportToDIDDocument(id, { services })
   }
 
@@ -42,7 +43,10 @@ export class DID {
     { domain, services, path }: { domain: string; path?: string; services?: IService[] },
     context: GXRequiredContext
   ): Promise<ExportFileResult[]> {
-    const id = await context.agent.didManagerGet({ did: `did:web:${domain}` })
+    const id = await context.agent.didManagerGet({ did: await asDID(domain) })
+    if (domain.startsWith('did')) {
+      domain = convertDidWebToHost(domain)
+    }
     // we go through the agent from the context
     const doc = await context.agent.exportDIDDocument({ domain, services })
 
@@ -50,7 +54,7 @@ export class DID {
     const exports: ExportFileResult[] = []
     const didPath = `${basePath}/.well-known/did.json`
     exports.push({ file: 'did.json', path: didPath })
-    fs.mkdirSync(`${basePath}/.well-known`, { recursive: true })
+    fs.mkdirSync(dirname(didPath), { recursive: true })
     fs.writeFileSync(didPath, JSON.stringify(doc, null, 2))
 
     id.keys.forEach((key) => {
@@ -60,7 +64,7 @@ export class DID {
       if (key.meta?.x509?.x5u && key.meta?.x509?.x5c) {
         const x5cPath = `${basePath}/${key.meta.x509.x5u.replace(/https?:\/\/[^/]+\//, '')}`
         const file = x5cPath.split('\\').pop()!.split('/').pop()!
-        fs.mkdirSync(x5cPath.replace(file, ''), { recursive: true })
+        fs.mkdirSync(dirname(file), { recursive: true })
         if (!file) {
           throw Error(`Could not deduce path for x5 ca chain from x5u URL ${key.meta.x509.x5u}`)
         }

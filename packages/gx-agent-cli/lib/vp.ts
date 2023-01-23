@@ -1,9 +1,8 @@
-import { getAgent } from './setup'
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import { IIdentifier, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
-import { asDID, convertDidWebToHost, exportToDIDDocument } from '@sphereon/gx-agent'
+import { asDID, convertDidWebToHost, exportToDIDDocument, getAgent } from '@sphereon/gx-agent'
 import nock from 'nock'
 
 const vp = program.command('vp').description('Generic Verifiable Presentation commands')
@@ -11,7 +10,7 @@ const vp = program.command('vp').description('Generic Verifiable Presentation co
 vp.command('list')
   .description('Lists all persisted Verifiable Presentations')
   .action(async (cmd) => {
-    const agent = await getAgent(program.opts().config)
+    const agent = await getAgent()
     try {
       const uniqueVPs = await agent.dataStoreORMGetVerifiablePresentations({
         order: [
@@ -45,7 +44,7 @@ vp.command('verify')
   .option('-id, --vc-id <string>', 'Use a persisted VP in the agent as input for verification')
   .option('--show', 'Print the Verifiable Presentation to console')
   .action(async (cmd) => {
-    const agent = await getAgent(program.opts().config)
+    const agent = await getAgent()
     try {
       if (!cmd.inputFile && !cmd.vcId) {
         throw Error('Either a Verifiable Presentation input file or the id of a stored Verifiable Presentation needs to be supplied')
@@ -109,7 +108,7 @@ vp.command('issue')
   .option('--show', 'Print the Verifiable Presentation to console')
 
   .action(async (cmd) => {
-    const agent = await getAgent(program.opts().config)
+    const agent = await getAgent()
     if (cmd.vcFiles && !cmd.vcIds) {
       throw Error('Verifiable Credential IDs or files need to be selected. Please check parameters')
     }
@@ -132,7 +131,7 @@ vp.command('issue')
         throw Error('No verifiable credentials were found matching the critery. Did you use the --vc-files and/or --vc-ids options?')
       }
 
-      const did = asDID(cmd.did)
+      const did = await asDID(cmd.did)
       const id = await agent.didManagerGet({ did })
       const didDoc = await exportToDIDDocument(id)
       const url = `https://${convertDidWebToHost(did)}`

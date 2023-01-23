@@ -45,7 +45,7 @@ export function exampleParticipantSD({ did }: { did?: string; version?: string }
   }
 }
 
-export function exampleParticipantSO({ did }: { did?: string; version?: string }, url: string) {
+export function exampleServiceOfferingSD({ url, did }: { url: string; did?: string; version?: string }) {
   return {
     '@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.gaia-x.eu/v2206/api/shape'],
     issuer: `${did ? did : 'your DID here'}`,

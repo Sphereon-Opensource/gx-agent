@@ -1,6 +1,7 @@
 import { GXRequiredContext, ISignInfo } from '../types'
 import { DIDDocument, DIDDocumentSection, IIdentifier, IService, TKeyType } from '@veramo/core'
 import { mapIdentifierKeysToDocWithJwkSupport } from '@sphereon/ssi-sdk-did-utils'
+import { getAgent, globalConfig } from '../agent'
 
 export function convertDidWebToHost(did: string) {
   did = did.substring(8)
@@ -79,9 +80,22 @@ export async function exportToDIDDocument(identifier: IIdentifier, opts?: { serv
   return didDoc
 }
 
-export function asDID(input: string) {
-  if (input.startsWith(`did:web:`)) {
-    return input
+export async function asDID(input: string): Promise<string> {
+  let did = input ? input : globalConfig?.gx?.particpantDID
+  if (!did) {
+    const ids = await (await getAgent()).didManagerFind()
+    if (ids.length === 1) {
+      did = ids[0].did
+    } else {
+      throw Error(
+        'Domain or DID expected, but received nothing. Either provide an argument, set a `particpantDID` in the agent.yml, or create a single DID'
+      )
+    }
   }
-  return `did:web:${input.replace(/https?:\/\/([^/?#]+).*/i, '$1').toLowerCase()}`
+
+  console.log(did)
+  if (did.startsWith('did:web:')) {
+    return did
+  }
+  return `did:web:${did.replace(/https?:\/\/([^/?#]+).*/i, '$1').toLowerCase()}`
 }

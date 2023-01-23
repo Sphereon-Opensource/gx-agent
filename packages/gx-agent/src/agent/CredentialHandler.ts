@@ -35,7 +35,7 @@ export class CredentialHandler {
       if (!args.domain) {
         throw Error('Either a credentialSubject.id value needs to be set, or a domain value needs to be supplied')
       }
-      credential.credentialSubject.id = asDID(args.domain)
+      credential.credentialSubject.id = await asDID(args.domain)
     }
     const did = extractSubjectDIDFromVCs(credential)
     const signInfo = await extractSignInfo({ did, section: 'assertionMethod', keyRef: args.keyRef }, context)
@@ -65,7 +65,7 @@ export class CredentialHandler {
     args: IIssueVerifiablePresentationArgs,
     context: GXRequiredContext
   ): Promise<UniqueVerifiablePresentation> {
-    const did = asDID(args.domain!)
+    const did = await asDID(args.domain!)
     const signInfo = await extractSignInfo({ did, section: 'authentication', keyRef: args.keyRef }, context)
 
     const verifiablePresentation = await context.agent.createVerifiablePresentationLDLocal({

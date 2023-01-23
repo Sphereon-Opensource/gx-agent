@@ -1,7 +1,7 @@
 import { program } from 'commander'
-import { getAgent } from './setup'
 import { GxEntityType } from './types'
 import { printTable } from 'console-table-printer'
+import { getAgent } from '@sphereon/gx-agent'
 
 const ecosystem = program.command('ecosystem').description('gx-participant ecosystem')
 
@@ -11,7 +11,7 @@ ecosystem
   .requiredOption('-n, --name <string>', 'ecosystem name')
   .requiredOption('-url, --ecosystem-url <string>', 'gaia-x ecosystem server address')
   .action(async (cmd) => {
-    const agent = await getAgent(program.opts().config)
+    const agent = await getAgent()
     const id = await agent.dataStoreSaveMessage({
       //todo: create an entity here instead of using message
       message: {
@@ -36,7 +36,7 @@ ecosystem
   .option('-e, --ecosystem <string>', 'alias of your ecosystem')
   .action(async (cmd) => {
     try {
-      const agent = await getAgent(program.opts().config)
+      const agent = await getAgent()
       const selfDescriptionId = cmd.sdId
       const complianceId = cmd.complianceId
 

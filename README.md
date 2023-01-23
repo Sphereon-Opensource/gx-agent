@@ -14,10 +14,14 @@ point!__
 ---
 
 # Gaia-X agent
-The Gaia-X agent is an agent that can create Verifiable Credentials and Presentations out of Gaia-X self-descriptions. It can submit these to the Gaia-X Compliance Server, to get back Compliance Credentials. The agent can also issue and verify generic Verifiable Credentials and Presentations.
+
+The Gaia-X agent is an agent that can create Verifiable Credentials and Presentations out of Gaia-X self-descriptions.
+It can submit these to the Gaia-X Compliance Server, to get back Compliance Credentials. The agent can also issue and
+verify generic Verifiable Credentials and Presentations.
 Lastly the agent can export well-known resources, like DID:web and X.509 Certificate chains needed in a Gaia-X context.
 
 # Multiple scenario's
+
 The Agent can be deployed and used in multiple scenarios:
 
 - As a [Command Line tool (CLI)](packages/gx-agent-cli/README.md)
@@ -28,21 +32,37 @@ The Agent can be deployed and used in multiple scenarios:
 
 If you quickly want to test out the agent features, we suggest the [CLI](packages/gx-agent-cli/README.md)
 
+# Prerequisites
+
+## Create X.509 keys and get SSL certificate
+
+You will first need to have an existing X.509 EV SSL certificate or create a new one. [This document](./docs/X509-setup.md)
+explains how to setup a new X.509 certificate. Without following the steps in the document you cannot be onboarded as
+Gaia-X participant.
+
+## Setting up the agent
+
+For now the [CLI](packages/gx-agent-cli/README.md) is the only documented way to setup the agent. In the future the
+other scenario's will be described as well.
+
 # Developers
 
-This is mono repository, with packages that handle steps for creating Gaia-X compliant Entities like self-descriptions compatible with [Veramo](https://veramo.io) modules.
+This is mono repository, with packages that handle steps for creating Gaia-X compliant Entities like self-descriptions
+compatible with [Veramo](https://veramo.io) modules.
 
 This mono repo has the following packages:
+
 - compliance-client
-  - an agent managing GX credentials, presentations and compliance service
+    - an agent managing GX credentials, presentations and compliance service
 - compliance-cli
-  - CLI support for the agent
+    - CLI support for the agent
 
 ## Building and testing
 
 ### Lerna
 
-This package makes use of Lerna for managing multiple packages. Lerna is a tool that optimizes the workflow around managing multi-package repositories with git and npm / yarn.
+This package makes use of Lerna for managing multiple packages. Lerna is a tool that optimizes the workflow around
+managing multi-package repositories with git and npm / yarn.
 
 ### Build
 

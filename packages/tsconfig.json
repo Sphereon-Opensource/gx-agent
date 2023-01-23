@@ -1,4 +1,4 @@
 {
   "files": [],
-  "references": [{ "path": "gx-agent"}, { "path": "gx-agent-cli"}]
+  "references": [{ "path": "gx-agent" }, { "path": "gx-agent-cli" }]
 }

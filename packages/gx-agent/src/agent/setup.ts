@@ -4,7 +4,7 @@ import { CredentialHandlerLDLocal, LdDefaultContexts, MethodNames } from '@spher
 import { CredentialPlugin } from '@veramo/credential-w3c'
 import { KeyManager } from '@veramo/key-manager'
 import { SecretBox } from '@veramo/kms-local'
-import { createAgent } from '@veramo/core'
+import { createAgent, TAgent } from '@veramo/core'
 import { DIDManager } from '@veramo/did-manager'
 import { WebDIDProvider } from '@veramo/did-provider-web'
 import { DataStore, DataStoreORM, DIDStore, Entities, KeyStore, migrations, PrivateKeyStore } from '@veramo/data-store'
@@ -13,10 +13,14 @@ import { Resolver } from 'did-resolver'
 import { getResolver } from 'web-did-resolver'
 // @ts-ignore
 import fs from 'fs'
+import yaml from 'yaml'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { GXPluginMethodMap, IGaiaxComplianceConfig } from '../types'
 import { GXJsonWebSignature2020 } from '../suites/GXJsonWebSignature2020'
+import { getAgentConfigPath } from '../utils/config-utils'
+
+export let globalConfig: any
 
 export async function setupGXAgent(opts: {
   dbFile?: string
@@ -76,6 +80,7 @@ export async function setupGXAgent(opts: {
       }),
     ],
   })
+
   return {
     agent,
     kms,
@@ -103,4 +108,51 @@ async function newDBConnection(databaseFile: string): Promise<DataSource> {
     migrationsRun: true,
     logger: 'advanced-console',
   }).initialize()
+}
+
+export const getConfig = (fileName: string): any => {
+  if (!fs.existsSync(fileName)) {
+    console.log('Config file not found: ' + fileName)
+    // fixme: We should provide an example file and provide rename/copy instructions here, as veramo _config create will never create a valid GX _config
+    console.log('Use "veramo _config create" to create one')
+    process.exit(1)
+  }
+
+  const config = yaml.parse(fs.readFileSync(fileName).toString(), { prettyErrors: true })
+
+  if (config?.version != 3) {
+    console.log('Unsupported configuration file version:', config.version)
+    process.exit(1)
+  }
+  if (!config.gx) {
+    console.log(`No Gaia-X config options found in gx section from ${fileName}`)
+    process.exit(1)
+  }
+  return config
+}
+
+export type ConfiguredAgent = TAgent<GXPluginMethodMap>
+
+export async function getAgent(opts?: { path?: string }): Promise<ConfiguredAgent> {
+  const path = opts?.path ? opts.path : getAgentConfigPath()
+  try {
+    const config = getConfig(path)
+
+    if (!config.gx.dbEncryptionKey) {
+      // todo: help user how to change the encryption key
+      console.log(`Warning: default database encryption key is used`)
+    }
+    const dbEncryptionKey = config.gx.dbEncryptionKey ? config.gx.dbEncryptionKey : 'CHANGEME'
+    const dbFile = config.gx.dbFile ? config.gx.dbFile : './db/gx.db.sqlite'
+    globalConfig = config
+
+    // console.log(JSON.stringify(config.gx, null, 2))
+    return await (
+      await setupGXAgent({ dbEncryptionKey, dbFile, config: config.gx })
+    ).agent
+    // return createAgentFromConfig<GXPluginMethodMap>(getConfig(fileName ? fileName : 'agent.yml'))
+  } catch (e: any) {
+    console.log('Unable to create agent from ' + path + '.', e.message)
+    process.exit(1)
+  }
 }

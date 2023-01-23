@@ -1,7 +1,7 @@
 {
   "name": "@sphereon/gx-agent-cli",
   "description": "Gaia-X Compliance Client CLI",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
   "bin": {
@@ -12,7 +12,7 @@
     "watch": "tsc -b --watch"
   },
   "dependencies": {
-    "@sphereon/gx-agent": "^0.0.1",
+    "@sphereon/gx-agent": "^0.1.0",
     "@sphereon/ssi-sdk-did-utils": "^0.8.1-unstable.179",
     "@microsoft/api-extractor": "^7.33.6",
     "@microsoft/api-extractor-model": "^7.25.2",
@@ -52,9 +52,10 @@
   },
   "files": [
     "bin/**/*",
+    "lib/**/*",
+    "fixtures/**/*",
     "dist/**/*",
     "default/**/*",
-    "src/**/*",
     "views/**/*",
     "README.md",
     "LICENSE"

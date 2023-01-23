@@ -164,7 +164,7 @@ export class GXComplianceClient implements IAgentPlugin {
         })
       : args.complianceVC!
 
-    const did = asDID(args.domain ?? extractSubjectDIDFromVCs([complianceCredential]))
+    const did = await asDID(args.domain ?? extractSubjectDIDFromVCs([complianceCredential]))
     const serviceOffering = await this.credentialHandler.issueVerifiableCredential(
       {
         domain: did,
@@ -293,7 +293,7 @@ export class GXComplianceClient implements IAgentPlugin {
         // purpose: args.purpose,
         verifiableCredentials: [args.complianceVC, args.selfDescriptionVC],
         challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
-        domain: asDID(args.domain ?? extractSubjectDIDFromVCs([args.selfDescriptionVC])),
+        domain: await asDID(args.domain ?? extractSubjectDIDFromVCs([args.selfDescriptionVC])),
         persist: true,
       },
       context
