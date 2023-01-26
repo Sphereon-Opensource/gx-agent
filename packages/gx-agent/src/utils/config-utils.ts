@@ -2,7 +2,6 @@ import { homedir } from 'os'
 import fs from 'fs'
 import { dirname } from 'path'
 import yaml from 'yaml'
-import { load, dump } from 'js-yaml'
 export function getUserHome(): string {
   return homedir()
 }
@@ -29,10 +28,10 @@ export function createAgentConfig(path: string) {
   if (!fs.existsSync(agentPath)) {
     const templateFile = __dirname + '/../fixtures/template-agent.yml'
     const contents = fs.readFileSync(templateFile)
-    const config: any = load(contents.toString('utf8'))
+    const config: any = yaml.parse(contents.toString('utf8'))
     try {
       config.gx.dbFile = `${getDefaultAgentDir()}/db/gx.db.sqlite`
-      const yamlString: string = dump(config)
+      const yamlString: string = yaml.stringify(config)
       fs.writeFileSync(agentPath, yamlString)
     } catch (error) {
       console.log(`error on creating the agent's config: ${error}`)
