@@ -1,15 +1,26 @@
-import { DIDDocument, IAgentPlugin, IIdentifier, IService, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
+import {
+  DIDDocument,
+  IAgentPlugin,
+  IIdentifier,
+  IService,
+  VerifiableCredential,
+  VerifiablePresentation,
+  UniqueVerifiablePresentation,
+} from '@veramo/core'
 
 import {
   asDID,
   AssertionProofPurpose,
+  convertDidWebToHost,
   CredentialValidationResult,
   ExportFileResult,
   extractSubjectDIDFromVCs,
+  getIssuerString,
   GXRequiredContext,
   IAcquireComplianceCredentialFromExistingParticipantArgs,
   IGXComplianceClient,
   IImportDIDArg,
+  IOnboardParticipantOnEcosystem,
   IOnboardParticipantWithCredentialArgs,
   IOnboardParticipantWithCredentialIdsArgs,
   ISignInfo,
@@ -67,6 +78,7 @@ export class GXComplianceClient implements IAgentPlugin {
     issueVerifiablePresentation: this.credentialHandler.issueVerifiablePresentation.bind(this),
     checkVerifiableCredential: this.credentialHandler.checkVerifiableCredential.bind(this),
     checkVerifiablePresentation: this.credentialHandler.checkVerifiablePresentation.bind(this),
+    onboardParticipantOnEcosystem: this.onboardParticipantOnEcosystem.bind(this),
     onboardParticipantWithCredential: this.onboardParticipantWithCredential.bind(this),
     onboardParticipantWithCredentialIds: this.onboardParticipantWithCredentialIds.bind(this),
     verifySelfDescription: this.verifySelfDescription.bind(this),
@@ -301,6 +313,43 @@ export class GXComplianceClient implements IAgentPlugin {
     return new Date().toISOString().substring(0, 10)
   }
 
+  private async onboardParticipantOnEcosystem(
+    args: IOnboardParticipantOnEcosystem,
+    context: GXRequiredContext
+  ): Promise<UniqueVerifiablePresentation> {
+    const participantDid = getIssuerString(args.selfDescriptionVC)
+    const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
+      {
+        challenge: GXComplianceClient.getDateChallenge(),
+        keyRef: args.keyRef,
+        verifiableCredentials: [args.selfDescriptionVC, args.complianceVC],
+        domain: convertDidWebToHost(participantDid),
+      },
+      context
+    )
+    const verifiableCredentialResponse = (await this.acquireComplianceCredential(
+      {
+        verifiablePresentation: uniqueVP.verifiablePresentation,
+      },
+      context
+    )) as VerifiableCredentialResponse
+    const onboardingVP = await this.credentialHandler.issueVerifiablePresentation(
+      {
+        keyRef: args.keyRef,
+        verifiableCredentials: [verifiableCredentialResponse.verifiableCredential, args.complianceVC, args.selfDescriptionVC],
+        challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
+        domain: participantDid,
+        persist: true,
+      },
+      context
+    )
+
+    //todo: enable this after fixing onboarding api
+    // const apiType = extractApiTypeFromVC(args.selfDescriptionVC)
+    // await this.onboardParticipantWithVerifiablePresentation({ vp: onboardingVP.verifiablePresentation, baseUrl: args.ecosystemUrl, apiType }, context)
+    return onboardingVP
+  }
+
   private async onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext) {
     if (!args.selfDescriptionVC) {
       throw Error('Please provide the participant self-description')
@@ -319,15 +368,15 @@ export class GXComplianceClient implements IAgentPlugin {
       },
       context
     )
-
     const apiType = extractApiTypeFromVC(args.selfDescriptionVC)
-    const URL = `${this.getApiVersionedUrl()}/${apiType}/verify/raw?store=true`
-
-    try {
-      return (await postRequest(URL, JSON.stringify(onboardingVP))) as VerifiableCredential
-    } catch (e) {
-      throw new Error('Error on onboarding a complianceVC: ' + e)
-    }
+    return this.onboardParticipantWithVerifiablePresentation(
+      {
+        vp: onboardingVP.verifiablePresentation,
+        apiType,
+        baseUrl: args.baseUrl,
+      },
+      context
+    )
   }
 
   private async onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext) {
@@ -351,7 +400,20 @@ export class GXComplianceClient implements IAgentPlugin {
     )
   }
 
-  private getApiVersionedUrl() {
-    return getApiVersionedUrl(this._config)
+  private async onboardParticipantWithVerifiablePresentation(
+    args: { vp: VerifiablePresentation; apiType: string; baseUrl?: string },
+    context: GXRequiredContext
+  ) {
+    const URL = `${this.getApiVersionedUrl(args.baseUrl)}/${args.apiType}/verify/raw?store=true`
+
+    try {
+      return (await postRequest(URL, JSON.stringify(args.vp))) as VerifiableCredential
+    } catch (e) {
+      throw new Error('Error on onboarding a complianceVC: ' + e)
+    }
+  }
+
+  private getApiVersionedUrl(baseUrl?: string) {
+    return getApiVersionedUrl(this._config, baseUrl)
   }
 }

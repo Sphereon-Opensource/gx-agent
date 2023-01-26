@@ -54,6 +54,8 @@ export interface IGXComplianceClient extends IPluginMethodMap {
 
   checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<boolean>
 
+  onboardParticipantOnEcosystem(args: IOnboardParticipantOnEcosystem, context: GXRequiredContext): Promise<UniqueVerifiablePresentation>
+
   onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
 
   onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext): Promise<VerifiableCredential>
@@ -137,11 +139,22 @@ export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
   participantSDId: string
 }
 
-export interface IOnboardParticipantWithCredentialArgs {
-  domain?: string
+export interface IOnboardParticipantOnEcosystem {
   selfDescriptionVC: VerifiableCredential
   complianceVC: VerifiableCredential
   // purpose?: typeof purposes
+  ecosystemUrl?: string
+  domain?: string
+  challenge?: string
+  keyRef?: string
+}
+
+export interface IOnboardParticipantWithCredentialArgs {
+  selfDescriptionVC: VerifiableCredential
+  complianceVC: VerifiableCredential
+  // purpose?: typeof purposes
+  baseUrl?: string
+  domain?: string
   challenge?: string
   keyRef?: string
 }

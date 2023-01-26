@@ -20,12 +20,14 @@ export async function postRequest(url: string, body: BodyInit): Promise<unknown>
   }
 }
 
-export function getApiVersionedUrl(config: IGaiaxComplianceConfig) {
-  if (!config) {
+export function getApiVersionedUrl(config: IGaiaxComplianceConfig, baseUrl?: string) {
+  if (!config && !baseUrl) {
     config = {
       complianceServiceUrl: 'http://localhost:3002',
       complianceServiceVersion: '2206',
     }
   }
-  return `${config.complianceServiceUrl}${config.complianceServiceVersion ? `/${config.complianceServiceVersion}` : ''}/api`
+  return baseUrl
+    ? `${baseUrl}${config.complianceServiceVersion ? `/${config.complianceServiceVersion}` : ''}/api`
+    : `${config.complianceServiceUrl}${config.complianceServiceVersion ? `/${config.complianceServiceVersion}` : ''}/api`
 }
