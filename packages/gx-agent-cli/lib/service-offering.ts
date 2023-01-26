@@ -60,13 +60,12 @@ serviceOffering
 
 serviceOffering
   .command('export-example')
-  .description('Creates an example participant self-description input credential file')
-  // .argument('<type>', 'Credential type. One of: "participant" or "service-offering"')
+  .description('Creates an example service-offering self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option('-s, --show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
-    const typeStr = 'service-offering' //type.toLowerCase().includes('participant') ? 'participant' : 'service-offering'
+    const typeStr = 'service-offering'
     const fileName = `${typeStr}-input-credential.json`
     const credential = exampleServiceOfferingSD({
       did,

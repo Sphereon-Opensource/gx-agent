@@ -19,6 +19,7 @@ constants:
   # Do no change the encryption key if the database already contains data!
   dbEncryptionKey: 12739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830a
   methods:
+    - execute
     - keyManagerGetKeyManagementSystems
     - keyManagerCreate
     - keyManagerGet

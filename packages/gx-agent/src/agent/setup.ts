@@ -13,12 +13,11 @@ import { Resolver } from 'did-resolver'
 import { getResolver } from 'web-did-resolver'
 // @ts-ignore
 import fs from 'fs'
-import yaml from 'yaml'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { GXPluginMethodMap, IGaiaxComplianceConfig } from '../types'
 import { GXJsonWebSignature2020 } from '../suites/GXJsonWebSignature2020'
-import { getAgentConfigPath } from '../utils/config-utils'
+import { getAgentConfigPath, getConfig } from '../utils/config-utils'
 
 export let globalConfig: any
 
@@ -110,26 +109,7 @@ async function newDBConnection(databaseFile: string): Promise<DataSource> {
   }).initialize()
 }
 
-export const getConfig = (fileName: string): any => {
-  if (!fs.existsSync(fileName)) {
-    console.log('Config file not found: ' + fileName)
-    // fixme: We should provide an example file and provide rename/copy instructions here, as veramo _config create will never create a valid GX _config
-    console.log('Use "veramo _config create" to create one')
-    process.exit(1)
-  }
 
-  const config = yaml.parse(fs.readFileSync(fileName).toString(), { prettyErrors: true })
-
-  if (config?.version != 3) {
-    console.log('Unsupported configuration file version:', config.version)
-    process.exit(1)
-  }
-  if (!config.gx) {
-    console.log(`No Gaia-X config options found in gx section from ${fileName}`)
-    process.exit(1)
-  }
-  return config
-}
 
 export type ConfiguredAgent = TAgent<GXPluginMethodMap>
 
