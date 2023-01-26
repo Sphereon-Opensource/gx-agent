@@ -2,7 +2,7 @@ import { homedir } from 'os'
 import fs from 'fs'
 import { dirname } from 'path'
 import yaml from 'yaml'
-
+import { load, dump } from 'js-yaml'
 export function getUserHome(): string {
   return homedir()
 }
@@ -27,10 +27,17 @@ export function createAgentConfig(path: string) {
   const agentPath = `${dir}/agent.yml`
 
   if (!fs.existsSync(agentPath)) {
-    console.log('Creating agent file: ' + agentPath)
     const templateFile = __dirname + '/../fixtures/template-agent.yml'
     const contents = fs.readFileSync(templateFile)
-    fs.writeFileSync(agentPath, contents)
+    const config: any = load(contents.toString('utf8'))
+    try {
+      config.gx.dbFile = `${getDefaultAgentDir()}/db/gx.db.sqlite`
+      const yamlString: string = dump(config)
+      fs.writeFileSync(agentPath, yamlString)
+    } catch (error) {
+      console.log(`error on creating the agent's config: ${error}`)
+    }
+
     console.log('Done. Agent file available at: ' + agentPath)
   } else {
     console.log('File already exists: ' + agentPath)
@@ -77,5 +84,4 @@ export const getConfig = (fileName: string): any => {
 
 export const showConfig = (fileName: string): string => {
   return yaml.stringify(getConfig(fileName))
-
 }
