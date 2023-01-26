@@ -807,12 +807,6 @@ Agent validation of the self-description. Valid: true
 └──────────┘
 ```
 
-```shell
-gx-agent ecosystem add –name=FMA –ecosystem-url=https://compliance.future-mobility-alliance.org
-gx-agent participant ecosystem submit  --ecosystem=FMA –sd-id=<abcd> --compliance-id=<efgh>
-gx-agent participant ecosystem submit  --ecosystem-url=https://compliance.future-mobility-alliance.org –sd-id=<abcd> --compliance-id=<efgh>
-```
-
 # Developers
 
 ## Building an executable
