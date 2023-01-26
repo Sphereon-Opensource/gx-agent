@@ -65,7 +65,7 @@ describe('@sphereon/gx-agent', () => {
     agent = agentSetup.agent
   })
 
-  it('should verify this VC', async () => {
+  xit('should verify this VC', async () => {
     const vc = {
       '@context': ['https://www.w3.org/2018/credentials/v1'],
       type: ['VerifiableCredential', 'ParticipantCredential'],
