@@ -87,7 +87,7 @@ can have a value of `cwd`, meaning the `agent.yml` file will be written to curre
 the `agent.yml` file will be written to the `.gx-agent` directory in your user home-directory. If no option is
 provided, `home` will be assumed.
 
-````shell
+```shell
 gx-agent config create
 
 output:
@@ -95,7 +95,7 @@ output:
 Creating agent file: C:\Users\example\.gx-agent\agent.yml
 Done. Agent file available at: C:\Users\example\.gx-agent\agent.yml
 Please check the agent configuration file for any configuration options you wish to modify
-````
+```
 
 We advise you to use the `home` location, as it means the configuration file is always available no matter from which
 directory you invoke the command. Using `cwd` or current working directory is handy, when you want to use distinct
@@ -113,7 +113,7 @@ For technical people or developers. You can also test whether low level agent me
 available by providing the `-m/--method` option. For example to test the DID resolution method, you could
 supply `resolveDid` as `-m/--method` option.
 
-````shell
+```shell
 gx-agent config verify -f ./agent.yml --show
 
 output:
@@ -127,9 +127,9 @@ gx:
   kmsName: local
 constants:
   ... truncated for README
-  
+
 Your Gaia-X agent configuration seems fine. An agent can be created and the 'agent.execute()' method can be called on it.
-````
+```
 
 # DID Commands
 
@@ -160,7 +160,7 @@ Optionally you can provide a --ca-chain-url argument, if you wish to host the Ce
 default location.
 
 ```shell
-gx-agent did create --private-key-file=path/to/privkey.pem --cert-file=path/to/cert.pem --ca-chain=path/to/cacerts.pem --domain=nx-gx-agent.eu.ngrok.io
+gx-agent did create --private-key-file=path/to/privkey.pem --cert-file=path/to/cert.pem --ca-chain-file=path/to/cacerts.pem --domain=nx-gx-agent.eu.ngrok.io
 
 output:
 ┌──────────┬─────────────────────────────────┬─────────────────────────────────┐
@@ -318,7 +318,7 @@ self-description with your information.
 The `--show` argument, displays the example self-description to your console.
 
 ```shell
-gx-agent participant sd export-example --show
+gx-agent participant sd export-example -d did:web:nk-gx-agent.eu.ngrok.io --show
 
 output:
 ┌─────────────┬───────────────────────────────────┬──────────────────────────────────────┐
@@ -385,12 +385,12 @@ the values. Do not add new keys or remove any properties/keys, except for the so
 If you do not have a certain registration number, remove the part between the `{ }` brackets. For instance If you do not
 have LEI code, you should remove the next part altogether:
 
-````json
+```json
 {
   "gx-participant:registrationNumberType": "leiCode",
   "gx-participant:registrationNumberNumber": "9695007586GCAKPYJ703"
 },
-````
+```
 
 Make sure to save the file afterwards. If you made some mistakes, you can always re-export the example. Be aware that it
 will always overwrite the existing file!
@@ -409,13 +409,13 @@ you can provide the ID value of the self-description credential in the agent.
 
 You can use the `-s/--show` option, to show all the credentials used in the exchange.
 
-````shell
-gx-agent compliance sd submit -if ./participant-input-credential.json
-````
+```shell
+gx-agent participant sd submit -if ./participant-input-credential.json
+```
 
 or from an existing agent self-description credential:
 
-````shell
+```shell
 gx-agent compliance sd submit -id dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef51114
 
 output:
@@ -424,7 +424,7 @@ output:
 ├───────────────────────┼──────────────────────────────────────┼─────────────────────────────────┼──────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ ParticipantCredential │ did:web:nk-gx-compliance.eu.ngrok.io │ did:web:nk-gx-agent.eu.ngrok.io │ 2023-01-26T03:05:00.166Z │ d7ae24cbb223adb0df025548a691b684e995843fe6b9f549a9c517167ba68bd26545d759bae5dfe192598e86b7a6ef6874fb9a8c3859fd8317ed379ec9c6414b │
 └───────────────────────┴──────────────────────────────────────┴─────────────────────────────────┴──────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-````
+```
 
 Notice that you now have a Participant Credential, which is issued by the compliance server
 
@@ -434,7 +434,7 @@ You can list participant self-descriptions known to the agent. Normally this sho
 can create new ones for the same domain/did, to update values. You can optionally provide a `-d/--did` option, to
 provide the DID or domain name for which to list the participant self-description credentials.
 
-````shell
+```shell
 gx-agent  participant sd list
 
 output:
@@ -443,7 +443,7 @@ output:
 ├─────────────────────────────────┼──────────────────────────────────────┼──────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ did:web:nk-gx-agent.eu.ngrok.io │ 816826d6-8e1f-4cc6-89a6-a77ae4b63771 │ 2023-01-26T03:04:58.179Z │ dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef511143 │
 └─────────────────────────────────┴──────────────────────────────────────┴──────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-````
+```
 
 ## Show a participant self-description credential
 
@@ -451,7 +451,7 @@ To show the content of a participant self-description credential known to the ag
 participant self-descriptions (see command above). From that output you can get the id value and use that to show the
 credential.
 
-````shell
+```shell
 gx-agent participant sd show dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef511143
 
 output:
@@ -521,7 +521,7 @@ id: dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d14
 slO3L-RhXDIi-BAas2oSkrYfOweG5FtiMqn91XZnXfpKxm3bkdieSuUK9-PQzrwQpU9HySSUe9yePgLK_q2EjlWLwY-QHTMGWzqcCiSpW3DgWgG6JgIiHdWxDqTv54Ot6ap0BJ4QY9MDA"
   }
 }
-````
+```
 
 ## Verify a participant self-description
 
@@ -531,7 +531,7 @@ compliance service provides a response that the participant self-description is 
 
 The optional `-s/--show` option shows the contents of credential on the console
 
-````shell
+```shell
 gx-agent participant sd verify -id dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef511143
 
 output:
@@ -541,9 +541,7 @@ Agent validation of the self-description. Valid: true
 ├──────────┤
 │     true │
 └──────────┘
-````
-
-
+```
 
 # Service Offerings
 
@@ -624,15 +622,15 @@ you can provide the ID value of the self-description credential in the agent.
 
 You can use the `-s/--show` option, to show all the credentials used in the exchange.
 
-````shell
-gx-agent  so sd submit -sif ./service-offering-input-credential.json
+```shell
+gx-agent so sd submit -sif ./service-offering-input-credential.json
 
 
-````
+```
 
 or from an existing agent self-description credential:
 
-````shell
+```shell
 gx-agent so sd submit -id 5b55d322eb2bda3899c94ba6617aca2376314a02d59700a1c68d5dbee19aa640ba5576a57bdbd03a356dfa71735423e9ae4da09a2e3df05c1d6dd8c6f9a292f0
 
 Ouput:
@@ -641,7 +639,7 @@ Ouput:
 ├──────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │      [object Object] │ 5b55d322eb2bda3899c94ba6617aca2376314a02d59700a1c68d5dbee19aa640ba5576a57bdbd03a356dfa71735423e9ae4da09a2e3df05c1d6dd8c6f9a292f0 │
 └──────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-````
+```
 
 Notice that you now have a ServiceOffering Credential, which is issued by the compliance server
 
@@ -649,14 +647,14 @@ Notice that you now have a ServiceOffering Credential, which is issued by the co
 
 You can list service-offering self-descriptions known to the agent.
 
-````shell
+```shell
 gx-agent so sd list
 ┌─────────────────────────────────┬──────────────────────────────────────┬──────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                          issuer │                              subject │            issuance-data │                                                                                                                               id │
 ├─────────────────────────────────┼──────────────────────────────────────┼──────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ did:web:nk-gx-agent.eu.ngrok.io │ 51d15354-4570-4b44-9beb-8e78b9ab6795 │ 2023-01-26T03:35:50.574Z │ 98021d8c32ccf3723ecf83d712a634000ecf10875e1e9b39ece5f90606f65227959936269ad0d65ed9921b6062d9d4cd3ba2ea8d441e38f748e758c864942447 │
 └─────────────────────────────────┴──────────────────────────────────────┴──────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-````
+```
 
 ## Show a service-offering self-description credential
 
@@ -664,8 +662,8 @@ To show the content of a service-offering self-description credential known to t
 service-offering self-descriptions (see command above). From that output you can get the id value and use that to show the
 credential.
 
-````shell
-gx-agent sd sd show so sd show 98021d8c32ccf3723ecf83d712a634000ecf10875e1e9b39ece5f90606f65227959936269ad0d65ed9921b6062d9d4cd3ba2ea8d441e38f748e758c864942447
+```shell
+gx-agent so sd show 98021d8c32ccf3723ecf83d712a634000ecf10875e1e9b39ece5f90606f65227959936269ad0d65ed9921b6062d9d4cd3ba2ea8d441e38f748e758c864942447
 
 output:
 ┌─────────────────────────────────┬──────────────────────────────────────┬──────────────────────────┐
@@ -721,7 +719,7 @@ ZcR-INzqQKkBKMDhLkxl4cXpOEepT6fYm-DUq4LVaGCy3NHdB6SNF7asNT0xIHXSX5UiU-ZeQsz0Q1O8
   }
 }
 
-````
+```
 
 ## Verify a service-offering self-description
 
@@ -731,7 +729,7 @@ compliance service provides a response that the service-offering self-descriptio
 
 The optional `-s/--show` option shows the contents of credential on the console
 
-````shell
+```shell
 gx-agent so sd verify -id 98021d8c32ccf3723ecf83d712a634000ecf10875e1e9b39ece5f90606f65227959936269ad0d65ed9921b6062d9d4cd3ba2ea8d441e38f748e758c864942447
 
 output:
@@ -741,7 +739,7 @@ Agent validation of the self-description. Valid: true
 ├──────────┤
 │     true │
 └──────────┘
-````
+```
 
 ```shell
 gx-agent ecosystem add –name=FMA –ecosystem-url=https://compliance.future-mobility-alliance.org
