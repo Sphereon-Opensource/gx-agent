@@ -1,7 +1,7 @@
 version: 3.0
 # GAIA-X configuration options. These are the options you can change
 gx:
-  complianceServiceUrl: https://20.238.163.4
+  complianceServiceUrl: https://sphereon-test.ddns.net
   #complianceServiceUrl: http://localhost:3000
   complianceServiceVersion: v2206
   dbEncryptionKey: 12739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830a

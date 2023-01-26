@@ -160,7 +160,7 @@ Optionally you can provide a --ca-chain-url argument, if you wish to host the Ce
 default location.
 
 ```shell
-gx-agent did create --private-key-file=path/to/privkey.pem --cert-file=path/to/cert.pem --ca-chain=path/to/cacerts.pem --domain=nx-gx-agent.eu.ngrok.io
+gx-agent did create --private-key-file=path/to/privkey.pem --cert-file=path/to/cert.pem --ca-chain-file=path/to/cacerts.pem --domain=nx-gx-agent.eu.ngrok.io
 
 output:
 ┌──────────┬─────────────────────────────────┬─────────────────────────────────┐
@@ -318,7 +318,7 @@ self-description with your information.
 The `--show` argument, displays the example self-description to your console.
 
 ```shell
-gx-agent participant sd export-example --show
+gx-agent participant sd export-example -d did:web:nk-gx-agent.eu.ngrok.io --show
 
 output:
 ┌─────────────┬───────────────────────────────────┬──────────────────────────────────────┐
@@ -410,7 +410,7 @@ you can provide the ID value of the self-description credential in the agent.
 You can use the `-s/--show` option, to show all the credentials used in the exchange.
 
 ````shell
-gx-agent compliance sd submit -if ./participant-input-credential.json
+gx-agent participant sd submit -if ./participant-input-credential.json
 ````
 
 or from an existing agent self-description credential:
@@ -625,7 +625,7 @@ you can provide the ID value of the self-description credential in the agent.
 You can use the `-s/--show` option, to show all the credentials used in the exchange.
 
 ````shell
-gx-agent  so sd submit -sif ./service-offering-input-credential.json
+gx-agent so sd submit -sif ./service-offering-input-credential.json
 
 
 ````
@@ -665,7 +665,7 @@ service-offering self-descriptions (see command above). From that output you can
 credential.
 
 ````shell
-gx-agent sd sd show so sd show 98021d8c32ccf3723ecf83d712a634000ecf10875e1e9b39ece5f90606f65227959936269ad0d65ed9921b6062d9d4cd3ba2ea8d441e38f748e758c864942447
+gx-agent so sd show 98021d8c32ccf3723ecf83d712a634000ecf10875e1e9b39ece5f90606f65227959936269ad0d65ed9921b6062d9d4cd3ba2ea8d441e38f748e758c864942447
 
 output:
 ┌─────────────────────────────────┬──────────────────────────────────────┬──────────────────────────┐
