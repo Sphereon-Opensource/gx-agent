@@ -543,9 +543,73 @@ Agent validation of the self-description. Valid: true
 └──────────┘
 ```
 
+# Ecosystems
+
+Up until now the commands have interacted with the Gaia-X compliance service. The particpant self-description resulted
+in a Compliance credential being issued by the Compliance Server. You will find the concept of self-descriptions in
+later chapters. These self-descriptions are being used by participants in specific ecosystems. 'The Future Mobility
+Alliance' is one such ecosystem. The Gaia-X agent supports adding new ecosystems, as long as they are using endpoints
+similar to the compliance server.
+
+## Add an ecosystem
+
+Adds a new ecosystem to the `agent.yml` file. The name and url are required arguments. If the name contains any spaces
+be sure to add quotes (") around the name. We suggest to keep the name short and succinct, maybe even abbreviating the
+full name of the ecosystem. You can always provide an optional description, containing the full name.
+
+```shell
+gx-agent ecosystem add FMA https://compliance.future-mobility-alliance.org -d "Future Mobility Alliance"
+
+output:
+New ecosystem FMA has been added to your agent configuration: C:\Users\Example\.gx-agent\agent.yml
+┌──────┬─────────────────────────────────────────────────┬──────────────────────────┐
+│ name │                                             url │              description │
+├──────┼─────────────────────────────────────────────────┼──────────────────────────┤
+│  FMA │ https://compliance.future-mobility-alliance.org │ Future Mobility Alliance │
+└──────┴─────────────────────────────────────────────────┴──────────────────────────┘
+```
+
+## Update an ecosystem
+
+If you made a mistake in the url or description, you of course could delete the ecosystem first and then add it again,
+but there is also an update command. Actually that command is an alias for the add command. The command looks at whether
+an existing ecosystem is already found by that name. If so it updates it.
+If you made a mistake in the name, you will have to delete the erroneous ecosystem by name and add the new one
+
+## Delete an ecosystem
+
+Be aware that if you delete an ecosystem you will not be able to interact with it again, unless you re-add it of-course.
+
+```shell
+gx-agent ecosystem delete FMA
+ 
+ output:
+┌──────┬─────────────────────────────────────────────────┬──────────────────────────┐
+│ name │                                             url │              description │
+├──────┼─────────────────────────────────────────────────┼──────────────────────────┤
+│  FMA │ https://compliance.future-mobility-alliance.org │ Future Mobility Alliance │
+└──────┴─────────────────────────────────────────────────┴──────────────────────────┘
+Ecosystem FMA has been deleted from your agent configuration: C:\Users\example\.gx-agent\agent.yml
+```
+
+## List
+You can list all known ecosystems from the `agent.yml` configuration file using the below command.
+
+```shell
+gx-agent ecosystem list
+
+output:
+┌──────┬─────────────────────────────────────────────────┬──────────────────────────┐
+│ name │                                             url │              description │
+├──────┼─────────────────────────────────────────────────┼──────────────────────────┤
+│  FMA │ https://compliance.future-mobility-alliance.org │ Future Mobility Alliance │
+└──────┴─────────────────────────────────────────────────┴──────────────────────────┘
+```
+
 # Service Offerings
 
-As soon as you are a Gaia-X compliant participant, you can start to offer services. In order to do so, you first need to create a service offering
+As soon as you are a Gaia-X compliant participant, you can start to offer services. In order to do so, you first need to
+create a service offering
 self-description. This is a so called Credential. You will need to sign this self-description, using
 your DID, making it a Verifiable Credential. The compliance service will issue an attestation, in the form of a
 ServiceOffering Credential, signed by it’s DID. This allows you to prove to others that you provide certain services.
@@ -605,7 +669,8 @@ Example service-offering self-description file has been written to service-offer
 ```
 
 You now should open the file, and adjust the values with your service-offer information. Update all
-the values. Make sure to save the file afterwards. If you made some mistakes, you can always re-export the example. Be aware that it
+the values. Make sure to save the file afterwards. If you made some mistakes, you can always re-export the example. Be
+aware that it
 will always overwrite the existing file!
 
 ## Submit the service-offering self-description
@@ -659,7 +724,8 @@ gx-agent so sd list
 ## Show a service-offering self-description credential
 
 To show the content of a service-offering self-description credential known to the agent, you can first list all the
-service-offering self-descriptions (see command above). From that output you can get the id value and use that to show the
+service-offering self-descriptions (see command above). From that output you can get the id value and use that to show
+the
 credential.
 
 ```shell
