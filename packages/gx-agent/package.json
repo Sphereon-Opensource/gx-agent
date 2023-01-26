@@ -1,6 +1,6 @@
 {
   "name": "@sphereon/gx-agent",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -37,13 +37,13 @@
     "web-did-resolver": "^2.0.21"
   },
   "devDependencies": {
-    "copyfiles": "^2.4.1",
     "@babel/core": "^7.20.7",
     "@babel/preset-env": "^7.20.2",
     "@types/debug": "^4.1.7",
     "@types/jest": "^27.0.2",
     "@veramo/cli": "4.2.0",
     "babel-jest": "27.5.1",
+    "copyfiles": "^2.4.1",
     "jest": "^27.3.1",
     "prettier": "^2.4.1",
     "ts-jest": "^27.1.5",
