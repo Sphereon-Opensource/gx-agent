@@ -4,7 +4,8 @@ version: 3.0
 gx:
   complianceServiceUrl: http://localhost:3002
   complianceServiceVersion: v2206
-  dbEncryptionKey: 12739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830a
+  dbEncryptionKey:
+  defaultParticipantDomain: https://example.com
   # The Key Management System name. Normally shouldn't be changed. Currently only 1 KMS is supported
   kmsName: local
 

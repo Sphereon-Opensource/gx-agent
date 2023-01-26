@@ -65,6 +65,28 @@ describe('@sphereon/gx-agent', () => {
     agent = agentSetup.agent
   })
 
+  it('should verify this VC', async () => {
+    const vc = {
+      '@context': ['https://www.w3.org/2018/credentials/v1'],
+      type: ['VerifiableCredential', 'ParticipantCredential'],
+      id: 'https://catalogue.gaia-x.eu/credentials/ParticipantCredential/1674487178632',
+      issuer: 'did:web:20.238.163.4',
+      issuanceDate: '2023-01-23T15:19:38.632Z',
+      credentialSubject: {
+        id: 'did:web:nk-gx-compliance.eu.ngrok.io',
+        hash: '46345bec3ddac00a916a74053b1ae0b9df164b78814d966db3f4b03d0c0e3d1f',
+      },
+      proof: {
+        type: 'JsonWebSignature2020',
+        created: '2023-01-23T15:19:38.985Z',
+        proofPurpose: 'assertionMethod',
+        jws: 'eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..E7GDgeNiJYaBVUrXxaw3eZertivxd9zNObHcXwGTOl8ts7FIhdP4rc0rgFuI64iqoHuoa1v5gRmNtmVj29C93dTsUdlD7_sxVGZHiAGEW7zMeTkqB2Xv5GPGtfL2JHvyHhsqrpgVBs9v4bmDhTaowCVNzzf4D6VZkOaIdZM964ZpeClL019RG94d_d-wvCfqBE_NdB_DLVDxms46eU4DhT0oUonS-5bb_9agXnwT_Xr4L_nkniGdB0CdB9YY2nWaPhy8gPmGXdIgKyM-bpJGRpg2MDKbYJWpJ_Th1jBRrl-6nEh7NkvJYnTwmRku__4JYhgF5x8KzTddbH3edpr2XocZMah4jHQ29uIELq2V7c0DKnOsS-xg7RRBdPVgpia2YWppLF0eXTwrZTmdfdYTFqWqz0lH-LN1eYeTl64czbECLH7JgBmrY6bra_4vkKlXQz3xBUrjxFa9cIYeYCxsISPnB5KBPXhXdFbRUit3z9awWVPv4XmaC-kRt7loIjlH05SE5WqrR6PRgazf0UL6Cl6fW6ZPvNFPPTg2IrPR4HLGEgehw7m0j6umCOFcW_Nt8Xe7Amsi1mcjWb7k98WOOYnBo-3CIwS2lMdzvLLSz5jB62XmftZiKt7lQeSKMFCHy_OfQhj7LwOh7rf2HKwqMtT-OOytV85mwFUhhX7cjxQ',
+        verificationMethod: 'did:web:20.238.163.4#X509-JWK2020',
+      },
+    }
+    expect(await agent.verifyCredentialLDLocal({ credential: vc, fetchRemoteContexts: true })).toBeTruthy()
+  })
+
   it('should create a VC, VP and verify them', async () => {
     console.log(JSON.stringify(mockedDID, null, 2))
     const uniqueVC = await agent.issueVerifiableCredential({
@@ -110,7 +132,10 @@ describe('@sphereon/gx-agent', () => {
     })
     console.log(JSON.stringify(uniqueVC, null, 2))
 
-    const vcResult = await agent.verifyCredentialLDLocal({ credential: uniqueVC.verifiableCredential, fetchRemoteContexts: true })
+    const vcResult = await agent.verifyCredentialLDLocal({
+      credential: uniqueVC.verifiableCredential,
+      fetchRemoteContexts: true,
+    })
     console.log(vcResult)
 
     /* const uniqueVP = await agent.issueVerifiablePresentation({

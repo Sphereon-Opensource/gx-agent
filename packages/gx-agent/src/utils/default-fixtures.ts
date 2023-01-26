@@ -1,5 +1,6 @@
 import { IGaiaxCredentialType } from '../types'
 import { v4 as uuidv4 } from 'uuid'
+import { convertDidWebToHost } from './did-utils'
 
 export function exampleParticipantSD({ did }: { did?: string; version?: string }) {
   return {
@@ -10,10 +11,14 @@ export function exampleParticipantSD({ did }: { did?: string; version?: string }
       id: `${did ? did : 'your DID here'}`,
       'gx-participant:name': 'Example Company',
       'gx-participant:legalName': 'Example Company ltd.',
-      'gx-participant:website': 'https://participant',
+      'gx-participant:website': `'https://${did ? convertDidWebToHost(did) : 'example.com'}'`,
       'gx-participant:registrationNumber': [
         {
-          'gx-participant:registrationNumberType': 'localCode',
+          'gx-participant:registrationNumberType': 'local',
+          'gx-participant:registrationNumberNumber': '93056589',
+        },
+        {
+          'gx-participant:registrationNumberType': 'vat',
           'gx-participant:registrationNumberNumber': 'NL001234567B01',
         },
         {
@@ -26,15 +31,15 @@ export function exampleParticipantSD({ did }: { did?: string; version?: string }
         },
       ],
       'gx-participant:headquarterAddress': {
-        'gx-participant:addressCountryCode': 'FR',
-        'gx-participant:addressCode': 'FR-HDF',
+        'gx-participant:addressCountryCode': 'NL',
+        'gx-participant:addressCode': 'NL-NLD',
         'gx-participant:streetAddress': '2 rue Kellermann',
         'gx-participant:postalCode': '59100',
         'gx-participant:locality': 'Roubaix',
       },
       'gx-participant:legalAddress': {
-        'gx-participant:addressCountryCode': 'FR',
-        'gx-participant:addressCode': 'FR-HDF',
+        'gx-participant:addressCountryCode': 'NL',
+        'gx-participant:addressCode': 'NL-NLD',
         'gx-participant:streetAddress': '2 rue Kellermann',
         'gx-participant:postalCode': '59100',
         'gx-participant:locality': 'Roubaix',
@@ -52,21 +57,21 @@ export function exampleServiceOfferingSD({ url, did }: { url: string; did?: stri
     id: uuidv4(),
     credentialSubject: {
       id: `${did ? did : 'your DID here'}`,
-      'gx-service-offering:providedBy': `${url ? url : 'https://participant'}` + '/.well-known/participant.json',
+      'gx-service-offering:providedBy': `${url ? url : 'https://participant.example.com'}` + '/.well-known/participant.json',
       'gx-service-offering:name': 'my awesome service',
-      'gx-service-offering:description': `a service by ${url ? url : 'https://participant'}`,
+      'gx-service-offering:description': `a service by ${url ? url : 'https://participant.example.com'}`,
       'gx-service-offering:termsAndConditions': [
         {
-          'gx-service-offering:url': `${url ? url : 'https://participant'}` + '/terms-and-conditions/',
+          'gx-service-offering:url': `${url ? url : 'https://participant.example.com'}` + '/terms-and-conditions/',
           'gx-service-offering:hash': 'myrandomhash',
         },
       ],
       'gx-service-offering:gdpr': [
         {
-          'gx-service-offering:imprint': `${url ? url : 'https://participant'}` + '/terms-and-conditions/',
+          'gx-service-offering:imprint': `${url ? url : 'https://participant.example.com'}` + '/terms-and-conditions/',
         },
         {
-          'gx-service-offering:privacyPolicy': `${url ? url : 'https://participant'}` + '/personal-data-protection/',
+          'gx-service-offering:privacyPolicy': `${url ? url : 'https://participant.example.com'}` + '/personal-data-protection/',
         },
       ],
       'gx-service-offering:dataExport': {

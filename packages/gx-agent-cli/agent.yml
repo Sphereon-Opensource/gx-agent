@@ -4,6 +4,8 @@ gx:
   complianceServiceUrl: http://localhost:3000
   complianceServiceVersion: v2206
   dbEncryptionKey: 12739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830a
+  dbFile: ./db/gx.db.sqlite
+
   # The Key Management System name. Normally shouldn't be changed. Currently only 1 KMS is supported
   kmsName: local
 
@@ -13,10 +15,8 @@ gx:
 constants:
   baseUrl: http://localhost:3332
   port: 3332
-  # please use your own X25519 key, this is only an example
-  # you can generate a new key by running `veramo _config gen-key` in a terminal
+  # Do no change the encryption key if the database already contains data!
   dbEncryptionKey: 12739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830a
-  databaseFile: ./dist/bin/db/gx.db.sqlite
   methods:
     - keyManagerGetKeyManagementSystems
     - keyManagerCreate
@@ -79,7 +79,7 @@ dbConnection:
   $args:
     - type: sqlite
       database:
-        $ref: /constants/databaseFile
+        $ref: /gx/dbFile
       synchronize: false
       migrationsRun: true
       migrations:
@@ -172,36 +172,34 @@ didResolver:
     - resolver:
         $require: did-resolver#Resolver
         $args:
-          - ethr:
-              $ref: /ethr-did-resolver
-            web:
-              $ref: /web-did-resolver
-            key:
-              $ref: /did-key-resolver
-            elem:
-              $ref: /universal-resolver
-            io:
-              $ref: /universal-resolver
-            ion:
-              $ref: /universal-resolver
-            sov:
-              $ref: /universal-resolver
+          web:
+            $ref: /web-did-resolver
+#            key:
+#              $ref: /did-key-resolver
+#            elem:
+#              $ref: /universal-resolver
+#            io:
+#              $ref: /universal-resolver
+#            ion:
+#              $ref: /universal-resolver
+#            sov:
+#              $ref: /universal-resolver
 
-ethr-did-resolver:
-  $require: ethr-did-resolver?t=function&p=/ethr#getResolver
-  $args:
-    - infuraProjectId: 3586660d179141e3801c3895de1c2eba
+#ethr-did-resolver:
+#  $require: ethr-did-resolver?t=function&p=/ethr#getResolver
+#  $args:
+#    - infuraProjectId: 3586660d179141e3801c3895de1c2eba
 
 web-did-resolver:
   $require: web-did-resolver?t=function&p=/web#getResolver
 
-universal-resolver:
-  $require: '@veramo/did-resolver#UniversalResolver'
-  $args:
-    - url: https://dev.uniresolver.io/1.0/identifiers/
-
-did-key-resolver:
-  $require: '@veramo/did-provider-key?t=function&p=/key#getDidKeyResolver'
+#universal-resolver:
+#  $require: '@veramo/did-resolver#UniversalResolver'
+#  $args:
+#    - url: https://dev.uniresolver.io/1.0/identifiers/
+#
+#did-key-resolver:
+#  $require: '@veramo/did-provider-key?t=function&p=/key#getDidKeyResolver'
 
 # Key Manager
 keyManager:
@@ -230,32 +228,32 @@ didManager:
         $require: '@veramo/data-store#DIDStore'
         $args:
           - $ref: /dbConnection
-      defaultProvider: did:ethr:goerli
+      defaultProvider: did:web
       providers:
-        did:ethr:
-          $require: '@veramo/did-provider-ethr#EthrDIDProvider'
-          $args:
-            - defaultKms: local
-              network: mainnet
-              rpcUrl: https://mainnet.infura.io/v3/3586660d179141e3801c3895de1c2eba
-              gas: 1000001
-              ttl: 31104001
-        did:ethr:goerli:
-          $require: '@veramo/did-provider-ethr#EthrDIDProvider'
-          $args:
-            - defaultKms: local
-              network: goerli
-              rpcUrl: https://goerli.infura.io/v3/3586660d179141e3801c3895de1c2eba
-              gas: 1000001
-              ttl: 31104001
         did:web:
           $require: '@veramo/did-provider-web#WebDIDProvider'
           $args:
             - defaultKms: local
-        did:key:
-          $require: '@veramo/did-provider-key#KeyDIDProvider'
-          $args:
-            - defaultKms: local
+#        did:ethr:
+#          $require: '@veramo/did-provider-ethr#EthrDIDProvider'
+#          $args:
+#            - defaultKms: local
+#              network: mainnet
+#              rpcUrl: https://mainnet.infura.io/v3/3586660d179141e3801c3895de1c2eba
+#              gas: 1000001
+#              ttl: 31104001
+#        did:ethr:goerli:
+#          $require: '@veramo/did-provider-ethr#EthrDIDProvider'
+#          $args:
+#            - defaultKms: local
+#              network: goerli
+#              rpcUrl: https://goerli.infura.io/v3/3586660d179141e3801c3895de1c2eba
+#              gas: 1000001
+#              ttl: 31104001
+#        did:key:
+#          $require: '@veramo/did-provider-key#KeyDIDProvider'
+#          $args:
+#            - defaultKms: local
 
 didDiscovery:
   $require: '@veramo/did-discovery#DIDDiscovery'
@@ -277,6 +275,18 @@ credentialIssuerLD:
         - $require: '@transmute/credentials-context?t=object#contexts'
         #  others should be included here
 
+credentialHandlerLD:
+  $require: '@sphereon/ssi-sdk-vc-handler-ld-local#CredentialHandlerLDLocal'
+  $args:
+    - suites:
+        - $require: '@sphereon/ssi-sdk-vc-handler-ld-local#SphereonJsonWebSignature2020'
+        - $require: '@veramo/credential-ld#VeramoEcdsaSecp256k1RecoverySignature2020'
+      contextMaps:
+        # The LdDefaultContext is a "catch-all" for now.
+        - $require: '@sphereon/ssi-sdk-vc-handler-ld-local?t=object#LdDefaultContexts'
+        - $require: '@transmute/credentials-context?t=object#contexts'
+        #  others should be included here
+
 # Agent
 agent:
   $require: '@veramo/core#Agent'
@@ -294,7 +304,7 @@ agent:
         - $ref: /messageHandler
         - $require: '@veramo/did-comm#DIDComm'
         - $require: '@veramo/credential-w3c#CredentialPlugin'
-        - $ref: /credentialIssuerLD
+        - $ref: /credentialHandlerLD
         - $require: '@veramo/credential-eip712#CredentialIssuerEIP712'
         - $require: '@veramo/selective-disclosure#SelectiveDisclosure'
         - $require: '@veramo/data-store#DataStore'
