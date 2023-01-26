@@ -105,11 +105,11 @@ vp.command('issue')
   .option('-f, --vc-files <string...>', 'File(s) containing Verifiable Credentials')
   .option('-c, --challenge <string>', 'Use a challenge')
   .option('-p, --persist', 'Persist the presentation. If not provided the presentation will not be stored in the agent')
-  .option('--show', 'Print the Verifiable Presentation to console')
+  .option('-s, --show', 'Print the Verifiable Presentation to console')
 
   .action(async (cmd) => {
     const agent = await getAgent()
-    if (cmd.vcFiles && !cmd.vcIds) {
+    if (!cmd.vcFiles && !cmd.vcIds) {
       throw Error('Verifiable Credential IDs or files need to be selected. Please check parameters')
     }
     try {
