@@ -1,7 +1,7 @@
 import 'cross-fetch/polyfill'
 import { program } from 'commander'
 import { getAgent } from '@sphereon/gx-agent'
-import { createAgentConfig, getDefaultAgentFile, showConfig } from '@sphereon/gx-agent/dist/utils/config-utils'
+import { createAgentConfig, getDefaultAgentFile, getConfigAsString } from '@sphereon/gx-agent/dist/utils/config-utils'
 
 const config = program.command('config').description('Agent configuration')
 
@@ -34,7 +34,7 @@ config
   .option('-s, --show', 'Show the configuration file')
   .action(async (options) => {
     if (options.show) {
-      console.log(showConfig(options.filename))
+      console.log(getConfigAsString(options.filename))
     }
 
     const agent = await getAgent({ path: options.filename })

@@ -2,6 +2,8 @@ import { homedir } from 'os'
 import fs from 'fs'
 import { dirname } from 'path'
 import yaml from 'yaml'
+import { EcosystemConfig } from '../types/IConfig'
+
 export function getUserHome(): string {
   return homedir()
 }
@@ -60,27 +62,92 @@ export function getAgentConfigPath(): string {
   process.exit(1)
 }
 
-export const getConfig = (fileName: string): any => {
-  if (!fs.existsSync(fileName)) {
-    console.log('Config file not found: ' + fileName)
+export const getConfigAsObject = (path: string): any => {
+  if (!fs.existsSync(path)) {
+    console.log('Config file not found: ' + path)
     // fixme: We should provide an example file and provide rename/copy instructions here, as veramo _config create will never create a valid GX _config
     console.log('Use "gx-agent config create" to create one')
     process.exit(1)
   }
 
-  const config = yaml.parse(fs.readFileSync(fileName).toString(), { prettyErrors: true })
+  const config = yaml.parse(fs.readFileSync(path).toString(), { prettyErrors: true })
 
   if (config?.version != 3) {
     console.log('Unsupported configuration file version:', config.version)
     process.exit(1)
   }
   if (!config.gx) {
-    console.log(`No Gaia-X config options found in gx section from ${fileName}`)
+    console.log(`No Gaia-X config options found in gx section from ${path}`)
     process.exit(1)
   }
   return config
 }
 
-export const showConfig = (fileName: string): string => {
-  return yaml.stringify(getConfig(fileName))
+export const getConfigAsString = (path: string): string => {
+  return yaml.stringify(getConfigAsObject(path))
+}
+
+export function writeConfigObject(config: any, path: string) {
+  const configStr = typeof config === 'string' ? config : yaml.stringify(config)
+  createAgentDir(path)
+  fs.writeFileSync(path, configStr)
+}
+
+
+export function getGXConfigOptions(agentPath: string): any {
+  return getConfigAsObject(agentPath).gx
+}
+
+export function getEcosystemConfigObjects(agentPath: string): EcosystemConfig[] {
+  const ecosystems = getGXConfigOptions(agentPath).ecosystems
+  if (!ecosystems || ecosystems.length === 0) {
+    return []
+  }
+  return ecosystems as EcosystemConfig[]
+}
+
+
+export function getEcosystemConfigObject(agentPath: string, name: string): EcosystemConfig | undefined {
+  const ecosystems = getEcosystemConfigObjects(agentPath)
+  return ecosystems.find(ecosystem => ecosystem.name.toLowerCase() === name.toLowerCase())
+}
+
+
+export function assertValidEcosystemConfigObject(ecosystemConfig: EcosystemConfig): void {
+  if (!ecosystemConfig) {
+    throw Error(`No ecosystem object provided`)
+  } else if (!ecosystemConfig.name) {
+    throw Error(`No name provided for the ecosystem`)
+  } else if (!ecosystemConfig.url) {
+    throw Error(`No URL provided for the ecosystem`)
+  }
+}
+
+export function normalizeEcosystemConfigurationObject(ecosystemConfig: EcosystemConfig) {
+  assertValidEcosystemConfigObject(ecosystemConfig)
+  if (!ecosystemConfig.url.startsWith('http')) {
+    ecosystemConfig.url = `https://${ecosystemConfig.url}`
+  }
+  return ecosystemConfig
+}
+
+
+export function addEcosystemConfigObject(agentPath: string, newEcosystem: EcosystemConfig): void {
+  assertValidEcosystemConfigObject(newEcosystem)
+  const config = getConfigAsObject(agentPath)
+  const ecosystems = getEcosystemConfigObjects(agentPath)
+  const others = ecosystems.filter(ecosystem => ecosystem.name.toLowerCase() !== newEcosystem.name.toLowerCase())
+  const ecosystemConfigs = [...others, newEcosystem]
+  config.gx.ecosystems = ecosystemConfigs
+  writeConfigObject(config, agentPath)
+}
+
+export function deleteEcosystemConfigObject(agentPath: string, ecosystemName: string): void {
+  const config = getConfigAsObject(agentPath)
+  const ecosystem = getEcosystemConfigObject(agentPath, ecosystemName)
+  if (ecosystem) {
+    const updatedEcosystems = config.gx.ecosystems.filter((ec: { name: string }) => ec.name.toLowerCase() !== ecosystemName.toLowerCase())
+    config.gx.ecosystems = [...updatedEcosystems]
+    writeConfigObject(config, agentPath)
+  }
 }
