@@ -18,12 +18,13 @@ did
     '-kid, --key-identifier <string>',
     'An optional key identifier name for the certificate and key. Will be stored in the DID Document. A default will be used if not supplied'
   )
+  .option('-s, --show', 'Show resulting did')
   .action(async (cmd) => {
     const agent = await getAgent()
     const privateKeyPEM = fs.readFileSync(cmd.privateKeyFile, 'utf-8')
     const certificatePEM = fs.readFileSync(cmd['certFile'], 'utf-8')
     const certificateChainPEM = fs.readFileSync(cmd['caChainFile'], 'utf-8')
-    const did = await asDID(cmd.domain)
+    const did = await asDID(cmd.domain, cmd.show === true)
     const cn = convertDidWebToHost(did)
     const x5cFile = cmd['caChainFile'].split('\\').pop().split('/').pop()
     const x5u = cmd['caChainUrl']
@@ -56,7 +57,7 @@ did
     try {
       const identifiers: IIdentifier[] = await agent.didManagerFind({ provider: 'did:web' })
       if (!identifiers || identifiers.length === 0) {
-        console.log('No identifiers stored in the agent!')
+        console.error('No identifiers stored in the agent!')
       } else {
         printTable(
           identifiers.map((id) => {
@@ -87,7 +88,7 @@ did
     try {
       const exportResult = await agent.exportDIDToPath({ domain: didStr, path })
       if (!exportResult || exportResult.length === 0) {
-        console.log(`Nothing exported for ${didStr}`)
+        console.error(`Nothing exported for ${didStr}`)
       } else {
         printTable(
           exportResult.map((result) => {
@@ -145,7 +146,7 @@ did
       } else if (result.didResolutionMetadata) {
         console.log(printTable([{ ...result.didResolutionMetadata }]))
       } else {
-        console.log(`Unknown error occurred resolving DID ${didStr}`)
+        console.error(`Unknown error occurred resolving DID ${didStr}`)
       }
     } catch (e: any) {
       console.error(e.message)

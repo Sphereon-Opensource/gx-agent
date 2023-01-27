@@ -80,7 +80,7 @@ export async function exportToDIDDocument(identifier: IIdentifier, opts?: { serv
   return didDoc
 }
 
-export async function asDID(input?: string): Promise<string> {
+export async function asDID(input?: string, show?: boolean): Promise<string> {
   let did = input ? input : globalConfig?.gx?.particpantDID
   if (!did) {
     const ids = await (await getAgent()).didManagerFind()
@@ -92,8 +92,9 @@ export async function asDID(input?: string): Promise<string> {
       )
     }
   }
-
-  console.log(did)
+  if (show) {
+    console.log(did)
+  }
   if (did.startsWith('did:web:')) {
     return did
   }

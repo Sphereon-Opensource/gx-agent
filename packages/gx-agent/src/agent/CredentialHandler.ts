@@ -99,7 +99,9 @@ export class CredentialHandler {
       fetchRemoteContexts: true,
       presentationPurpose: new AuthenticationProofPurpose({ domain: args.verifiablePresentation.holder, challenge }),
     })
-    console.log(result)
+    if (args.show) {
+      console.log(result)
+    }
     return result
   }
 }

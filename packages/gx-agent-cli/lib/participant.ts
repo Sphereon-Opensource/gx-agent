@@ -31,7 +31,8 @@ sd.command('submit')
   )
   .option('-if, --sd-input-file <string>', 'Unsigned self-description input file location')
   .option('-id, --sd-id <string>', 'id of a signed self-description stored in the agent')
-  .option('-s, --show', 'Show self descriptions')
+  .option('-p, --persist', 'Persist the credential. If not provided the VerifiablePresentation will not be stored in the agent')
+  .option('-s, --show', 'Shows participants')
   .action(async (cmd) => {
     try {
       if (!cmd.sdInputFile && !cmd.sdId) {
@@ -43,9 +44,13 @@ sd.command('submit')
       const selfDescription = cmd.sdId
         ? await agent.acquireComplianceCredentialFromExistingParticipant({
             participantSDId: cmd.sdId,
+            persist: cmd.persist === true,
+            show: cmd.show === true,
           })
         : await agent.acquireComplianceCredentialFromUnsignedParticipant({
             credential: JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8')),
+            persist: cmd.persist === true,
+            show: cmd.show === true,
           })
 
       printTable([
@@ -70,11 +75,10 @@ sd.command('verify')
   .description('verifies a self-description')
   .option('-id, --sd-id <string>', 'id of your self-description')
   .option('-s, --show', 'Show self descriptions')
-  // .option('-sf, --sd-file <string>', 'your sd file')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()
-      const args: IVerifySelfDescribedCredential = { show: cmd.show, id: cmd.sdId }
+      const args: IVerifySelfDescribedCredential = { show: cmd.show === true, id: cmd.sdId }
 
       const result = await agent.verifySelfDescription(args)
       printTable([{ conforms: result.conforms }])
@@ -149,7 +153,7 @@ sd.command('show')
       const agent = await getAgent()
       const vc = await agent.dataStoreGetVerifiableCredential({ hash: id })
       if (!vc) {
-        console.log(`Participant self-description with id ${id} not found`)
+        console.error(`Participant self-description with id ${id} not found`)
       } else {
         printTable([
           {
@@ -174,7 +178,7 @@ sd.command('delete')
       const agent = await getAgent()
       const vc = await agent.dataStoreDeleteVerifiableCredential({ hash: id })
       if (!vc) {
-        console.log(`Participant self-description with id ${id} not found`)
+        console.error(`Participant self-description with id ${id} not found`)
       } else {
         console.log(`Participant self-description with id ${id} deleted`)
       }
@@ -186,7 +190,7 @@ sd.command('delete')
 sd.command('create')
   .description('creates a signed self-description based on your self-description input file')
   .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of your self-description input file (a credential that is not signed)')
-  .option('--show', 'Show the resulting self-description Verifiable Credential')
+  .option('-s --show', 'Show the resulting self-description Verifiable Credential')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()

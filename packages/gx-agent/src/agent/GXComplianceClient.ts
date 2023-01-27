@@ -86,7 +86,9 @@ export class GXComplianceClient implements IAgentPlugin {
 
   /** {@inheritDoc IGXComplianceClient.submitComplianceCredential} */
   private async submitComplianceCredential(args: IAcquireComplianceCredentialArgs, _context: GXRequiredContext): Promise<VerifiableCredential> {
-    console.log(JSON.stringify(args.selfDescriptionVP, null, 2))
+    if (args.show) {
+      console.log(JSON.stringify(args.selfDescriptionVP, null, 2))
+    }
     try {
       return (await postRequest(this.getApiVersionedUrl() + '/compliance', JSON.stringify(args.selfDescriptionVP))) as VerifiableCredential
     } catch (e) {
@@ -111,13 +113,14 @@ export class GXComplianceClient implements IAgentPlugin {
         verifiableCredentials: [selfDescribedVC],
         challenge: GXComplianceClient.getDateChallenge(),
         domain: signInfo.participantDomain,
-        persist: true,
+        persist: args.persist ? args.persist : false,
       },
       context
     )
     return this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
+        show: args.show ? args.show : false,
       },
       context
     )
@@ -144,19 +147,20 @@ export class GXComplianceClient implements IAgentPlugin {
       },
       context
     )
-    console.log(selfDescription.hash)
     const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
       {
         challenge: GXComplianceClient.getDateChallenge(),
         keyRef: signInfo.keyRef,
         verifiableCredentials: [selfDescription.verifiableCredential],
         domain: signInfo.participantDomain,
+        persist: args.persist ? args.persist : false,
       },
       context
     )
     const verifiableCredentialResponse = (await this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
+        show: args.show ? args.show : false,
       },
       context
     )) as VerifiableCredentialResponse
@@ -194,7 +198,7 @@ export class GXComplianceClient implements IAgentPlugin {
         // purpose: args.purpose,
         verifiableCredentials: [complianceCredential, serviceOffering.verifiableCredential],
         domain: did,
-        persist: true,
+        persist: args.persist ? args.persist : false,
       },
       context
     )
@@ -263,7 +267,7 @@ export class GXComplianceClient implements IAgentPlugin {
         throw Error(`Invalid verifiable credential supplied`)
       }
     } catch (e: any) {
-      console.log(e.message)
+      console.error(e.message)
     }
     console.log('Agent validation of the self-description. Valid: ' + valid)
 
@@ -281,7 +285,7 @@ export class GXComplianceClient implements IAgentPlugin {
     try {
       return (await postRequest(url, JSON.stringify(vc))) as CredentialValidationResult
     } catch (e: any) {
-      console.log('Error on fetching complianceCredential: ' + e.message)
+      console.error('Error on fetching complianceCredential: ' + e.message)
       process.exit(1)
     }
   }
@@ -291,12 +295,16 @@ export class GXComplianceClient implements IAgentPlugin {
    */
 
   private async acquireComplianceCredential(
-    args: { verifiablePresentation: VerifiablePresentation },
+    args: {
+      show?: boolean
+      verifiablePresentation: VerifiablePresentation
+    },
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
     const complianceCredential = await this.submitComplianceCredential(
       {
         selfDescriptionVP: args.verifiablePresentation,
+        show: args.show ? args.show : false,
       },
       context
     )
@@ -324,12 +332,14 @@ export class GXComplianceClient implements IAgentPlugin {
         keyRef: args.keyRef,
         verifiableCredentials: [args.selfDescriptionVC, args.complianceVC],
         domain: convertDidWebToHost(participantDid),
+        persist: args.persist ? args.persist : false,
       },
       context
     )
     const verifiableCredentialResponse = (await this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
+        show: args.show ? args.show : false,
       },
       context
     )) as VerifiableCredentialResponse
@@ -339,7 +349,7 @@ export class GXComplianceClient implements IAgentPlugin {
         verifiableCredentials: [verifiableCredentialResponse.verifiableCredential, args.complianceVC, args.selfDescriptionVC],
         challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
         domain: participantDid,
-        persist: true,
+        persist: args.persist ? args.persist : false,
       },
       context
     )
@@ -363,7 +373,7 @@ export class GXComplianceClient implements IAgentPlugin {
         verifiableCredentials: [args.complianceVC, args.selfDescriptionVC],
         challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
         domain: did ?? extractSubjectDIDFromVCs([args.selfDescriptionVC]),
-        persist: true,
+        persist: args.persist ? args.persist : false,
       },
       context
     )
@@ -394,6 +404,7 @@ export class GXComplianceClient implements IAgentPlugin {
         keyRef: signInfo.keyRef,
         domain: signInfo.participantDomain,
         challenge: GXComplianceClient.getDateChallenge(),
+        persist: args.persist,
       },
       context
     )

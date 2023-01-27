@@ -80,7 +80,7 @@ ecosystem
     const configPath = getAgentConfigPath()
     const existing = getEcosystemConfigObject(configPath, name)
     if (!existing) {
-      console.log(`No ecosystem with name "${name}" was found in the agent config: ${configPath}`)
+      console.error(`No ecosystem with name "${name}" was found in the agent config: ${configPath}`)
     } else {
       deleteEcosystemConfigObject(configPath, name)
 
@@ -98,6 +98,7 @@ ecosystem
   .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
   .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential')
+  .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
   .option('-s, --show', 'Show self descriptions')
   .action(async (name, cmd) => {
     const agent = await getAgent()
@@ -115,6 +116,8 @@ ecosystem
         ecosystemUrl: ecosystemConfig.url,
         selfDescriptionVC,
         complianceVC,
+        persist: cmd.persist === true,
+        show: cmd.persist === true,
       })
       if (cmd.show) {
         console.log(JSON.stringify(selfDescription, null, 2))

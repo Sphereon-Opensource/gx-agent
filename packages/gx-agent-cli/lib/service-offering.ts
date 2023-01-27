@@ -15,6 +15,8 @@ serviceOffering
   )
   .option('-sif, --sd-input-file <string>', 'Unsigned self-description input file location')
   .option('-sid, --sd-id <string>', 'id of a signed self-description stored in the agent')
+  .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
+  .option('-s, --show', 'Show service offering')
   .action(async (cmd) => {
     try {
       if (!cmd.sdInputFile && !cmd.sdId) {
@@ -26,12 +28,16 @@ serviceOffering
       if (cmd.sdId) {
         const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
           participantSDId: cmd.sdId,
+          persist: cmd.persist === true,
+          show: cmd.show === true,
         })
         printTable([{ ...selfDescription }])
       } else {
         const sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
         const selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
           credential: sd,
+          persist: cmd.persist === true,
+          show: cmd.show === true,
         })
         printTable([{ ...selfDescription }])
       }
@@ -122,7 +128,7 @@ serviceOffering
       const agent = await getAgent()
       const vc = await agent.dataStoreGetVerifiableCredential({ hash: id })
       if (!vc) {
-        console.log(`Service offering self-description with id ${id} not found`)
+        console.error(`Service offering self-description with id ${id} not found`)
       } else {
         printTable([
           {

@@ -92,14 +92,16 @@ vc.command('verify')
   .description('Verifies a Verifiable Credential using a Credential from an input file or stored in the agent')
   .option('-f, --input-file <string>', 'File containing a Verifiable Credential')
   .option('-id, --vc-id <string>', 'Use a persisted VC as input for verification')
-  .option('--show', 'Print the Verifiable Credential to console')
+  .option('-s, --show', 'Print the Verifiable Credential to console')
   .action(async (cmd) => {
     const agent = await getAgent()
     try {
       if (!cmd.inputFile && !cmd.vcId) {
-        throw Error('Either a Verifiable Credential input file or the id of a stored Verifiable Credential needs to be supplied')
+        console.error('Either a Verifiable Credential input file or the id of a stored Verifiable Credential needs to be supplied')
+        return
       } else if (cmd.inputFile && cmd.vcId) {
-        throw Error('Cannot both have a Verifiable Credential input file and the id of a stored Verifiable Credential')
+        console.error('Cannot both have a Verifiable Credential input file and the id of a stored Verifiable Credential')
+        return
       }
 
       const verifiableCredential: VerifiableCredential = cmd.inputFile
@@ -138,7 +140,7 @@ vc.command('verify')
           },
         ])
       } catch (e: any) {
-        console.log(e.message)
+        console.error(e.message)
       }
 
       if (cmd.show === true) {
