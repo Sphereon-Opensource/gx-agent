@@ -11,7 +11,8 @@
 __These packages are in a very early development stage. Breaking changes without notice will occur at this
 point!__
 
-**WARNING: This Gaia-X agent is compatible only with a non-official Gaia-X compliance service with Verifiable Presentation support**
+**WARNING: This Gaia-X agent is compatible only with a non-official Gaia-X compliance service with Verifiable
+Presentation support**
 ---
 
 # Gaia-X agent
@@ -37,7 +38,8 @@ If you quickly want to test out the agent features, we suggest the [CLI](package
 
 ## Create X.509 keys and get SSL certificate
 
-You will first need to have an existing X.509 EV SSL certificate or create a new one. [This document](./docs/X509-setup.md)
+You will first need to have an existing X.509 EV SSL certificate or create a new
+one. [This document](./docs/X509-setup.md)
 explains how to setup a new X.509 certificate. Without following the steps in the document you cannot be onboarded as
 Gaia-X participant.
 
@@ -46,6 +48,13 @@ Gaia-X participant.
 For now the [CLI](packages/gx-agent-cli/README.md) is the only documented way to setup the agent. In the future the
 other scenario's will be described as well.
 
+## Onboarding documentation and CLI documentation
+
+The [CLI Documentatation](./packages/gx-agent-cli/README.md) explains all the commands available in the CLI. However if
+you would like to follow a more structured process on how you can onboard using the Agent/CLI, you can also
+read [this PDF](./docs/Gaia-X%20and%20FMA%20-%20Onboarding%20Process.pdf) document, which has additional information,
+and takes you through the process in consecutive order.
+
 # Developers
 
 This is mono repository, with packages that handle steps for creating Gaia-X compliant Entities like self-descriptions
@@ -53,9 +62,9 @@ compatible with [Veramo](https://veramo.io) modules.
 
 This mono repo has the following packages:
 
-- compliance-client
+- [gx-agent](./packages/gx-agent)
     - an agent managing GX credentials, presentations and compliance service
-- compliance-cli
+- [gx-agent-cli](./packages/gx-agent-cli)
     - CLI support for the agent
 
 ## Building and testing
