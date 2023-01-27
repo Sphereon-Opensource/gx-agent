@@ -1,11 +1,13 @@
 version: 3.0
 # GAIA-X configuration options. These are the options you can change
 gx:
-  complianceServiceUrl: https://sphereon-test.ddns.net
-  #complianceServiceUrl: http://localhost:3000
+  complianceServiceUrl: https://nk-gx-compliance.eu.ngrok.io  #https://cs.gx.test.sphereon.com
   complianceServiceVersion: v2206
-  dbEncryptionKey: 12739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830a
   dbFile: ./db/gx.db.sqlite
+  ecosystems:
+    - name: FMA
+      url: https://cs.fma.test.sphereon.com #https://nk-gx-compliance.eu.ngrok.io
+      description: Future Mobility Alliance
 
   # The Key Management System name. Normally shouldn't be changed. Currently only 1 KMS is supported
   kmsName: local
