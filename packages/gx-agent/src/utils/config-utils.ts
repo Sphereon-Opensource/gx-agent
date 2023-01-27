@@ -127,6 +127,9 @@ export function normalizeEcosystemConfigurationObject(ecosystemConfig: Ecosystem
   if (!ecosystemConfig.url.startsWith('http')) {
     ecosystemConfig.url = `https://${ecosystemConfig.url}`
   }
+  if (ecosystemConfig.url.endsWith('/')) {
+    ecosystemConfig.url = ecosystemConfig.url.substring(0, ecosystemConfig.url.length - 1)
+  }
   return ecosystemConfig
 }
 

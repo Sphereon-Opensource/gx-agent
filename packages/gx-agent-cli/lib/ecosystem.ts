@@ -1,6 +1,7 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
-import { EcosystemConfig, getAgent } from '@sphereon/gx-agent'
+import { EcosystemConfig, getAgent, normalizeEcosystemConfigurationObject } from '@sphereon/gx-agent'
+import { VerifiableCredential } from '@veramo/core'
 import {
   addEcosystemConfigObject,
   assertValidEcosystemConfigObject,
@@ -9,6 +10,7 @@ import {
   getEcosystemConfigObject,
   getEcosystemConfigObjects,
 } from '@sphereon/gx-agent/dist/utils/config-utils'
+import fs from 'fs'
 
 const ecosystem = program.command('ecosystem').description('Ecosystem specific commands')
 
@@ -96,21 +98,40 @@ ecosystem
   .command('submit')
   .description('Onboards the participant to the new ecosystem')
   .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
-  .requiredOption('-sid, --sd-id <string>', 'id of your self-description')
-  .requiredOption('-cid, --compliance-id <string>', '')
+  .option('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
+  .option('-sf, --sd-file <string>', 'File containing your self-description verifiable credential')
+  .option('-cid, --compliance-id <string>', 'ID of your compliance credential')
+  .option('-cf, --compliance-file <string>', 'File containing your compliance credential')
   .action(async (name, cmd) => {
+    const agent = await getAgent()
+    if (!cmd.sdId && !cmd.sdFile) {
+      throw Error('Verifiable Credential ID or file for self-description need to be selected. Please check parameters')
+    }
+    if (!cmd.complianceId && !cmd.complianceFile) {
+      throw Error('Verifiable Credential ID or file for self-description need to be selected. Please check parameters')
+    }
     try {
-      const agent = await getAgent()
-      const selfDescriptionId = cmd.sdId
-      const complianceId = cmd.complianceId
+      const selfDescriptionVC = cmd.sdFile
+        ? (JSON.parse(fs.readFileSync(cmd.sdFile, 'utf-8')) as VerifiableCredential)
+        : await agent.dataStoreGetVerifiableCredential({ hash: cmd.sdId })
+      const complianceVC = cmd.complianceFile
+        ? (JSON.parse(fs.readFileSync(cmd.complianceFile, 'utf-8')) as VerifiableCredential)
+        : await agent.dataStoreGetVerifiableCredential({ hash: cmd.complianceId })
 
-      //fixme: Does not take ecosystem into account at all
-      const selfDescription = await agent.onboardParticipantWithCredentialIds({
-        selfDescriptionId,
-        complianceId,
+      const agentPath = getAgentConfigPath()
+      const ecosystemConfig: EcosystemConfig | undefined = getEcosystemConfigObject(agentPath, name)
+      if (!ecosystemConfig) {
+        console.error(`Couldn't find the ecosystem: ${name}`)
+        return
+      }
+      const selfDescription = await agent.onboardParticipantOnEcosystem({
+        ecosystemUrl: normalizeEcosystemConfigurationObject(ecosystemConfig).url,
+        selfDescriptionVC,
+        complianceVC,
       })
+      console.log(JSON.stringify(selfDescription, null, 2))
       printTable([{ ...selfDescription }])
-    } catch (e: unknown) {
-      console.error(e)
+    } catch (e: any) {
+      console.error(e.message)
     }
   })
