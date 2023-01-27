@@ -57,7 +57,7 @@ sd.command('submit')
 
 sd.command('verify')
   .description('verifies a self-description')
-  .option('-id, --sd-id <string>', 'id of your self-description')
+  .requiredOption('-sid, --sd-id <string>', 'id of your self-description')
   .option('-s, --show', 'Show self descriptions')
   // .option('-sf, --sd-file <string>', 'your sd file')
   .action(async (cmd) => {
