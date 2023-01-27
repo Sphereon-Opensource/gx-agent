@@ -18,10 +18,19 @@ vc.command('issue')
     const agent = await getAgent()
     try {
       const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.inputFile, 'utf-8')) as CredentialPayload
-      const did = cmd.did ? await asDID(cmd.did) : typeof credential.issuer === 'string' ? credential.issuer : credential.issuer.id
+      const did = cmd.did
+        ? await asDID(cmd.did)
+        : typeof credential.issuer === 'string'
+        ? credential.issuer
+        : credential.issuer
+        ? credential.issuer.id
+        : await asDID()
       const id = await agent.didManagerGet({ did })
       const didDoc = await exportToDIDDocument(id)
       const url = `https://${convertDidWebToHost(did)}`
+      if (!credential.issuer) {
+        credential.issuer = did
+      }
 
       nock.cleanAll()
       nock(url)
@@ -52,6 +61,7 @@ vc.command('issue')
       }
     } catch (e: any) {
       console.error(e.message)
+      throw e
     } finally {
       nock.cleanAll()
     }
@@ -95,28 +105,34 @@ vc.command('verify')
   .option('--show', 'Print the Verifiable Credential to console')
   .action(async (cmd) => {
     const agent = await getAgent()
-    try {
-      if (!cmd.inputFile && !cmd.vcId) {
-        throw Error('Either a Verifiable Credential input file or the id of a stored Verifiable Credential needs to be supplied')
-      } else if (cmd.inputFile && cmd.vcId) {
-        throw Error('Cannot both have a Verifiable Credential input file and the id of a stored Verifiable Credential')
-      }
+    if (!cmd.inputFile && !cmd.vcId) {
+      throw Error('Either a Verifiable Credential input file or the id of a stored Verifiable Credential needs to be supplied')
+    } else if (cmd.inputFile && cmd.vcId) {
+      throw Error('Cannot both have a Verifiable Credential input file and the id of a stored Verifiable Credential')
+    }
 
+    try {
       const verifiableCredential: VerifiableCredential = cmd.inputFile
         ? (JSON.parse(fs.readFileSync(cmd.inputFile, 'utf-8')) as VerifiableCredential)
         : await agent.dataStoreGetVerifiableCredential({ hash: cmd.vcId })
 
-      const issuer = typeof verifiableCredential.issuer === 'string' ? verifiableCredential.issuer : verifiableCredential.issuer.id
+      const did = cmd.did
+        ? await asDID(cmd.did)
+        : typeof verifiableCredential.issuer === 'string'
+        ? verifiableCredential.issuer
+        : verifiableCredential.issuer
+        ? verifiableCredential.issuer.id
+        : await asDID()
       let id: IIdentifier | undefined
       try {
-        id = await agent.didManagerGet({ did: issuer })
+        id = await agent.didManagerGet({ did })
       } catch (e) {
         // DID not hosted by us, which is fine
       }
 
       if (id) {
         const didDoc = await exportToDIDDocument(id)
-        const url = `https://${convertDidWebToHost(issuer)}`
+        const url = `https://${convertDidWebToHost(did)}`
         nock.cleanAll()
         nock(url)
           .get(`/.well-known/did.json`)

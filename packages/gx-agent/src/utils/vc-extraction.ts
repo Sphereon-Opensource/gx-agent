@@ -28,3 +28,11 @@ export function extractApiTypeFromVC(vc: VerifiableCredential): string {
   const credentialType = types.find((type) => type !== 'VerifiableCredential')
   return credentialType === IGaiaxCredentialType.LegalPerson || IGaiaxCredentialType.NaturalPerson ? 'participant' : 'service-offering'
 }
+
+export function getIssuerString(vc: VerifiableCredential): string {
+  return isString(vc.issuer) ? (vc.issuer as string) : (vc.issuer as { id: string }).id
+}
+
+export function isString(value: unknown): boolean {
+  return typeof value === 'string' || Object.prototype.toString.call(value) === '[object String]'
+}

@@ -17,7 +17,7 @@ import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/typ
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { GXPluginMethodMap, IGaiaxComplianceConfig } from '../types'
 import { GXJsonWebSignature2020 } from '../suites/GXJsonWebSignature2020'
-import { getAgentConfigPath, getConfig } from '../utils/config-utils'
+import { getAgentConfigPath, getConfigAsObject } from '../utils/config-utils'
 
 export let globalConfig: any
 
@@ -109,14 +109,12 @@ async function newDBConnection(databaseFile: string): Promise<DataSource> {
   }).initialize()
 }
 
-
-
 export type ConfiguredAgent = TAgent<GXPluginMethodMap>
 
 export async function getAgent(opts?: { path?: string }): Promise<ConfiguredAgent> {
   const path = opts?.path ? opts.path : getAgentConfigPath()
   try {
-    const config = getConfig(path)
+    const config = getConfigAsObject(path)
 
     if (!config.gx.dbEncryptionKey) {
       // todo: help user how to change the encryption key
@@ -130,7 +128,7 @@ export async function getAgent(opts?: { path?: string }): Promise<ConfiguredAgen
     return await (
       await setupGXAgent({ dbEncryptionKey, dbFile, config: config.gx })
     ).agent
-    // return createAgentFromConfig<GXPluginMethodMap>(getConfig(fileName ? fileName : 'agent.yml'))
+    // return createAgentFromConfig<GXPluginMethodMap>(getConfigAsObject(fileName ? fileName : 'agent.yml'))
   } catch (e: any) {
     console.log('Unable to create agent from ' + path + '.', e.message)
     process.exit(1)

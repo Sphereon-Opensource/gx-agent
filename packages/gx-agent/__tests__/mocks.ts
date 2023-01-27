@@ -18,6 +18,7 @@ export const mockedDID = createMockedDID(
   },
   'did:web:f825-87-213-241-251.eu.ngrok.io#test'
 )
+
 export function createMockedDID(did: string, publicKeyJwk: JWK, vm?: string) {
   const vmId = vm ? vm : `${did}:JWK2020-RSA`
   return {
@@ -35,4 +36,20 @@ export function createMockedDID(did: string, publicKeyJwk: JWK, vm?: string) {
     assertionMethod: [vmId],
     authentication: [vmId],
   }
+}
+
+export const fmaISOCredential = {
+  '@context': ['https://www.w3.org/2018/credentials/v1', 'https://sphereon-opensource.github.io/vc-contexts/fma/iso/iso-v1.jsonld'],
+  type: ['VerifiableCredential', 'ISOCertificate'],
+  id: '1674487178632',
+  issuanceDate: '2023-01-23T15:19:38.632Z',
+  credentialSubject: {
+    id: 'did:web:nk-gx-agent.eu.ngrok.io',
+    initialApproval: '2022-05-30T09:30:10Z',
+    issuanceDate: '2023-01-01T08:00:10Z',
+    validUntil: '2025-12-31T23:59:59Z',
+    certificateNo: '1233456789',
+    standardId: 'ISO/IEC 27001:2013',
+    organizationName: 'Example BV',
+  },
 }
