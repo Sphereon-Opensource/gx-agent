@@ -2,7 +2,8 @@ import { homedir } from 'os'
 import fs from 'fs'
 import { dirname } from 'path'
 import yaml from 'yaml'
-import { EcosystemConfig } from '../types/IConfig'
+import { EcosystemConfig } from '../types'
+import { SecretBox } from '@veramo/kms-local'
 
 export function getUserHome(): string {
   return homedir()
@@ -23,7 +24,7 @@ export function createAgentDir(path: string): string {
   return dirname(path)
 }
 
-export function createAgentConfig(path: string) {
+export async function createAgentConfig(path: string) {
   const dir = createAgentDir(path)
   const agentPath = `${dir}/agent.yml`
 
@@ -32,6 +33,7 @@ export function createAgentConfig(path: string) {
     const contents = fs.readFileSync(templateFile)
     const config: any = yaml.parse(contents.toString('utf8'))
     try {
+      config.constants.dbEncryptionKey = await SecretBox.createSecretKey()
       config.gx.dbFile = `${getDefaultAgentDir()}/db/gx.db.sqlite`
       const yamlString: string = yaml.stringify(config)
       fs.writeFileSync(agentPath, yamlString)
@@ -93,7 +95,6 @@ export function writeConfigObject(config: any, path: string) {
   fs.writeFileSync(path, configStr)
 }
 
-
 export function getGXConfigOptions(agentPath: string): any {
   return getConfigAsObject(agentPath).gx
 }
@@ -106,12 +107,10 @@ export function getEcosystemConfigObjects(agentPath: string): EcosystemConfig[] 
   return ecosystems as EcosystemConfig[]
 }
 
-
 export function getEcosystemConfigObject(agentPath: string, name: string): EcosystemConfig | undefined {
   const ecosystems = getEcosystemConfigObjects(agentPath)
-  return ecosystems.find(ecosystem => ecosystem.name.toLowerCase() === name.toLowerCase())
+  return ecosystems.find((ecosystem) => ecosystem.name.toLowerCase() === name.toLowerCase())
 }
-
 
 export function assertValidEcosystemConfigObject(ecosystemConfig: EcosystemConfig): void {
   if (!ecosystemConfig) {
@@ -131,12 +130,11 @@ export function normalizeEcosystemConfigurationObject(ecosystemConfig: Ecosystem
   return ecosystemConfig
 }
 
-
 export function addEcosystemConfigObject(agentPath: string, newEcosystem: EcosystemConfig): void {
   assertValidEcosystemConfigObject(newEcosystem)
   const config = getConfigAsObject(agentPath)
   const ecosystems = getEcosystemConfigObjects(agentPath)
-  const others = ecosystems.filter(ecosystem => ecosystem.name.toLowerCase() !== newEcosystem.name.toLowerCase())
+  const others = ecosystems.filter((ecosystem) => ecosystem.name.toLowerCase() !== newEcosystem.name.toLowerCase())
   const ecosystemConfigs = [...others, newEcosystem]
   config.gx.ecosystems = ecosystemConfigs
   writeConfigObject(config, agentPath)

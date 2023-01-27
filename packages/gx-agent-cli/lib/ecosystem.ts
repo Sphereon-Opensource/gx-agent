@@ -7,7 +7,7 @@ import {
   deleteEcosystemConfigObject,
   getAgentConfigPath,
   getEcosystemConfigObject,
-  getEcosystemConfigObjects
+  getEcosystemConfigObjects,
 } from '@sphereon/gx-agent/dist/utils/config-utils'
 
 const ecosystem = program.command('ecosystem').description('Ecosystem specific commands')
@@ -16,7 +16,10 @@ ecosystem
   .command('add')
   .alias('update')
   .description('Adds or updates a Gaia-x ecosystem to the client')
-  .argument('<name>', 'ecosystem name. Please ensure to use use quotes in case the name contains spaces. We suggest to use a shorthand/abbreviation for the name, and to use the description for the fullname')
+  .argument(
+    '<name>',
+    'ecosystem name. Please ensure to use use quotes in case the name contains spaces. We suggest to use a shorthand/abbreviation for the name, and to use the description for the fullname'
+  )
   .argument('<url>', 'gaia-x ecosystem server address')
   .option('-d, --description <string>', 'Description')
   .action(async (name, url, cmd) => {
@@ -28,7 +31,7 @@ ecosystem
     const ecosystemConfig: EcosystemConfig = {
       name,
       url,
-      description: cmd.description
+      description: cmd.description,
     }
     assertValidEcosystemConfigObject(ecosystemConfig)
     addEcosystemConfigObject(configPath, ecosystemConfig)
@@ -37,13 +40,15 @@ ecosystem
 
     if (existingConfig) {
       console.log(`Existing ecosystem ${name} has been updated in your agent configuration: ${getAgentConfigPath()}`)
-      printTable([{
-        version: 'previous',
-        name: existingConfig.name,
-        url: existingConfig.url,
-        description: existingConfig.description
-      },
-        { version: 'new', name, url, description: cmd.description }])
+      printTable([
+        {
+          version: 'previous',
+          name: existingConfig.name,
+          url: existingConfig.url,
+          description: existingConfig.description,
+        },
+        { version: 'new', name, url, description: cmd.description },
+      ])
     } else {
       console.log(`New ecosystem ${name} has been added to your agent configuration: ${getAgentConfigPath()}`)
       printTable([{ name, url, description: cmd.description }])
@@ -64,7 +69,6 @@ ecosystem
     }
   })
 
-
 ecosystem
   .command('delete')
   .description('Deletes a Gaia-x ecosystem from the agent configuration')
@@ -83,17 +87,15 @@ ecosystem
       //just to verify the agent loads
       await getAgent()
 
-
       printTable([{ ...existing }])
       console.log(`Ecosystem ${name} has been deleted from your agent configuration: ${getAgentConfigPath()}`)
     }
   })
 
-
 ecosystem
   .command('submit')
   .description('Onboards the participant to the new ecosystem')
-  .argument('<name>', "The ecosystem name (has to be available in your configuration)")
+  .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
   .requiredOption('-sid, --sd-id <string>', 'id of your self-description')
   .requiredOption('-cid, --compliance-id <string>', '')
   .action(async (name, cmd) => {
@@ -105,7 +107,7 @@ ecosystem
       //fixme: Does not take ecosystem into account at all
       const selfDescription = await agent.onboardParticipantWithCredentialIds({
         selfDescriptionId,
-        complianceId
+        complianceId,
       })
       printTable([{ ...selfDescription }])
     } catch (e: unknown) {

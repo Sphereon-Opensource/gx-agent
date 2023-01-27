@@ -12,25 +12,14 @@ import {
 } from '@sphereon/gx-agent'
 
 const participant = program.command('participant').description('Participant commands')
-// const compliance = participant.command('compliance').description('Compliance and self-descriptions')
 const sd = participant.command('sd').alias('self-description').description('Participant self-description commands')
-/*
-compliance
-  .command('compliance')
-  .command('status')
-  .description('shows the compliance status of the Participant')
-  .option('-sid, --sd-id <string>', 'id of your self-description')
-  .action(async (cmd) => {
-    console.error('Feature not implemented yet')
-  })
-*/
 
 sd.command('submit')
   .description(
     'submits a self-description file to the compliance service. This can either be an input file (unsigned credential) from the filesystem, or a signed self-description stored in the agent'
   )
-  .option('-if, --sd-input-file <string>', 'Unsigned self-description input file location')
-  .option('-id, --sd-id <string>', 'id of a signed self-description stored in the agent')
+  .option('-sif, --sd-input-file <string>', 'Unsigned self-description input file location')
+  .option('-sid, --sd-id <string>', 'id of a signed self-description stored in the agent')
   .option('-s, --show', 'Show self descriptions')
   .action(async (cmd) => {
     try {

@@ -13,16 +13,14 @@ config
     'Config file name and location (defaults to `home`: ' +
       getDefaultAgentFile() +
       '. Valid values are `home` and `cwd`. cwd means the current working directory)',
-    './agent.yml'
+    `home (${getDefaultAgentFile()})`
   )
-  // .option('--template <string>', 'Use template (default,client)', 'default')
-
   .action(async (options) => {
     const { location } = options
 
     const path = location && location.toLowerCase() === 'cwd' ? './agent.yml' : getDefaultAgentFile()
 
-    createAgentConfig(path)
+    await createAgentConfig(path)
   })
 
 config
@@ -44,7 +42,7 @@ config
       )
     } else {
       // @ts-ignore
-      if (typeof agent[options.method] !== 'function' /* && options.method !== 'execute'*/) {
+      if (typeof agent[options.method] !== 'function') {
         console.error(
           `The agent was created using the config command, but the 'agent.${options.method}()' method is not available. Make sure the plugin that implements that method is installed.`
         )

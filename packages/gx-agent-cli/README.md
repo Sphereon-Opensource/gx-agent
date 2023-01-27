@@ -582,7 +582,7 @@ Be aware that if you delete an ecosystem you will not be able to interact with i
 
 ```shell
 gx-agent ecosystem delete FMA
- 
+
  output:
 ┌──────┬─────────────────────────────────────────────────┬──────────────────────────┐
 │ name │                                             url │              description │
@@ -593,6 +593,7 @@ Ecosystem FMA has been deleted from your agent configuration: C:\Users\example\.
 ```
 
 ## List
+
 You can list all known ecosystems from the `agent.yml` configuration file using the below command.
 
 ```shell
