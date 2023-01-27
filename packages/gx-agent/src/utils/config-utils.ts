@@ -2,7 +2,8 @@ import { homedir } from 'os'
 import fs from 'fs'
 import { dirname } from 'path'
 import yaml from 'yaml'
-import { EcosystemConfig } from '../types/IConfig'
+import { EcosystemConfig } from '../types'
+import { SecretBox } from '@veramo/kms-local'
 
 export function getUserHome(): string {
   return homedir()
@@ -23,7 +24,7 @@ export function createAgentDir(path: string): string {
   return dirname(path)
 }
 
-export function createAgentConfig(path: string) {
+export async function createAgentConfig(path: string) {
   const dir = createAgentDir(path)
   const agentPath = `${dir}/agent.yml`
 
@@ -32,6 +33,8 @@ export function createAgentConfig(path: string) {
     const contents = fs.readFileSync(templateFile)
     const config: any = yaml.parse(contents.toString('utf8'))
     try {
+      config.constants.dbEncryptionKey = await SecretBox.createSecretKey()
+      config.gx.dbEncryptionKey = config.constants.dbEncryptionKey
       config.gx.dbFile = `${getDefaultAgentDir()}/db/gx.db.sqlite`
       const yamlString: string = yaml.stringify(config)
       fs.writeFileSync(agentPath, yamlString)

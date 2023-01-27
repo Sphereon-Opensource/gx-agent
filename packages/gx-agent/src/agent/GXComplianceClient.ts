@@ -369,7 +369,6 @@ export class GXComplianceClient implements IAgentPlugin {
     const onboardingVP = await this.credentialHandler.issueVerifiablePresentation(
       {
         keyRef: args.keyRef,
-        // purpose: args.purpose,
         verifiableCredentials: [args.complianceVC, args.selfDescriptionVC],
         challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
         domain: did ?? extractSubjectDIDFromVCs([args.selfDescriptionVC]),
