@@ -93,7 +93,6 @@ export function writeConfigObject(config: any, path: string) {
   fs.writeFileSync(path, configStr)
 }
 
-
 export function getGXConfigOptions(agentPath: string): any {
   return getConfigAsObject(agentPath).gx
 }
@@ -106,12 +105,10 @@ export function getEcosystemConfigObjects(agentPath: string): EcosystemConfig[] 
   return ecosystems as EcosystemConfig[]
 }
 
-
 export function getEcosystemConfigObject(agentPath: string, name: string): EcosystemConfig | undefined {
   const ecosystems = getEcosystemConfigObjects(agentPath)
   return ecosystems.find((ecosystem) => ecosystem.name.toLowerCase() === name.toLowerCase())
 }
-
 
 export function assertValidEcosystemConfigObject(ecosystemConfig: EcosystemConfig): void {
   if (!ecosystemConfig) {
@@ -128,18 +125,17 @@ export function normalizeEcosystemConfigurationObject(ecosystemConfig: Ecosystem
   if (!ecosystemConfig.url.startsWith('http')) {
     ecosystemConfig.url = `https://${ecosystemConfig.url}`
   }
-  if (ecosystemConfig.url.endsWith('/')) {
-    ecosystemConfig.url = ecosystemConfig.url.substring(0, ecosystemConfig.url.length - 1)
-  }
   return ecosystemConfig
 }
-
 
 export function addEcosystemConfigObject(agentPath: string, newEcosystem: EcosystemConfig): void {
   assertValidEcosystemConfigObject(newEcosystem)
   const config = getConfigAsObject(agentPath)
   const ecosystems = getEcosystemConfigObjects(agentPath)
   const others = ecosystems.filter((ecosystem) => ecosystem.name.toLowerCase() !== newEcosystem.name.toLowerCase())
+  if (newEcosystem.url.endsWith('/')) {
+    newEcosystem.url = newEcosystem.url.substring(0, newEcosystem.url.length - 1)
+  }
   const ecosystemConfigs = [...others, newEcosystem]
   config.gx.ecosystems = ecosystemConfigs
   writeConfigObject(config, agentPath)

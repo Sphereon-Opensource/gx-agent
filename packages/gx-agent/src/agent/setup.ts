@@ -109,8 +109,6 @@ async function newDBConnection(databaseFile: string): Promise<DataSource> {
   }).initialize()
 }
 
-
-
 export type ConfiguredAgent = TAgent<GXPluginMethodMap>
 
 export async function getAgent(opts?: { path?: string }): Promise<ConfiguredAgent> {
