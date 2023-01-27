@@ -344,9 +344,8 @@ export class GXComplianceClient implements IAgentPlugin {
       context
     )
 
-    //todo: enable this after fixing onboarding api
-    // const apiType = extractApiTypeFromVC(args.selfDescriptionVC)
-    // await this.onboardParticipantWithVerifiablePresentation({ vp: onboardingVP.verifiablePresentation, baseUrl: args.ecosystemUrl, apiType }, context)
+    const apiType = extractApiTypeFromVC(args.selfDescriptionVC)
+    await this.onboardParticipantWithVerifiablePresentation({ vp: onboardingVP.verifiablePresentation, baseUrl: args.ecosystemUrl, apiType }, context)
     return onboardingVP
   }
 
@@ -402,9 +401,9 @@ export class GXComplianceClient implements IAgentPlugin {
 
   private async onboardParticipantWithVerifiablePresentation(
     args: { vp: VerifiablePresentation; apiType: string; baseUrl?: string },
-    context: GXRequiredContext
+    _context: GXRequiredContext
   ) {
-    const URL = `${this.getApiVersionedUrl(args.baseUrl)}/${args.apiType}/verify/raw?store=true`
+    const URL = `${this.getApiVersionedUrl(args.baseUrl)}/${args.apiType}/onboard?store=false`
 
     try {
       return (await postRequest(URL, JSON.stringify(args.vp))) as VerifiableCredential
