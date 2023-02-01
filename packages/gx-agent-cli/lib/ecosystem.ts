@@ -1,6 +1,7 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
-import { EcosystemConfig, getAgent } from '@sphereon/gx-agent'
+import { EcosystemConfig, getAgent, normalizeEcosystemConfigurationObject } from '@sphereon/gx-agent'
+import { CredentialPayload, VerifiableCredential } from '@veramo/core'
 import {
   addEcosystemConfigObject,
   assertValidEcosystemConfigObject,
@@ -9,6 +10,7 @@ import {
   getEcosystemConfigObject,
   getEcosystemConfigObjects,
 } from '@sphereon/gx-agent/dist/utils/config-utils'
+import fs from 'fs'
 
 const ecosystem = program.command('ecosystem').description('Ecosystem specific commands')
 
@@ -123,6 +125,55 @@ ecosystem
         console.log(JSON.stringify(selfDescription, null, 2))
       }
       printTable([{ ...selfDescription }])
+    } catch (e: any) {
+      console.error(e.message)
+    }
+  })
+
+ecosystem
+  .command('submit-service-offering')
+  .alias('service-offering')
+  .alias('so')
+  .description('Onboards the participant to the new ecosystem')
+  .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
+  .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
+  .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential from Gaia-X compliance')
+  .requiredOption('-eid, --ecosystem-compliance-id <string>', 'ID of your compliance credential from ecosystem')
+  .requiredOption('-sof, --so-input-file <string>', 'Unsigned service-offering input file location')
+  .option('-p, --persist', 'Persists VPs created in the intermediate steps')
+  .option('-s, --show', 'Show self descriptions')
+  .action(async (name, cmd) => {
+    const agent = await getAgent()
+    if (!cmd.sdId) {
+      throw Error('Verifiable Credential ID or file for self-description need to be selected. Please check parameters')
+    }
+    if (!cmd.complianceId) {
+      throw Error('Verifiable Credential ID for your compliance credential from Gaia-X compliance need to be selected. Please check parameters')
+    }
+    if (!cmd.ecosystemComplianceId) {
+      throw Error('Verifiable Credential ID for your compliance credential from ecosystem need to be selected. Please check parameters')
+    }
+    if (!cmd.soInputFile) {
+      throw Error('Unsigned service-offering input file location need to be selected. Please check parameters')
+    }
+    try {
+      const agentPath = getAgentConfigPath()
+      const ecosystemConfig: EcosystemConfig | undefined = getEcosystemConfigObject(agentPath, name)
+      if (!ecosystemConfig) {
+        console.error(`Couldn't find the ecosystem: ${name}`)
+        return
+      }
+      const serviceOffering = JSON.parse(fs.readFileSync(cmd.soInputFile, 'utf-8')) as CredentialPayload
+      const onboardingResult = await agent.onboardServiceOfferingOnEcosystem({
+        ecosystemUrl: ecosystemConfig.url,
+        sdId: cmd.sdId,
+        complianceId: cmd.complianceId,
+        ecosystemComplianceId: cmd.ecosystemComplianceId,
+        serviceOffering,
+        persist: cmd.persist === true,
+        show: cmd.show === true,
+      })
+      printTable([{ ...onboardingResult }])
     } catch (e: any) {
       console.error(e.message)
     }
