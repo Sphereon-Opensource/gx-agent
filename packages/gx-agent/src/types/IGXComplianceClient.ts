@@ -60,6 +60,8 @@ export interface IGXComplianceClient extends IPluginMethodMap {
 
   onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext): Promise<VerifiableCredential>
 
+  onboardServiceOfferingOnEcosystem(args: IOnboardServiceOfferingOnEcosystemArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+
   verifySelfDescription(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult>
 }
 
@@ -164,6 +166,16 @@ export interface IOnboardParticipantWithCredentialIdsArgs {
   complianceId: string
 }
 
+export interface IOnboardServiceOfferingOnEcosystemArgs {
+  ecosystemUrl: string
+  sdId: string
+  complianceId: string
+  ecosystemComplianceId: string
+  serviceOffering: CredentialPayload
+  persist?: boolean
+  show?: boolean
+}
+
 export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
   credential: CredentialPayload
 }
@@ -179,6 +191,7 @@ export interface IAddServiceOfferingUnsignedArgs {
 
 export interface IAddServiceOfferingArgs {
   serviceOfferingVP: VerifiablePresentation
+  baseUrl?: string
 }
 
 export interface IIssueAndSaveVerifiablePresentationArgs {

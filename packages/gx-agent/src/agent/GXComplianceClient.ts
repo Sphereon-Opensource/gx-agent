@@ -23,6 +23,7 @@ import {
   IOnboardParticipantOnEcosystem,
   IOnboardParticipantWithCredentialArgs,
   IOnboardParticipantWithCredentialIdsArgs,
+  IOnboardServiceOfferingOnEcosystemArgs,
   ISignInfo,
   IVerifySelfDescribedCredential,
   schema,
@@ -81,6 +82,7 @@ export class GXComplianceClient implements IAgentPlugin {
     onboardParticipantOnEcosystem: this.onboardParticipantOnEcosystem.bind(this),
     onboardParticipantWithCredential: this.onboardParticipantWithCredential.bind(this),
     onboardParticipantWithCredentialIds: this.onboardParticipantWithCredentialIds.bind(this),
+    onboardServiceOfferingOnEcosystem: this.onboardServiceOfferingOnEcosystem.bind(this),
     verifySelfDescription: this.verifySelfDescription.bind(this),
   }
 
@@ -210,7 +212,7 @@ export class GXComplianceClient implements IAgentPlugin {
   private async submitServiceOffering(args: IAddServiceOfferingArgs, _context: GXRequiredContext): Promise<IGaiaxOnboardingResult> {
     try {
       return (await postRequest(
-        this.getApiVersionedUrl() + '/service-offering/verify/raw',
+        this.getApiVersionedUrl(args.baseUrl) + '/service-offering/verify/raw',
         JSON.stringify(args.serviceOfferingVP)
       )) as IGaiaxOnboardingResult
     } catch (e) {
@@ -410,6 +412,55 @@ export class GXComplianceClient implements IAgentPlugin {
     } catch (e) {
       throw new Error('Error on onboarding a complianceVC: ' + e)
     }
+  }
+
+  private async onboardServiceOfferingOnEcosystem(
+    args: IOnboardServiceOfferingOnEcosystemArgs,
+    context: GXRequiredContext
+  ): Promise<IGaiaxOnboardingResult> {
+    const selfDescribedVC = await context.agent.dataStoreGetVerifiableCredential({
+      hash: args.sdId,
+    })
+    const complianceVC = await context.agent.dataStoreGetVerifiableCredential({
+      hash: args.complianceId,
+    })
+    const ecosystemComplianceVC = await context.agent.dataStoreGetVerifiableCredential({
+      hash: args.ecosystemComplianceId,
+    })
+    const signInfo: ISignInfo = await extractSignInfo({ did: getIssuerString(selfDescribedVC), section: 'authentication' }, context)
+    const serviceOfferingVC = await this.credentialHandler.issueVerifiableCredential(
+      {
+        domain: getIssuerString(selfDescribedVC),
+        keyRef: signInfo.keyRef,
+        credential: args.serviceOffering,
+        // fixme: we might wanna revisit our policy about saving VCs
+        persist: args.persist ? args.persist : false,
+      },
+      context
+    )
+    if (args.show) {
+      console.log(`serviceOffering VC: ${JSON.stringify(serviceOfferingVC, null, 2)}`)
+    }
+    const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
+      {
+        keyRef: signInfo.keyRef,
+        verifiableCredentials: [serviceOfferingVC.verifiableCredential, ecosystemComplianceVC, complianceVC, selfDescribedVC],
+        challenge: GXComplianceClient.getDateChallenge(),
+        domain: signInfo.participantDomain,
+        persist: args.persist ? args.persist : false,
+      },
+      context
+    )
+    if (args.show) {
+      console.log(`serviceOffering VP: ${JSON.stringify(uniqueVP, null, 2)}`)
+    }
+    return await this.submitServiceOffering(
+      {
+        serviceOfferingVP: uniqueVP.verifiablePresentation,
+        baseUrl: args.ecosystemUrl,
+      },
+      context
+    )
   }
 
   private getApiVersionedUrl(baseUrl?: string) {
