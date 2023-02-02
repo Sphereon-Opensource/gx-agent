@@ -35,7 +35,7 @@ export async function createAgentConfig(path: string) {
     try {
       config.constants.dbEncryptionKey = await SecretBox.createSecretKey()
       config.gx.dbEncryptionKey = config.constants.dbEncryptionKey
-      config.gx.dbFile = `${dir}/db/gx.db.sqlite`
+      config.gx.dbFile = `${getDefaultAgentDir()}/db/gx.db.sqlite`
       const yamlString: string = yaml.stringify(config)
       fs.writeFileSync(agentPath, yamlString)
     } catch (error) {
