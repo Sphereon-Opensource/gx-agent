@@ -410,7 +410,7 @@ you can provide the ID value of the self-description credential in the agent.
 You can use the `-s/--show` option, to show all the credentials used in the exchange.
 
 ```shell
-gx-agent participant sd submit -if ./participant-input-credential.json
+gx-agent participant sd submit -sif ./participant-input-credential.json
 ```
 
 or from an existing agent self-description credential:
