@@ -120,7 +120,7 @@ export class GXComplianceClient implements IAgentPlugin {
     return this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
-        show: args.show ? args.show : false,
+        show: args.show,
       },
       context
     )
@@ -160,7 +160,7 @@ export class GXComplianceClient implements IAgentPlugin {
     const verifiableCredentialResponse = (await this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
-        show: args.show ? args.show : false,
+        show: args.show,
       },
       context
     )) as VerifiableCredentialResponse
@@ -304,7 +304,7 @@ export class GXComplianceClient implements IAgentPlugin {
     const complianceCredential = await this.submitComplianceCredential(
       {
         selfDescriptionVP: args.verifiablePresentation,
-        show: args.show ? args.show : false,
+        show: args.show,
       },
       context
     )
@@ -339,7 +339,7 @@ export class GXComplianceClient implements IAgentPlugin {
     const verifiableCredentialResponse = (await this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
-        show: args.show ? args.show : false,
+        show: args.show,
       },
       context
     )) as VerifiableCredentialResponse
