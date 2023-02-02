@@ -117,7 +117,7 @@ ecosystem
         selfDescriptionVC,
         complianceVC,
         persist: cmd.persist === true,
-        show: cmd.persist === true,
+        show: cmd.show === true,
       })
       if (cmd.show) {
         console.log(JSON.stringify(selfDescription, null, 2))

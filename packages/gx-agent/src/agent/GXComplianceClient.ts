@@ -113,7 +113,7 @@ export class GXComplianceClient implements IAgentPlugin {
         verifiableCredentials: [selfDescribedVC],
         challenge: GXComplianceClient.getDateChallenge(),
         domain: signInfo.participantDomain,
-        persist: args.persist ? args.persist : false,
+        persist: args.persist,
       },
       context
     )
@@ -153,7 +153,7 @@ export class GXComplianceClient implements IAgentPlugin {
         keyRef: signInfo.keyRef,
         verifiableCredentials: [selfDescription.verifiableCredential],
         domain: signInfo.participantDomain,
-        persist: args.persist ? args.persist : false,
+        persist: args.persist,
       },
       context
     )
@@ -198,7 +198,7 @@ export class GXComplianceClient implements IAgentPlugin {
         // purpose: args.purpose,
         verifiableCredentials: [complianceCredential, serviceOffering.verifiableCredential],
         domain: did,
-        persist: args.persist ? args.persist : false,
+        persist: args.persist,
       },
       context
     )
@@ -332,7 +332,7 @@ export class GXComplianceClient implements IAgentPlugin {
         keyRef: args.keyRef,
         verifiableCredentials: [args.selfDescriptionVC, args.complianceVC],
         domain: convertDidWebToHost(participantDid),
-        persist: args.persist ? args.persist : false,
+        persist: args.persist,
       },
       context
     )
@@ -349,7 +349,7 @@ export class GXComplianceClient implements IAgentPlugin {
         verifiableCredentials: [verifiableCredentialResponse.verifiableCredential, args.complianceVC, args.selfDescriptionVC],
         challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
         domain: participantDid,
-        persist: args.persist ? args.persist : false,
+        persist: args.persist,
       },
       context
     )
@@ -372,7 +372,7 @@ export class GXComplianceClient implements IAgentPlugin {
         verifiableCredentials: [args.complianceVC, args.selfDescriptionVC],
         challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
         domain: did ?? extractSubjectDIDFromVCs([args.selfDescriptionVC]),
-        persist: args.persist ? args.persist : false,
+        persist: args.persist,
       },
       context
     )
