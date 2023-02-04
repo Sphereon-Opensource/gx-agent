@@ -35,7 +35,7 @@ export async function createAgentConfig(path: string) {
     try {
       config.constants.dbEncryptionKey = await SecretBox.createSecretKey()
       config.gx.dbEncryptionKey = config.constants.dbEncryptionKey
-      config.gx.dbFile = `${getDefaultAgentDir()}/db/gx.db.sqlite`
+      config.gx.dbFile = `${dir}/db/gx.db.sqlite`
       const yamlString: string = yaml.stringify(config)
       fs.writeFileSync(agentPath, yamlString)
     } catch (error) {
@@ -128,9 +128,6 @@ export function normalizeEcosystemConfigurationObject(ecosystemConfig: Ecosystem
   if (!ecosystemConfig.url.startsWith('http')) {
     ecosystemConfig.url = `https://${ecosystemConfig.url}`
   }
-  if (ecosystemConfig.url.endsWith('/')) {
-    ecosystemConfig.url = ecosystemConfig.url.substring(0, ecosystemConfig.url.length - 1)
-  }
   return ecosystemConfig
 }
 
@@ -139,6 +136,9 @@ export function addEcosystemConfigObject(agentPath: string, newEcosystem: Ecosys
   const config = getConfigAsObject(agentPath)
   const ecosystems = getEcosystemConfigObjects(agentPath)
   const others = ecosystems.filter((ecosystem) => ecosystem.name.toLowerCase() !== newEcosystem.name.toLowerCase())
+  if (newEcosystem.url.endsWith('/')) {
+    newEcosystem.url = newEcosystem.url.substring(0, newEcosystem.url.length - 1)
+  }
   const ecosystemConfigs = [...others, newEcosystem]
   config.gx.ecosystems = ecosystemConfigs
   writeConfigObject(config, agentPath)

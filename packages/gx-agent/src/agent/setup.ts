@@ -118,7 +118,7 @@ export async function getAgent(opts?: { path?: string }): Promise<ConfiguredAgen
 
     if (!config.gx.dbEncryptionKey) {
       // todo: help user how to change the encryption key
-      console.log(`Warning: default database encryption key is used`)
+      console.warn(`Warning: default database encryption key is used`)
     }
     const dbEncryptionKey = config.gx.dbEncryptionKey ? config.gx.dbEncryptionKey : 'CHANGEME'
     const dbFile = config.gx.dbFile ? config.gx.dbFile : './db/gx.db.sqlite'
@@ -130,7 +130,7 @@ export async function getAgent(opts?: { path?: string }): Promise<ConfiguredAgen
     ).agent
     // return createAgentFromConfig<GXPluginMethodMap>(getConfigAsObject(fileName ? fileName : 'agent.yml'))
   } catch (e: any) {
-    console.log('Unable to create agent from ' + path + '.', e.message)
+    console.error('Unable to create agent from ' + path + '.', e.message)
     process.exit(1)
   }
 }

@@ -42,7 +42,7 @@ vp.command('verify')
   .description('Verify a Verifiable Presentation from file or agent id')
   .option('-f, --input-file <string>', 'File containing a Verifiable Presentation')
   .option('-id, --vc-id <string>', 'Use a persisted VP in the agent as input for verification')
-  .option('--show', 'Print the Verifiable Presentation to console')
+  .option('-s, --show', 'Print the Verifiable Presentation to console')
   .action(async (cmd) => {
     const agent = await getAgent()
     try {
@@ -74,7 +74,7 @@ vp.command('verify')
             ...didDoc,
           })
       }
-      const result = await agent.checkVerifiablePresentation({ verifiablePresentation })
+      const result = await agent.checkVerifiablePresentation({ verifiablePresentation, show: cmd.show === true })
 
       printTable([
         {

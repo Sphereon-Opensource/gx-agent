@@ -82,9 +82,9 @@ export enum MethodNames {
 }
 
 export interface IGaiaxComplianceConfig {
-  kmsName?: string
   complianceServiceUrl: string
   complianceServiceVersion: string
+  kmsName?: string
 }
 
 export interface IGaiaxConformityResult {
@@ -109,21 +109,20 @@ export interface IIssueVerifiableCredentialArgs {
   credential: CredentialPayload
   domain?: string
   keyRef?: string
-
   persist?: boolean
 }
 
 export interface IIssueVerifiablePresentationArgs {
+  domain: string
+  verifiableCredentials: VerifiableCredential[]
   challenge?: string
   keyRef?: string
-  verifiableCredentials: VerifiableCredential[]
-  domain: string
-
   persist?: boolean
 }
 
 export interface ICheckVerifiablePresentationArgs {
   verifiablePresentation: VerifiablePresentation
+  show?: boolean
   challenge?: string
 }
 
@@ -133,48 +132,57 @@ export interface ICheckVerifiableCredentialArgs {
 
 export interface IAcquireComplianceCredentialArgs {
   selfDescriptionVP: VerifiablePresentation
+  show?: boolean
 }
 
 export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
   participantSDId: string
+  persist?: boolean
+  show?: boolean
 }
 
 export interface IOnboardParticipantOnEcosystem {
   selfDescriptionVC: VerifiableCredential
   complianceVC: VerifiableCredential
-  // purpose?: typeof purposes
-  ecosystemUrl?: string
   domain?: string
   challenge?: string
+  ecosystemUrl?: string
   keyRef?: string
+  persist?: boolean
+  show?: boolean
 }
 
 export interface IOnboardParticipantWithCredentialArgs {
-  selfDescriptionVC: VerifiableCredential
   complianceVC: VerifiableCredential
+  selfDescriptionVC: VerifiableCredential
   // purpose?: typeof purposes
   baseUrl?: string
   domain?: string
   challenge?: string
   keyRef?: string
+  persist?: boolean
 }
 
 export interface IOnboardParticipantWithCredentialIdsArgs {
-  selfDescriptionId: string
   complianceId: string
+  selfDescriptionId: string
+  persist?: boolean
 }
 
 export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
   credential: CredentialPayload
+  persist?: boolean
+  show?: boolean
 }
 
 export interface IAddServiceOfferingUnsignedArgs {
   challenge?: string
-  serviceOfferingCredential: CredentialPayload
   complianceId?: string
   complianceVC?: VerifiableCredential
-  keyRef?: string
   domain?: string
+  keyRef?: string
+  persist?: boolean
+  serviceOfferingCredential: CredentialPayload
 }
 
 export interface IAddServiceOfferingArgs {
@@ -184,9 +192,9 @@ export interface IAddServiceOfferingArgs {
 export interface IIssueAndSaveVerifiablePresentationArgs {
   challenge: string
   keyRef: string
-  purpose?: typeof purposes
   verifiableCredentials: VerifiableCredential[]
   verificationMethodId: string
+  purpose?: typeof purposes
 }
 
 export interface VerifiableCredentialResponse {
