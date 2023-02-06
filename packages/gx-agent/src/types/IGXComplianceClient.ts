@@ -181,6 +181,16 @@ export interface IOnboardServiceOfferingOnEcosystemArgs {
   show?: boolean
 }
 
+export interface IOnboardServiceOfferingOnEcosystemArgs {
+  ecosystemUrl: string
+  sdId: string
+  complianceId: string
+  ecosystemComplianceId: string
+  serviceOffering: CredentialPayload
+  persist?: boolean
+  show?: boolean
+}
+
 export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
   credential: CredentialPayload
   persist?: boolean
