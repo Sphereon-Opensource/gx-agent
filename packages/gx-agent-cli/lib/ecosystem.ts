@@ -1,7 +1,7 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
-import { EcosystemConfig, getAgent, normalizeEcosystemConfigurationObject } from '@sphereon/gx-agent'
-import { CredentialPayload, VerifiableCredential } from '@veramo/core'
+import { EcosystemConfig, getAgent } from '@sphereon/gx-agent'
+import { CredentialPayload } from '@veramo/core'
 import {
   addEcosystemConfigObject,
   assertValidEcosystemConfigObject,
