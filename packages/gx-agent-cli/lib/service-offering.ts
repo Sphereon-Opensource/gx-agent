@@ -2,7 +2,15 @@ import { InvalidArgumentError, program } from 'commander'
 
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import { asDID, convertDidWebToHost, exampleServiceOfferingSD, getAgent, IVerifySelfDescribedCredential } from '@sphereon/gx-agent'
+import {
+  asDID,
+  convertDidWebToHost,
+  exampleServiceOfferingSD,
+  exampleServiceOfferingSD2210,
+  getAgent,
+  IVerifySelfDescribedCredential,
+  ServiceOfferingType,
+} from '@sphereon/gx-agent'
 
 const service = program.command('so').alias('service').alias('service-offering').description('Service Offering commands')
 // const compliance = participant.command('compliance').description('Compliance and self-descriptions')
@@ -68,15 +76,37 @@ serviceOffering
   .command('export-example')
   .description('Creates an example service-offering self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
+  .option(
+    '-v, --version',
+    "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
+  )
+  .option(
+    '-t, --type <string>',
+    `ServiceOffering type is mandatory of you select latest version. Type can be chosen from this list: ${Object.keys(ServiceOfferingType).map(
+      (key) => ' ' + key
+    )}`
+  )
   .option('-s, --show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
     const typeStr = 'service-offering'
-    const fileName = `${typeStr}-input-credential.json`
-    const credential = exampleServiceOfferingSD({
-      did,
-      url: `https://${convertDidWebToHost(did)}`,
-    })
+    const fileName = `service-offering-input-credential.json`
+    let credential
+    // @ts-ignore
+    console.log(ServiceOfferingType[cmd.type])
+    const url = `https://${convertDidWebToHost(did)}`
+    if (cmd.version && cmd.version === 'v2206') {
+      credential = exampleServiceOfferingSD({
+        did,
+        url,
+      })
+    } else if ((!cmd.version && !cmd.type) || (cmd.version === 'latest' && !cmd.type)) {
+      console.error('for v2210 version, you should provide type.')
+    } else if ((!cmd.version || cmd.version === 'latest') && cmd.type) {
+      console.log("IMPORTANT: the values specified with '*' should be populated by you.")
+      // @ts-ignore
+      credential = exampleServiceOfferingSD2210({ url, did, type: ServiceOfferingType[cmd.type] })
+    }
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
     console.log(

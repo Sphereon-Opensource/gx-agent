@@ -5,7 +5,7 @@ import fs from 'fs'
 import {
   asDID,
   convertDidWebToHost,
-  exampleParticipantSD,
+  exampleParticipantSD2210,
   exampleServiceOfferingSD,
   getAgent,
   IVerifySelfDescribedCredential,
@@ -78,20 +78,23 @@ sd.command('verify')
 
 sd.command('export-example')
   .description('Creates an example participant self-description input credential file')
-  // .argument('<type>', 'Credential type. One of: "participant" or "service-offering"')
   .option('-d, --did <string>', 'the DID or domain which will be used')
+  .option(
+    '-v, --version',
+    "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
+  )
   .option('-s, --show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
-    const typeStr = 'participant' //type.toLowerCase().includes('participant') ? 'participant' : 'service-offering'
+    const typeStr = 'participant'
     const fileName = `${typeStr}-input-credential.json`
     const credential =
-      typeStr === 'participant'
-        ? exampleParticipantSD({ did })
-        : exampleServiceOfferingSD({
+      !cmd.version || cmd.version === 'v2206'
+        ? exampleServiceOfferingSD({
             did,
             url: `https://${convertDidWebToHost(did)}`,
           })
+        : exampleParticipantSD2210({ did })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
     console.log(`Example self-description file has been written to ${fileName}. Please adjust the contents and use one of the onboarding methods`)
