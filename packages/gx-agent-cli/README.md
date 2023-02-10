@@ -313,7 +313,7 @@ matter what choice you make.
 
 ## Export example participant-input-credential.json
 
-There is a command to export a template/example participant self-description to disk. You can then edit this example
+There is a command to export a template/example for two version of participants self-description to disk. If you want to create a Pariticipant according to v2206 api, you can call it with that specific version `-v v2206`, or you can call it with `-v v2210` to get the new version of Participant Self-Description. _Also calling it without a version param will generate v2210 version of a participant self-description._ You can then edit this example
 self-description with your information.
 The `--show` argument, displays the example self-description to your console.
 
@@ -329,52 +329,94 @@ output:
 Example self-description file has been written to participant-input-credential.json. Please adjust the contents and use one of the onboarding methods
 {
   "@context": [
-    "https://www.w3.org/2018/credentials/v1",
-    "https://registry.gaia-x.eu/v2206/api/shape"
+    "https://www.w3.org/2018/credentials/v1"
   ],
-  "issuer": "did:web:nk-gx-agent.eu.ngrok.io",
-  "id": "816826d6-8e1f-4cc6-89a6-a77ae4b63771",
+  "issuer": "did:web:b7fd-2001-1c04-2b10-ee00-c85d-ad93-ccd9-1b0d.eu.ngrok.io",
+  "id": "814c51d6-b559-4f7f-9481-b58a4c3bccb0",
   "credentialSubject": {
-    "id": "did:web:nk-gx-agent.eu.ngrok.io",
-    "gx-participant:name": "Example Company",
-    "gx-participant:legalName": "Example Company ltd.",
-    "gx-participant:website": "'https://nk-gx-agent.eu.ngrok.io'",
-    "gx-participant:registrationNumber": [
-      {
-        "gx-participant:registrationNumberType": "local",
-        "gx-participant:registrationNumberNumber": "93056589"
+    "@context": {
+      "cc": "http://creativecommons.org/ns#",
+      "schema": "http://schema.org/",
+      "cred": "https://www.w3.org/2018/credentials#",
+      "void": "http://rdfs.org/ns/void#",
+      "owl": "http://www.w3.org/2002/07/owl#",
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+      "gax-validation": "http://w3id.org/gaia-x/validation#",
+      "skos": "http://www.w3.org/2004/02/skos/core#",
+      "voaf": "http://purl.org/vocommons/voaf#",
+      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+      "vcard": "http://www.w3.org/2006/vcard/ns#",
+      "gax-core": "http://w3id.org/gaia-x/core#",
+      "dct": "http://purl.org/dc/terms/",
+      "sh": "http://www.w3.org/ns/shacl#",
+      "gax-trust-framework": "http://w3id.org/gaia-x/gax-trust-framework#",
+      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      "ids": "https://w3id.org/idsa/core/",
+      "dcat": "http://www.w3.org/ns/dcat#",
+      "vann": "http://purl.org/vocab/vann/",
+      "foaf": "http://xmlns.com/foaf/0.1/",
+      "did": "https://www.w3.org/TR/did-core/#"
+    },
+    "@id": "did:web:b7fd-2001-1c04-2b10-ee00-c85d-ad93-ccd9-1b0d.eu.ngrok.io",
+    "@type": "gax-trust-framework:LegalPerson",
+    "gax-trust-framework:legalName": {
+      "@value": "your legalName here",
+      "@type": "xsd:string"
+    },
+    "gax-trust-framework:legalForm": "your legalForm here (LLC, LP, Corporation, Nonprofit corporation, JSCo, ...) ",
+    "gax-trust-framework:registrationNumber": {
+      "@value": "your registrationNumber here",
+      "@type": "xsd:string"
+    },
+    "gax-trust-framework:legalAddress": {
+      "@type": "vcard:Address",
+      "vcard:country-name": {
+        "@value": "your Country name here",
+        "@type": "xsd:string"
       },
-      {
-        "gx-participant:registrationNumberType": "vat",
-        "gx-participant:registrationNumberNumber": "NL001234567B01"
+      "vcard:gps": {
+        "@value": "your gps coordinates here",
+        "@type": "xsd:string"
       },
-      {
-        "gx-participant:registrationNumberType": "leiCode",
-        "gx-participant:registrationNumberNumber": "9695007586GCAKPYJ703"
+      "vcard:street-address": {
+        "@value": "your street address here",
+        "@type": "xsd:string"
       },
-      {
-        "gx-participant:registrationNumberType": "EUID",
-        "gx-participant:registrationNumberNumber": "FR5910.424761419"
+      "vcard:postal-code": {
+        "@value": "your postal code here",
+        "@type": "xsd:string"
+      },
+      "vcard:locality": {
+        "@value": "your city here",
+        "@type": "xsd:string"
       }
-    ],
-    "gx-participant:headquarterAddress": {
-      "gx-participant:addressCountryCode": "NL",
-      "gx-participant:addressCode": "NL-NLD",
-      "gx-participant:streetAddress": "2 rue Kellermann",
-      "gx-participant:postalCode": "59100",
-      "gx-participant:locality": "Roubaix"
     },
-    "gx-participant:legalAddress": {
-      "gx-participant:addressCountryCode": "NL",
-      "gx-participant:addressCode": "NL-NLD",
-      "gx-participant:streetAddress": "2 rue Kellermann",
-      "gx-participant:postalCode": "59100",
-      "gx-participant:locality": "Roubaix"
-    },
-    "gx-participant:termsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+    "gax-trust-framework:headquarterAddress": {
+      "@type": "vcard:Address",
+      "vcard:country-name": {
+        "@value": "your country name here",
+        "@type": "xsd:string"
+      },
+      "vcard:gps": {
+        "@value": "your gps coordinates here",
+        "@type": "xsd:string"
+      },
+      "vcard:street-address": {
+        "@value": "your street address here",
+        "@type": "xsd:string"
+      },
+      "vcard:postal-code": {
+        "@value": "your postal code here",
+        "@type": "xsd:string"
+      },
+      "vcard:locality": {
+        "@value": "your city here",
+        "@type": "xsd:string"
+      }
+    }
   },
   "type": [
-    "LegalPerson"
+    "VerifiableCredential"
   ]
 }
 
@@ -463,62 +505,102 @@ output:
 id: dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef511143
 {
   "@context": [
-    "https://www.w3.org/2018/credentials/v1",
-    "https://registry.gaia-x.eu/v2206/api/shape"
+    "https://www.w3.org/2018/credentials/v1"
   ],
   "issuer": "did:web:nk-gx-agent.eu.ngrok.io",
-  "id": "816826d6-8e1f-4cc6-89a6-a77ae4b63771",
+  "id": "814c51d6-b559-4f7f-9481-b58a4c3bccb0",
   "credentialSubject": {
+    "@context": {
+      "cc": "http://creativecommons.org/ns#",
+      "schema": "http://schema.org/",
+      "cred": "https://www.w3.org/2018/credentials#",
+      "void": "http://rdfs.org/ns/void#",
+      "owl": "http://www.w3.org/2002/07/owl#",
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+      "gax-validation": "http://w3id.org/gaia-x/validation#",
+      "skos": "http://www.w3.org/2004/02/skos/core#",
+      "voaf": "http://purl.org/vocommons/voaf#",
+      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+      "vcard": "http://www.w3.org/2006/vcard/ns#",
+      "gax-core": "http://w3id.org/gaia-x/core#",
+      "dct": "http://purl.org/dc/terms/",
+      "sh": "http://www.w3.org/ns/shacl#",
+      "gax-trust-framework": "http://w3id.org/gaia-x/gax-trust-framework#",
+      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      "ids": "https://w3id.org/idsa/core/",
+      "dcat": "http://www.w3.org/ns/dcat#",
+      "vann": "http://purl.org/vocab/vann/",
+      "foaf": "http://xmlns.com/foaf/0.1/",
+      "did": "https://www.w3.org/TR/did-core/#"
+    },
     "id": "did:web:nk-gx-agent.eu.ngrok.io",
-    "gx-participant:name": "Example Company",
-    "gx-participant:legalName": "Example Company ltd.",
-    "gx-participant:website": "'https://nk-gx-agent.eu.ngrok.io'",
-    "gx-participant:registrationNumber": [
-      {
-        "gx-participant:registrationNumberType": "local",
-        "gx-participant:registrationNumberNumber": "93056589"
+    "@type": "gax-trust-framework:LegalPerson",
+    "gax-trust-framework:legalName": {
+      "@value": "Sphereon BV",
+      "@type": "xsd:string"
+    },
+    "gax-trust-framework:legalForm": "LLC",
+    "gax-trust-framework:registrationNumber": {
+      "@value": "3232323",
+      "@type": "xsd:string"
+    },
+    "gax-trust-framework:legalAddress": {
+      "@type": "vcard:Address",
+      "vcard:country-name": {
+        "@value": "NL",
+        "@type": "xsd:string"
       },
-      {
-        "gx-participant:registrationNumberType": "vat",
-        "gx-participant:registrationNumberNumber": "NL001234567B01"
+      "vcard:gps": {
+        "@value": "52.1352365,5.0280565",
+        "@type": "xsd:string"
       },
-      {
-        "gx-participant:registrationNumberType": "leiCode",
-        "gx-participant:registrationNumberNumber": "9695007586GCAKPYJ703"
+      "vcard:street-address": {
+        "@value": "Bisonspoor",
+        "@type": "xsd:string"
       },
-      {
-        "gx-participant:registrationNumberType": "EUID",
-        "gx-participant:registrationNumberNumber": "FR5910.424761419"
+      "vcard:postal-code": {
+        "@value": "3605LB",
+        "@type": "xsd:string"
+      },
+      "vcard:locality": {
+        "@value": "Maarssen",
+        "@type": "xsd:string"
       }
-    ],
-    "gx-participant:headquarterAddress": {
-      "gx-participant:addressCountryCode": "NL",
-      "gx-participant:addressCode": "NL-NLD",
-      "gx-participant:streetAddress": "2 rue Kellermann",
-      "gx-participant:postalCode": "59100",
-      "gx-participant:locality": "Roubaix"
     },
-    "gx-participant:legalAddress": {
-      "gx-participant:addressCountryCode": "NL",
-      "gx-participant:addressCode": "NL-NLD",
-      "gx-participant:streetAddress": "2 rue Kellermann",
-      "gx-participant:postalCode": "59100",
-      "gx-participant:locality": "Roubaix"
-    },
-    "gx-participant:termsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+    "gax-trust-framework:headquarterAddress": {
+      "@type": "vcard:Address",
+      "vcard:country-name": {
+        "@value": "NL",
+        "@type": "xsd:string"
+      },
+      "vcard:gps": {
+        "@value": "52.1352365,5.0280565",
+        "@type": "xsd:string"
+      },
+      "vcard:street-address": {
+        "@value": "Bisonspoor",
+        "@type": "xsd:string"
+      },
+      "vcard:postal-code": {
+        "@value": "3605LB",
+        "@type": "xsd:string"
+      },
+      "vcard:locality": {
+        "@value": "Maarssen",
+        "@type": "xsd:string"
+      }
+    }
   },
   "type": [
-    "VerifiableCredential",
-    "LegalPerson"
+    "VerifiableCredential"
   ],
-  "issuanceDate": "2023-01-26T03:04:58.179Z",
+  "issuanceDate": "2023-02-09T14:55:32.251Z",
   "proof": {
     "type": "JsonWebSignature2020",
-    "created": "2023-01-26T03:04:58Z",
+    "created": "2023-02-09T14:55:32Z",
     "verificationMethod": "did:web:nk-gx-agent.eu.ngrok.io#JWK2020-RSA",
     "proofPurpose": "assertionMethod",
-    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..PD6xomtqqHGnxFzCArJGesk5Qj4oOEE6nvQ_tPk7FuGRftECZvoh3CxXGPExNknienTINWLat6m83pqY_1GpC_pnsySrqEZaWVreXHQm8O2Gbp7l7duObAZafwxv05eCDRbg_Y-LoGi8ixyfPQGaFbuwIEDol_3xDbbIkV76YFlenygvf1mT9YL62qnhHgC8SOKyoUzlA
-slO3L-RhXDIi-BAas2oSkrYfOweG5FtiMqn91XZnXfpKxm3bkdieSuUK9-PQzrwQpU9HySSUe9yePgLK_q2EjlWLwY-QHTMGWzqcCiSpW3DgWgG6JgIiHdWxDqTv54Ot6ap0BJ4QY9MDA"
+    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..tYNSjLxt-d8oRF6T0-d0TTKcPqi3hvq9Bbnt1q_svqkCanQAdHEneRIUr4re3aCkwW1slwLrnF_gopcOJKqm9PO0nmQA3p5R9o4V2k9u381DhXzEDVqwS28uwx-fKU9-_7tH0s2KMjmVLs8xz_r9Oju-vFM_lsngfZ4gxsVIG3968MB2LixExVKkfgGWUqTGMx-epLxA2oX0LkT5gKaZHB14n60tT4wXJG-UYDsngJK67iDZgnBT0g-be3GS9gQf1cG1me0Gd9W8rHfACR5RO0d4xkzuwTvIo_kDtnsvvC2VheKZZd4c8B0ONuGE45Wfe-K68Qx3VelDw1Xns5v6nw"
   }
 }
 ```
@@ -617,54 +699,132 @@ ServiceOffering Credential, signed by it’s DID. This allows you to prove to ot
 
 ## Export example service-input-credential.json
 
-There is a command to export a template/example service-offer self-description to disk. You can then edit this example
+There is a command to export a template/example service-offering self-description to disk. You can then edit this example
 self-description with your information.
+We currently support creation of two different version of this entity. If you want to create the latest version, you have to provide a type argument as well. Accepted type for a service-offering are mentioned below (also you can see them with passing a `-h` to export-example command):
+```shell
+┌────────────────────────────────┬
+│             type               │
+├────────────────────────────────┤
+│ AutoscaledVirtualMachine       │
+├────────────────────────────────┤
+│ ComputeFunction                │
+├────────────────────────────────┤
+│IdentityAccessManagementOffering│
+├────────────────────────────────┤
+│ VirtualMachine                 │
+├────────────────────────────────┤
+│ InstantiatedVirtualResource    │
+├────────────────────────────────┤
+│ VerifiableCredentialWallet     │
+├────────────────────────────────┤
+│ PlatformOffering               │
+├────────────────────────────────┤
+│ Location                       │
+├────────────────────────────────┤
+│ ObjectStorageOffering          │
+├────────────────────────────────┤
+│ BigData                        │
+├────────────────────────────────┤
+│ InfrastructureOffering         │
+├────────────────────────────────┤
+│ Connectivity                   │
+├────────────────────────────────┤
+│ ServiceOffering                │
+├────────────────────────────────┤
+│ Database                       │
+├────────────────────────────────┤
+│ WalletOffering                 │
+├────────────────────────────────┤
+│ ImageRegistryOffering          │
+├────────────────────────────────┤
+│ IdentityFederation             │
+├────────────────────────────────┤
+│ SoftwareOffering               │
+├────────────────────────────────┤
+│ LinkConnectivity               │
+├────────────────────────────────┤
+│ PhysicalConnectivity           │
+├────────────────────────────────┤
+│ Container                      │
+├────────────────────────────────┤
+│ Interconnection                │
+├────────────────────────────────┤
+│ StorageOffering                │
+├────────────────────────────────┤
+│ AutoscaledContainer            │
+├────────────────────────────────┤
+│ Catalogue                      │
+├────────────────────────────────┤
+│ Compute                        │
+├────────────────────────────────┤
+│ NetworkOffering                │
+├────────────────────────────────┤
+│ NetworkConnectivity            │
+├────────────────────────────────┤
+│ LocatedServiceOffering         │
+├────────────────────────────────┤
+│ BareMetal                      │
+├────────────────────────────────┤
+│ FileStorageOffering            │
+├────────────────────────────────┤
+│ IdentityProvider               │
+├────────────────────────────────┤
+│ Orchestration                  │
+├────────────────────────────────┤
+│ BlockStorageOffering           │
+├────────────────────────────────┤
+│ DigitalIdentityWallet          │
+└────────────────────────────────┴
+```
 The `--show` argument, displays the example self-description to your console.
 
 ```shell
-gx-agent so sd export-example --show
+gx-agent so  so sd export-example -t IdentityAccessManagementOffering
 
 output:
-┌──────────────────┬────────────────────────────────────────┬─────────────────────────────────┐
-│             type │                                sd-file │                             did │
-├──────────────────┼────────────────────────────────────────┼─────────────────────────────────┤
-│ service-offering │ service-offering-input-credential.json │ did:web:nk-gx-agent.eu.ngrok.io │
-└──────────────────┴────────────────────────────────────────┴─────────────────────────────────┘
+IMPORTANT: the values specified with '*' should be populated by you.
+┌──────────────────┬────────────────────────────────────────┬──────────────────────────────────────────────────────────────────┐
+│             type │                                sd-file │                                                              did │
+├──────────────────┼────────────────────────────────────────┼──────────────────────────────────────────────────────────────────┤
+│ service-offering │ service-offering-input-credential.json │ did:web:b7fd-2001-1c04-2b10-ee00-c85d-ad93-ccd9-1b0d.eu.ngrok.io │
+└──────────────────┴────────────────────────────────────────┴──────────────────────────────────────────────────────────────────┘
 Example service-offering self-description file has been written to service-offering-input-credential.json. Please adjust the contents and use one of the onboarding methods
 {
   "@context": [
-    "https://www.w3.org/2018/credentials/v1",
-    "https://registry.gaia-x.eu/v2206/api/shape"
+    "https://www.w3.org/2018/credentials/v1"
   ],
-  "issuer": "did:web:nk-gx-agent.eu.ngrok.io",
-  "id": "51d15354-4570-4b44-9beb-8e78b9ab6795",
+  "issuer": "did:web:b7fd-2001-1c04-2b10-ee00-c85d-ad93-ccd9-1b0d.eu.ngrok.io",
+  "id": "381d1f99-173d-4be3-9043-7e53cee0f9ae",
   "credentialSubject": {
-    "id": "did:web:nk-gx-agent.eu.ngrok.io",
-    "gx-service-offering:providedBy": "https://nk-gx-agent.eu.ngrok.io/.well-known/participant.json",
-    "gx-service-offering:name": "my awesome service",
-    "gx-service-offering:description": "a service by https://nk-gx-agent.eu.ngrok.io",
-    "gx-service-offering:termsAndConditions": [
-      {
-        "gx-service-offering:url": "https://nk-gx-agent.eu.ngrok.io/terms-and-conditions/",
-        "gx-service-offering:hash": "myrandomhash"
-      }
-    ],
-    "gx-service-offering:gdpr": [
-      {
-        "gx-service-offering:imprint": "https://nk-gx-agent.eu.ngrok.io/terms-and-conditions/"
-      },
-      {
-        "gx-service-offering:privacyPolicy": "https://nk-gx-agent.eu.ngrok.io/personal-data-protection/"
-      }
-    ],
-    "gx-service-offering:dataExport": {
-      "gx-service-offering:requestType": "email",
-      "gx-service-offering:accessType": "digital",
-      "gx-service-offering:formatType": "mime/png"
-    }
+    "@context": {
+      "cc": "http://creativecommons.org/ns#",
+      "schema": "http://schema.org/",
+      "cred": "https://www.w3.org/2018/credentials#",
+      "void": "http://rdfs.org/ns/void#",
+      "owl": "http://www.w3.org/2002/07/owl#",
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+      "gax-validation": "http://w3id.org/gaia-x/validation#",
+      "skos": "http://www.w3.org/2004/02/skos/core#",
+      "voaf": "http://purl.org/vocommons/voaf#",
+      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+      "vcard": "http://www.w3.org/2006/vcard/ns#",
+      "gax-core": "http://w3id.org/gaia-x/core#",
+      "dct": "http://purl.org/dc/terms/",
+      "sh": "http://www.w3.org/ns/shacl#",
+      "gax-trust-framework": "http://w3id.org/gaia-x/gax-trust-framework#",
+      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      "ids": "https://w3id.org/idsa/core/",
+      "dcat": "http://www.w3.org/ns/dcat#",
+      "vann": "http://purl.org/vocab/vann/",
+      "foaf": "http://xmlns.com/foaf/0.1/",
+      "did": "https://www.w3.org/TR/did-core/#"
+    },
+    "id": "did:web:b7fd-2001-1c04-2b10-ee00-c85d-ad93-ccd9-1b0d.eu.ngrok.io",
+    "@type": "gax-trust-framework:IdentityAccessManagementOffering"
   },
   "type": [
-    "ServiceOffering"
+    "VerifiableCredential"
   ]
 }
 ```
