@@ -1,4 +1,4 @@
-import { IGaiaxCredentialType } from '../types'
+import {IGaiaxCredentialType, ServiceOfferingType} from '../types'
 import { v4 as uuidv4 } from 'uuid'
 import { convertDidWebToHost } from './did-utils'
 
@@ -292,44 +292,6 @@ export function exampleServiceOfferingSD2210({ url, did, type }: { url: string; 
     credentialSubject,
     type: ['VerifiableCredential'],
   }
-}
-
-export enum ServiceOfferingType {
-  AutoscaledVirtualMachine = 'AutoscaledVirtualMachine',
-  ComputeFunction = 'ComputeFunction',
-  IdentityAccessManagementOffering = 'IdentityAccessManagementOffering',
-  VirtualMachine = 'VirtualMachine',
-  InstantiatedVirtualResource = 'InstantiatedVirtualResource',
-  VerifiableCredentialWallet = 'VerifiableCredentialWallet',
-  PlatformOffering = 'PlatformOffering',
-  Location = 'Location',
-  ObjectStorageOffering = 'ObjectStorageOffering',
-  BigData = 'BigData',
-  InfrastructureOffering = 'InfrastructureOffering',
-  Connectivity = 'Connectivity',
-  ServiceOffering = 'ServiceOffering',
-  Database = 'Database',
-  WalletOffering = 'WalletOffering',
-  ImageRegistryOffering = 'ImageRegistryOffering',
-  IdentityFederation = 'IdentityFederation',
-  SoftwareOffering = 'SoftwareOffering',
-  LinkConnectivity = 'LinkConnectivity',
-  PhysicalConnectivity = 'PhysicalConnectivity',
-  Container = 'Container',
-  Interconnection = 'Interconnection',
-  StorageOffering = 'StorageOffering',
-  AutoscaledContainer = 'AutoscaledContainer',
-  Catalogue = 'Catalogue',
-  Compute = 'Compute',
-  NetworkOffering = 'NetworkOffering',
-  NetworkConnectivity = 'NetworkConnectivity',
-  LocatedServiceOffering = 'LocatedServiceOffering',
-  BareMetal = 'BareMetal',
-  FileStorageOffering = 'FileStorageOffering',
-  IdentityProvider = 'IdentityProvider',
-  Orchestration = 'Orchestration',
-  BlockStorageOffering = 'BlockStorageOffering',
-  DigitalIdentityWallet = 'DigitalIdentityWallet',
 }
 
 function getGeneralServiceOffering2210Subject(did?: string) {

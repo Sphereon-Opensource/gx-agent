@@ -300,6 +300,44 @@ export interface JWK extends JsonWebKey {
   x5u?: string
 }
 
+export enum ServiceOfferingType {
+  AutoscaledVirtualMachine = 'AutoscaledVirtualMachine',
+  ComputeFunction = 'ComputeFunction',
+  IdentityAccessManagementOffering = 'IdentityAccessManagementOffering',
+  VirtualMachine = 'VirtualMachine',
+  InstantiatedVirtualResource = 'InstantiatedVirtualResource',
+  VerifiableCredentialWallet = 'VerifiableCredentialWallet',
+  PlatformOffering = 'PlatformOffering',
+  Location = 'Location',
+  ObjectStorageOffering = 'ObjectStorageOffering',
+  BigData = 'BigData',
+  InfrastructureOffering = 'InfrastructureOffering',
+  Connectivity = 'Connectivity',
+  ServiceOffering = 'ServiceOffering',
+  Database = 'Database',
+  WalletOffering = 'WalletOffering',
+  ImageRegistryOffering = 'ImageRegistryOffering',
+  IdentityFederation = 'IdentityFederation',
+  SoftwareOffering = 'SoftwareOffering',
+  LinkConnectivity = 'LinkConnectivity',
+  PhysicalConnectivity = 'PhysicalConnectivity',
+  Container = 'Container',
+  Interconnection = 'Interconnection',
+  StorageOffering = 'StorageOffering',
+  AutoscaledContainer = 'AutoscaledContainer',
+  Catalogue = 'Catalogue',
+  Compute = 'Compute',
+  NetworkOffering = 'NetworkOffering',
+  NetworkConnectivity = 'NetworkConnectivity',
+  LocatedServiceOffering = 'LocatedServiceOffering',
+  BareMetal = 'BareMetal',
+  FileStorageOffering = 'FileStorageOffering',
+  IdentityProvider = 'IdentityProvider',
+  Orchestration = 'Orchestration',
+  BlockStorageOffering = 'BlockStorageOffering',
+  DigitalIdentityWallet = 'DigitalIdentityWallet',
+}
+
 export const ProofPurpose = purposes.ProofPurpose
 export const ControllerProofPurpose = purposes.ControllerProofPurpose
 export const AssertionProofPurpose = purposes.AssertionProofPurpose
