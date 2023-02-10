@@ -146,7 +146,6 @@ export class GXComplianceClient implements IAgentPlugin {
       },
       context
     )
-    console.log(`signInfo: ${JSON.stringify(signInfo, null, 2)}`)
     const selfDescription = await this.credentialHandler.issueVerifiableCredential(
       {
         credential: args.credential,
@@ -166,7 +165,6 @@ export class GXComplianceClient implements IAgentPlugin {
       },
       context
     )
-    console.log(`uniqueVp created.`)
     const verifiableCredentialResponse = (await this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
@@ -306,7 +304,6 @@ export class GXComplianceClient implements IAgentPlugin {
     },
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
-    console.log(`going to call this.submitComplianceCredential`)
     const complianceCredential = await this.submitComplianceCredential(
       {
         selfDescriptionVP: args.verifiablePresentation,
