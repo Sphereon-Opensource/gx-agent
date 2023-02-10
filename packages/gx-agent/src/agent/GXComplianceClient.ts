@@ -133,13 +133,20 @@ export class GXComplianceClient implements IAgentPlugin {
     args: IAcquireComplianceCredentialFromUnsignedParticipantArgs,
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
+    const did = args.credential!.credentialSubject!.id
+      ? (args.credential!.credentialSubject!.id as string)
+      : args.credential!.credentialSubject!['@id']
+    if (!did) {
+      throw new Error(`Can't find the did in the credentialSubject.`)
+    }
     const signInfo: ISignInfo = await extractSignInfo(
       {
-        did: args.credential!.credentialSubject!.id as string,
+        did,
         section: 'assertionMethod',
       },
       context
     )
+    console.log(`signInfo: ${JSON.stringify(signInfo, null, 2)}`)
     const selfDescription = await this.credentialHandler.issueVerifiableCredential(
       {
         credential: args.credential,
@@ -159,6 +166,7 @@ export class GXComplianceClient implements IAgentPlugin {
       },
       context
     )
+    console.log(`uniqueVp created.`)
     const verifiableCredentialResponse = (await this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
@@ -170,43 +178,38 @@ export class GXComplianceClient implements IAgentPlugin {
   }
 
   /** {@inheritDoc IGXComplianceClient.createAndSubmitServiceOffering} */
-  private async createAndSubmitServiceOffering(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult> {
-    //TODO: implement fetching compliance VC from data storage
-    if (!args.complianceId && !args.complianceVC) {
-      throw new Error('You should provide either complianceId or complete complianceVC')
-    }
+  private async createAndSubmitServiceOffering(
+    args: IAddServiceOfferingUnsignedArgs,
+    context: GXRequiredContext
+  ): Promise<VerifiableCredentialResponse> {
+    context.agent.dataStoreGetVerifiableCredential()
 
-    const complianceIsPersisted = args.complianceId
-    const complianceCredential = complianceIsPersisted
-      ? await context.agent.dataStoreGetVerifiableCredential({
-          hash: args.complianceId!,
-        })
-      : args.complianceVC!
-
-    const did = await asDID(args.domain ?? extractSubjectDIDFromVCs([complianceCredential]))
-    const serviceOffering = await this.credentialHandler.issueVerifiableCredential(
-      {
-        domain: did,
-        keyRef: args.keyRef,
-        credential: args.serviceOfferingCredential,
-        persist: true,
-      },
-      context
-    )
+    const participantVC = await context.agent.dataStoreGetVerifiableCredential({
+      hash: args.participantId,
+    })
+    const complianceVC = await context.agent.dataStoreGetVerifiableCredential({
+      hash: args.complianceId,
+    })
+    const serviceOfferingVC = await context.agent.dataStoreGetVerifiableCredential({
+      hash: args.serviceOfferingId,
+    })
+    const did = complianceVC.credentialSubject.id ? complianceVC.credentialSubject.id : getIssuerString(participantVC)
+    const signInfo: ISignInfo = await extractSignInfo({ did, section: 'authentication' }, context)
     const serviceOfferingVP = await this.credentialHandler.issueVerifiablePresentation(
       {
-        challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
-        keyRef: args.keyRef,
+        challenge: GXComplianceClient.getDateChallenge(),
+        keyRef: signInfo.keyRef,
         // purpose: args.purpose,
-        verifiableCredentials: [complianceCredential, serviceOffering.verifiableCredential],
+        verifiableCredentials: [serviceOfferingVC, complianceVC, participantVC],
         domain: did,
         persist: args.persist,
       },
       context
     )
-    return await this.submitServiceOffering(
+    return await this.acquireComplianceCredential(
       {
-        serviceOfferingVP: serviceOfferingVP.verifiablePresentation,
+        verifiablePresentation: serviceOfferingVP.verifiablePresentation,
+        show: args.show,
       },
       context
     )
@@ -303,6 +306,7 @@ export class GXComplianceClient implements IAgentPlugin {
     },
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
+    console.log(`going to call this.submitComplianceCredential`)
     const complianceCredential = await this.submitComplianceCredential(
       {
         selfDescriptionVP: args.verifiablePresentation,

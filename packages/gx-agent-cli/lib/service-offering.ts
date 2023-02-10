@@ -1,4 +1,4 @@
-import { InvalidArgumentError, program } from 'commander'
+import { program } from 'commander'
 
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
@@ -11,6 +11,7 @@ import {
   IVerifySelfDescribedCredential,
   ServiceOfferingType,
 } from '@sphereon/gx-agent'
+import { CredentialPayload } from '@veramo/core'
 
 const service = program.command('so').alias('service').alias('service-offering').description('Service Offering commands')
 // const compliance = participant.command('compliance').description('Compliance and self-descriptions')
@@ -21,34 +22,57 @@ serviceOffering
   .description(
     'submits a service offering self-description file to the compliance service. This can either be an input file (unsigned credential) from the filesystem, or a signed self-description stored in the agent'
   )
-  .option('-sif, --sd-input-file <string>', 'Unsigned self-description input file location')
-  .option('-sid, --sd-id <string>', 'id of a signed self-description stored in the agent')
+  .option('-sof, --so-input-file <string>', 'Unsigned ServiceOffering self-description input file location')
+  .option('-soi, --so-id <string>', 'id of a signed ServiceOffering self-description stored in the agent')
+  .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
+  .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential from Gaia-X compliance')
   .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
   .option('-s, --show', 'Show service offering')
   .action(async (cmd) => {
+    const agent = await getAgent()
+    if (!cmd.soInputFile && !cmd.soId) {
+      throw Error('Verifiable Credential ID or file for self-description need to be selected. Please check parameters')
+    }
+    let soVcId = cmd.soId
     try {
-      if (!cmd.sdInputFile && !cmd.sdId) {
-        throw new InvalidArgumentError('sd-id or sd-file needs to be provided')
-      } else if (cmd.sdInputFile && cmd.sdId) {
-        throw new InvalidArgumentError('sd-id and sd-file options cannot both be provided at the same time')
-      }
-      const agent = await getAgent()
-      if (cmd.sdId) {
-        const selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
-          participantSDId: cmd.sdId,
-          persist: cmd.persist === true,
-          show: cmd.show === true,
+      if (cmd.soInputFile) {
+        const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.inputFile, 'utf-8')) as CredentialPayload
+        const did = typeof credential.issuer === 'string' ? credential.issuer : credential.issuer ? credential.issuer.id : await asDID()
+        const vc = await agent.issueVerifiableCredential({
+          credential,
+          keyRef: cmd.keyIdentifier,
+          domain: did,
+          persist: cmd.persist,
         })
-        printTable([{ ...selfDescription }])
-      } else {
-        const sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
-        const selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
-          credential: sd,
-          persist: cmd.persist === true,
-          show: cmd.show === true,
-        })
-        printTable([{ ...selfDescription }])
+        soVcId = vc.hash
+        printTable([
+          {
+            types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
+            issuer: vc.verifiableCredential.issuer,
+            subject: vc.verifiableCredential.credentialSubject.id,
+            'issuance-date': vc.verifiableCredential.issuanceDate,
+            id: vc.hash,
+            persisted: cmd.persist === true,
+          },
+        ])
       }
+      const vc = await agent.createAndSubmitServiceOffering({
+        serviceOfferingId: soVcId,
+        participantId: cmd.sdId,
+        complianceId: cmd.complianceId,
+        persist: cmd.persist === true,
+        show: cmd.show === true,
+      })
+      printTable([
+        {
+          types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
+          issuer: vc.verifiableCredential.issuer,
+          subject: vc.verifiableCredential.credentialSubject.id,
+          'issuance-date': vc.verifiableCredential.issuanceDate,
+          id: vc.hash,
+          persisted: cmd.persist === true,
+        },
+      ])
     } catch (error: any) {
       console.error(error.message)
     }
@@ -77,7 +101,7 @@ serviceOffering
   .description('Creates an example service-offering self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option(
-    '-v, --version',
+    '-v, --version <string>',
     "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
   )
   .option(

@@ -35,7 +35,7 @@ export interface IGXComplianceClient extends IPluginMethodMap {
 
   submitServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
 
-  createAndSubmitServiceOffering(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+  createAndSubmitServiceOffering(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<VerifiableCredentialResponse>
 
   createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier>
 
@@ -198,13 +198,11 @@ export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
 }
 
 export interface IAddServiceOfferingUnsignedArgs {
-  challenge?: string
-  complianceId?: string
-  complianceVC?: VerifiableCredential
-  domain?: string
-  keyRef?: string
+  serviceOfferingId: string
+  participantId: string
+  complianceId: string
   persist?: boolean
-  serviceOfferingCredential: CredentialPayload
+  show?: boolean
 }
 
 export interface IAddServiceOfferingArgs {
