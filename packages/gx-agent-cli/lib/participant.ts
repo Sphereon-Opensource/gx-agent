@@ -2,14 +2,7 @@ import { InvalidArgumentError, program } from 'commander'
 
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import {
-  asDID,
-  convertDidWebToHost,
-  exampleParticipantSD2210,
-  exampleServiceOfferingSD,
-  getAgent,
-  IVerifySelfDescribedCredential,
-} from '@sphereon/gx-agent'
+import { asDID, exampleParticipantSD, exampleParticipantSD2210, getAgent, IVerifySelfDescribedCredential } from '@sphereon/gx-agent'
 
 const participant = program.command('participant').description('Participant commands')
 const sd = participant.command('sd').alias('self-description').description('Participant self-description commands')
@@ -80,7 +73,7 @@ sd.command('export-example')
   .description('Creates an example participant self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option(
-    '-v, --version',
+    '-v, --version <string>',
     "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
   )
   .option('-s, --show', 'Show self descriptions')
@@ -88,13 +81,7 @@ sd.command('export-example')
     const did = await asDID(cmd.did)
     const typeStr = 'participant'
     const fileName = `${typeStr}-input-credential.json`
-    const credential =
-      !cmd.version || cmd.version === 'v2206'
-        ? exampleServiceOfferingSD({
-            did,
-            url: `https://${convertDidWebToHost(did)}`,
-          })
-        : exampleParticipantSD2210({ did })
+    const credential = cmd.version && cmd.version === 'v2206' ? exampleParticipantSD({ did }) : exampleParticipantSD2210({ did })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
     console.log(`Example self-description file has been written to ${fileName}. Please adjust the contents and use one of the onboarding methods`)
