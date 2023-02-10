@@ -358,7 +358,7 @@ function getGeneralServiceOffering2210Subject(did?: string) {
       did: 'https://www.w3.org/TR/did-core/#',
     },
     //fixme id should change to did:web:registry.gaia-x.eu:<service-type>:random alphanumeric like: 0EhGVCJEBe9p2AxKPydcK6O3F3Wememi4sui
-    '@id': `${did ? did : 'your DID here'}`,
+    id: `${did ? did : 'your DID here'}`,
   }
 }
 
@@ -412,7 +412,7 @@ function createIdentityAccessManagementOfferingSubject(did?: string) {
 function createVirtualMachineSubject(did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
-    '@id': 'did:web:you',
+    id: 'did:web:you',
     '@type': 'gax-trust-framework:VirtualMachine',
     ...codeArtifactFixture(),
     ...offeredByFixture(),
