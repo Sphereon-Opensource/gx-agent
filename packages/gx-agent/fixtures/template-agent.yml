@@ -2,7 +2,7 @@ version: 3.0
 # GAIA-X configuration options. These are the options you can change
 gx:
   complianceServiceUrl: https://nk-gx-compliance.eu.ngrok.io #https://cs.gx.test.sphereon.com
-  complianceServiceVersion: v2206
+  complianceServiceVersion: v2210
   dbFile: ./db/gx.db.sqlite
   ecosystems:
     - name: FMA
