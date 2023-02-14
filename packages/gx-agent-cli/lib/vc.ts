@@ -92,9 +92,7 @@ vc.command('list')
         })
       )
     } catch (e: any) {
-      console.error(e.message)
-    } finally {
-      nock.cleanAll()
+      console.error(e)
     }
   })
 
@@ -126,13 +124,12 @@ vc.command('verify')
       let id: IIdentifier | undefined
       try {
         id = await agent.didManagerGet({ did })
-      } catch (e) {
-        // DID not hosted by us, which is fine
-      }
 
-      if (id) {
         const didDoc = await exportToDIDDocument(id)
         const url = `https://${convertDidWebToHost(did)}`
+
+        console.log(`$$$$$$$$$$$$$$$$$$URL: ${url}: ${JSON.stringify(id, null, 2)}`)
+
         nock.cleanAll()
         nock(url)
           .get(`/.well-known/did.json`)
@@ -140,7 +137,10 @@ vc.command('verify')
           .reply(200, {
             ...didDoc,
           })
+      } catch (e) {
+        // DID not hosted by us, which is fine
       }
+
       try {
         const result = await agent.checkVerifiableCredential({ verifiableCredential })
 

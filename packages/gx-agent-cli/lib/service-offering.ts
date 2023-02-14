@@ -13,12 +13,11 @@ import {
 } from '@sphereon/gx-agent'
 import { CredentialPayload } from '@veramo/core'
 
-const service = program.command('so').alias('service').alias('service-offering').description('Service Offering commands')
+const so = program.command('so').alias('service').alias('service-offering').description('Service Offering commands')
 // const compliance = participant.command('compliance').description('Compliance and self-descriptions')
-const serviceOffering = service.command('sd').alias('self-description').description('Service offering self-description commands')
+const sd = so.command('sd').alias('self-description').description('Service offering self-description commands')
 
-serviceOffering
-  .command('submit')
+sd.command('submit')
   .description(
     'submits a service offering self-description file to the compliance service. This can either be an input file (unsigned credential) from the filesystem, or a signed self-description stored in the agent'
   )
@@ -36,13 +35,13 @@ serviceOffering
     let soVcId = cmd.soId
     try {
       if (cmd.soInputFile) {
-        const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.inputFile, 'utf-8')) as CredentialPayload
+        const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.soInputFile, 'utf-8')) as CredentialPayload
         const did = typeof credential.issuer === 'string' ? credential.issuer : credential.issuer ? credential.issuer.id : await asDID()
         const vc = await agent.issueVerifiableCredential({
           credential,
           keyRef: cmd.keyIdentifier,
           domain: did,
-          persist: cmd.persist,
+          persist: true,
         })
         soVcId = vc.hash
         printTable([
@@ -52,7 +51,7 @@ serviceOffering
             subject: vc.verifiableCredential.credentialSubject.id,
             'issuance-date': vc.verifiableCredential.issuanceDate,
             id: vc.hash,
-            persisted: cmd.persist === true,
+            persisted: true,
           },
         ])
       }
@@ -78,8 +77,7 @@ serviceOffering
     }
   })
 
-serviceOffering
-  .command('verify')
+sd.command('verify')
   .description('verifies a service-offering self-description')
   .option('-id, --sd-id <string>', 'id of your self-description')
   .option('-s, --show', 'Show self descriptions')
@@ -96,8 +94,7 @@ serviceOffering
     }
   })
 
-serviceOffering
-  .command('export-example')
+sd.command('export-example')
   .description('Creates an example service-offering self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option(
@@ -141,8 +138,7 @@ serviceOffering
     }
   })
 
-serviceOffering
-  .command('list')
+sd.command('list')
   .description('List service-offering self-description(s)')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option('-s, --show', 'Show self-descriptions')
@@ -173,8 +169,7 @@ serviceOffering
     }
   })
 
-serviceOffering
-  .command('show')
+sd.command('show')
   .description('List service-offering self-description(s)')
   .argument('<id>', 'The service-offering self-description id')
   .action(async (id) => {
@@ -199,8 +194,7 @@ serviceOffering
     }
   })
 
-serviceOffering
-  .command('delete')
+sd.command('delete')
   .description('Delete service offering self-description(s)')
   .argument('<id>', 'The service offering self-description id')
   .action(async (id) => {
@@ -217,8 +211,7 @@ serviceOffering
     }
   })
 
-serviceOffering
-  .command('create')
+sd.command('create')
   .description('creates a signed self-description based on your self-description input file')
   .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of your self-description input file (a credential that is not signed)')
   .option('--show', 'Show the resulting self-description Verifiable Credential')

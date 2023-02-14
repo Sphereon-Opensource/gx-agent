@@ -702,6 +702,7 @@ ServiceOffering Credential, signed by it’s DID. This allows you to prove to ot
 There is a command to export a template/example service-offering self-description to disk. You can then edit this example
 self-description with your information.
 We currently support creation of two different version of this entity. If you want to create the latest version, you have to provide a type argument as well. Accepted type for a service-offering are mentioned below (also you can see them with passing a `-h` to export-example command):
+
 ```shell
 ┌────────────────────────────────┬
 │             type               │
@@ -777,6 +778,7 @@ We currently support creation of two different version of this entity. If you wa
 │ DigitalIdentityWallet          │
 └────────────────────────────────┴
 ```
+
 The `--show` argument, displays the example self-description to your console.
 
 ```shell

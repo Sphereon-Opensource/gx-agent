@@ -1,6 +1,6 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
-import { EcosystemConfig, getAgent } from '@sphereon/gx-agent'
+import { getAgent, EcosystemConfig } from '@sphereon/gx-agent'
 import { CredentialPayload } from '@veramo/core'
 import {
   addEcosystemConfigObject,
@@ -9,11 +9,11 @@ import {
   getAgentConfigPath,
   getEcosystemConfigObject,
   getEcosystemConfigObjects,
-} from '@sphereon/gx-agent/dist/utils/config-utils'
+} from '@sphereon/gx-agent'
 import fs from 'fs'
 
 const ecosystem = program.command('ecosystem').description('Ecosystem specific commands')
-
+const so = ecosystem.command('so').alias('service-offering').description('Service offering self-description commands')
 ecosystem
   .command('add')
   .alias('update')
@@ -102,6 +102,7 @@ ecosystem
   .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential')
   .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
   .option('-s, --show', 'Show self descriptions')
+  .option('-s, --show', 'Print the Verifiable Presentation to console')
   .action(async (name, cmd) => {
     const agent = await getAgent()
     try {
@@ -118,8 +119,8 @@ ecosystem
         ecosystemUrl: ecosystemConfig.url,
         selfDescriptionVC,
         complianceVC,
-        persist: cmd.persist === true,
-        show: cmd.show === true,
+        persist: cmd.persist,
+        show: cmd.show,
       })
       if (cmd.show) {
         console.log(JSON.stringify(selfDescription, null, 2))
@@ -130,11 +131,8 @@ ecosystem
     }
   })
 
-ecosystem
-  .command('submit-service-offering')
-  .alias('service-offering')
-  .alias('so')
-  .description('Onboards the participant to the new ecosystem')
+so.command('submit')
+  .description('Submits as service offering in the ecosystem')
   .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
   .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential from Gaia-X compliance')
@@ -170,8 +168,8 @@ ecosystem
         complianceId: cmd.complianceId,
         ecosystemComplianceId: cmd.ecosystemComplianceId,
         serviceOffering,
-        persist: cmd.persist === true,
-        show: cmd.show === true,
+        persist: cmd.persist,
+        show: cmd.show,
       })
       printTable([{ ...onboardingResult }])
     } catch (e: any) {

@@ -1,7 +1,7 @@
-import { GXRequiredContext, ISignInfo } from '../types'
+import { GXRequiredContext, ISignInfo } from '../types/index.js'
 import { DIDDocument, DIDDocumentSection, IIdentifier, IService, TKeyType } from '@veramo/core'
 import { mapIdentifierKeysToDocWithJwkSupport } from '@sphereon/ssi-sdk-did-utils'
-import { getAgent, globalConfig } from '../agent'
+import { getAgent, globalConfig } from '../agent/index.js'
 
 export function convertDidWebToHost(did: string) {
   did = did.substring(8)
@@ -49,6 +49,10 @@ export async function exportToDIDDocument(identifier: IIdentifier, opts?: { serv
     Bls12381G2: 'Bls12381G2Key2020',
     RSA: 'JsonWebKey2020',
   } as Record<TKeyType, string>
+
+  if ((!identifier.keys || identifier.keys.length === 0) && !identifier.controllerKeyId) {
+    throw Error(`No keys found for identifier: ${identifier}`)
+  }
 
   const allKeys = identifier.keys.map((key) => ({
     id: identifier.did + '#' + key.kid,

@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch'
-import { IGaiaxComplianceConfig } from '../types'
+import { IGaiaxComplianceConfig } from '../types/index.js'
 
 export async function postRequest(url: string, body: BodyInit): Promise<unknown> {
   try {

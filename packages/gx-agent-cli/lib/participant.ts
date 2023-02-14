@@ -13,7 +13,7 @@ sd.command('submit')
   )
   .option('-sif, --sd-input-file <string>', 'Unsigned self-description input file location')
   .option('-sid, --sd-id <string>', 'id of a signed self-description stored in the agent')
-  .option('-p, --persist', 'Persist the credential. If not provided the VerifiablePresentation will not be stored in the agent')
+  // .option('-p, --persist', 'Persist the credential. If not provided the VerifiablePresentation will not be stored in the agent')
   .option('-s, --show', 'Show self descriptions')
   .action(async (cmd) => {
     try {
@@ -26,13 +26,13 @@ sd.command('submit')
       const selfDescription = cmd.sdId
         ? await agent.acquireComplianceCredentialFromExistingParticipant({
             participantSDId: cmd.sdId,
-            persist: cmd.persist === true,
-            show: cmd.show === true,
+            persist: true,
+            show: cmd.show,
           })
         : await agent.acquireComplianceCredentialFromUnsignedParticipant({
             credential: JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8')),
-            persist: cmd.persist === true,
-            show: cmd.show === true,
+            persist: true,
+            show: cmd.show,
           })
 
       printTable([
@@ -49,7 +49,7 @@ sd.command('submit')
         console.log(JSON.stringify(selfDescription, null, 2))
       }
     } catch (error: any) {
-      console.error(error.message)
+      console.error(error)
     }
   })
 
@@ -99,15 +99,17 @@ sd.command('list')
       const agent = await getAgent()
       const vcs = await agent.dataStoreORMGetVerifiableCredentials()
       const did = cmd.did ? await asDID(cmd.did) : undefined
-      const sds = await vcs.filter(
-        (vc) => vc.verifiableCredential.type!.includes('LegalPerson') && (!did || vc.verifiableCredential.issuer === did)
-        // vc?.verifiableCredential?.type?.includes('LegalPerson') && (!cmd.domain || vc.verifiableCredential.issuer === (await asDID(cmd.domain)))
+      const sds = vcs.filter(
+        (vc) =>
+          (vc.verifiableCredential.type!.includes('LegalPerson') ||
+            vc.verifiableCredential.credentialSubject['@type'] === 'gax-trust-framework:LegalPerson') &&
+          (!did || vc.verifiableCredential.issuer === did)
       )
       printTable(
         sds.map((sd) => {
           return {
             issuer: sd.verifiableCredential.issuer,
-            subject: sd.verifiableCredential.id,
+            subject: sd.verifiableCredential.credentialSubject.id,
             'issuance-data': sd.verifiableCredential.issuanceDate,
             id: sd.hash,
           }

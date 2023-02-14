@@ -17,7 +17,7 @@ import {
   VerifiablePresentation,
 } from '@veramo/core'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
-import { purposes } from '@digitalcredentials/jsonld-signatures'
+import pkg from '@digitalcredentials/jsonld-signatures'
 import { _ExtendedIKey } from '@veramo/utils'
 
 export interface IGXComplianceClient extends IPluginMethodMap {
@@ -215,7 +215,7 @@ export interface IIssueAndSaveVerifiablePresentationArgs {
   keyRef: string
   verifiableCredentials: VerifiableCredential[]
   verificationMethodId: string
-  purpose?: typeof purposes
+  purpose?: typeof pkg.purposes
 }
 
 export interface VerifiableCredentialResponse {
@@ -301,6 +301,7 @@ export interface JWK extends JsonWebKey {
 }
 
 export enum ServiceOfferingType {
+  DcatDataSet = 'dcat:Dataset',
   AutoscaledVirtualMachine = 'AutoscaledVirtualMachine',
   ComputeFunction = 'ComputeFunction',
   IdentityAccessManagementOffering = 'IdentityAccessManagementOffering',
@@ -338,7 +339,13 @@ export enum ServiceOfferingType {
   DigitalIdentityWallet = 'DigitalIdentityWallet',
 }
 
-export const ProofPurpose = purposes.ProofPurpose
-export const ControllerProofPurpose = purposes.ControllerProofPurpose
-export const AssertionProofPurpose = purposes.AssertionProofPurpose
-export const AuthenticationProofPurpose = purposes.AuthenticationProofPurpose
+export const ProofPurpose = pkg.purposes.ProofPurpose
+export const ControllerProofPurpose = pkg.purposes.ControllerProofPurpose
+export const AssertionProofPurpose = pkg.purposes.AssertionProofPurpose
+export const AuthenticationProofPurpose = pkg.purposes.AuthenticationProofPurpose
+
+export interface EcosystemConfig {
+  name: string
+  description?: string
+  url: string
+}
