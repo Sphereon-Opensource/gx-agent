@@ -32,21 +32,23 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16.x'
 
-#      - name: Get yarn cache directory path
-#        id: yarn-cache-path-path
-#        run: echo "::set-output name=path::$(yarn cache path)"
-#      - uses: actions/cache@v2
-#        id: yarn-cache
-#        with:
-#          path: ${{ steps.yarn-cache-path-path.outputs.path }}
-#          key: ${{ runner.os }}-yarn-2-${{ hashFiles('**/package.json') }}
+      #      - name: Get yarn cache directory path
+      #        id: yarn-cache-path-path
+      #        run: echo "::set-output name=path::$(yarn cache path)"
+      #      - uses: actions/cache@v2
+      #        id: yarn-cache
+      #        with:
+      #          path: ${{ steps.yarn-cache-path-path.outputs.path }}
+      #          key: ${{ runner.os }}-yarn-2-${{ hashFiles('**/package.json') }}
 
-      - run: npm install -g pnpm
       - run: pnpm install
       - run: pnpm build
       - name: run integration tests
@@ -69,7 +71,7 @@ jobs:
           echo "@sphereon:registry=https://registry.npmjs.org/" > .npmrc
           echo "registry=https://registry.npmjs.org/" >> .npmrc
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
-#          npm whoami
+      #          npm whoami
 
       - name: publish @latest when on main
         if: github.ref == 'refs/heads/main'
