@@ -64,8 +64,9 @@ export async function setupGXAgent(opts: {
         suites: [new GXJsonWebSignature2020()],
         bindingOverrides: new Map([
           ['createVerifiableCredentialLD', MethodNames.createVerifiableCredentialLDLocal],
-          ['createVerifiablePresentationLD', MethodNames.createVerifiablePresentationLDLocal]
-          // We test the verify methods by using the LDLocal versions directly in the tests
+          ['createVerifiablePresentationLD', MethodNames.createVerifiablePresentationLDLocal],
+          ['verifyCredentialLD', MethodNames.verifyCredentialLDLocal],
+          ['verifyPresentationLD', MethodNames.verifyPresentationLDLocal]
         ])
       }),
       new DataStore(dbConnection),

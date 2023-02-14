@@ -59,11 +59,6 @@ vp.command('verify')
       let id: IIdentifier | undefined
       try {
         id = await agent.didManagerGet({ did: verifiablePresentation.holder })
-      } catch (e) {
-        // DID not hosted by us, which is fine
-      }
-
-      if (id) {
         const didDoc = await exportToDIDDocument(id)
         const url = `https://${convertDidWebToHost(verifiablePresentation.holder)}`
         nock.cleanAll()
@@ -73,7 +68,10 @@ vp.command('verify')
           .reply(200, {
             ...didDoc,
           })
+      } catch (e) {
+        // DID not hosted by us, which is fine
       }
+
       const result = await agent.checkVerifiablePresentation({ verifiablePresentation, show: cmd.show === true })
 
       printTable([

@@ -50,6 +50,10 @@ export async function exportToDIDDocument(identifier: IIdentifier, opts?: { serv
     RSA: 'JsonWebKey2020',
   } as Record<TKeyType, string>
 
+  if ((!identifier.keys || identifier.keys.length === 0) && !identifier.controllerKeyId) {
+    throw Error(`No keys found for identifier: ${identifier}`)
+  }
+
   const allKeys = identifier.keys.map((key) => ({
     id: identifier.did + '#' + key.kid,
     type: keyMapping[key.type],
