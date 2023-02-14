@@ -7,6 +7,7 @@
   "author": "Sphereon <dev@sphereon.com>",
   "license": "Apache-2.0",
   "scripts": {
+    "prepare": "git update-index --skip-worktree -- .npmrc",
     "preinstall": "npx only-allow pnpm",
     "build": "cross-env NODE_OPTIONS=\"--experimental-vm-modules --experimental-json-modules\" pnpm build:js && pnpm build:copyfiles",
     "build:js": "pnpm -r --stream build",
