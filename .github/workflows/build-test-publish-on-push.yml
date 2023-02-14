@@ -46,9 +46,8 @@ jobs:
 #          path: ${{ steps.yarn-cache-path-path.outputs.path }}
 #          key: ${{ runner.os }}-yarn-2-${{ hashFiles('**/package.json') }}
 
-      - run: yarn install
-      - run: yarn bootstrap
-      - run: yarn build
+      - run: pnpm install
+      - run: pnpm build
       - name: run integration tests
         env:
           INCLUDE_POSTGRES_TESTS: true
@@ -56,7 +55,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: test123
           POSTGRES_PORT: 5432
-        run: yarn test:ci
+        run: pnpm test:ci
 
       - name: setup git coordinates
         run: |
@@ -73,16 +72,16 @@ jobs:
 
       - name: publish @latest when on main
         if: github.ref == 'refs/heads/main'
-        run: yarn publish:latest
-        
+        run: pnpm publish:latest
+
       - name: publish @latest when on master
         if: github.ref == 'refs/heads/master'
-        run: yarn publish:latest
+        run: pnpm publish:latest
 
       - name: publish @next when on develop
         if: github.ref == 'refs/heads/develop'
-        run: yarn publish:next
+        run: pnpm publish:next
 
       - name: publish @unstable when on unstable branch
         if: startsWith(github.ref, 'refs/heads/feat')
-        run: yarn publish:unstable
+        run: pnpm publish:unstable
