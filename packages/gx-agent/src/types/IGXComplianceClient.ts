@@ -46,6 +46,18 @@ export interface IGXComplianceClient extends IPluginMethodMap {
     context: GXRequiredContext
   ): Promise<ExportFileResult[]>
 
+  exportVCsToPath(
+    {
+      domain,
+      type,
+      hash,
+      exportPath,
+      includeVCs,
+      includeVPs,
+    }: { domain: string; type?: string; hash?: string; exportPath?: string; includeVCs: boolean; includeVPs: boolean },
+    context: GXRequiredContext
+  ): Promise<ExportFileResult[]>
+
   issueVerifiableCredential(args: IIssueVerifiableCredentialArgs, context: GXRequiredContext): Promise<UniqueVerifiableCredential>
 
   issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<UniqueVerifiablePresentation>

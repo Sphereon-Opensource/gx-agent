@@ -78,6 +78,7 @@ export class GXComplianceClient implements IAgentPlugin {
     issueVerifiablePresentation: this.credentialHandler.issueVerifiablePresentation.bind(this),
     checkVerifiableCredential: this.credentialHandler.checkVerifiableCredential.bind(this),
     checkVerifiablePresentation: this.credentialHandler.checkVerifiablePresentation.bind(this),
+    exportVCsToPath: this.credentialHandler.exportToPath.bind(this),
     onboardParticipantOnEcosystem: this.onboardParticipantOnEcosystem.bind(this),
     onboardParticipantWithCredential: this.onboardParticipantWithCredential.bind(this),
     onboardParticipantWithCredentialIds: this.onboardParticipantWithCredentialIds.bind(this),

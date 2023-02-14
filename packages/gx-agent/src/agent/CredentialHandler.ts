@@ -1,6 +1,7 @@
 import { GXComplianceClient } from './GXComplianceClient.js'
 import {
   AuthenticationProofPurpose,
+  ExportFileResult,
   GXRequiredContext,
   ICheckVerifiableCredentialArgs,
   ICheckVerifiablePresentationArgs,
@@ -8,8 +9,10 @@ import {
   IIssueVerifiablePresentationArgs,
 } from '../types/index.js'
 import { v4 as uuidv4 } from 'uuid'
-import { UniqueVerifiableCredential, UniqueVerifiablePresentation } from '@veramo/core'
-import { asDID, extractSignInfo, extractSubjectDIDFromVCs } from '../utils/index.js'
+import { UniqueVerifiableCredential, UniqueVerifiablePresentation, VerifiableCredential } from '@veramo/core'
+import { asDID, convertDidWebToHost, extractSignInfo, extractSubjectDIDFromVCs } from '../utils/index.js'
+import fs from 'fs'
+import { dirname } from 'path'
 
 export class CredentialHandler {
   public readonly _client: GXComplianceClient
@@ -103,5 +106,73 @@ export class CredentialHandler {
       console.log(result)
     }
     return result
+  }
+
+  public async exportToPath(
+    {
+      domain,
+      type,
+      hash,
+      exportPath,
+      includeVCs,
+      includeVPs,
+    }: { domain: string; type?: string; hash?: string; exportPath?: string; includeVCs: boolean; includeVPs: boolean },
+    context: GXRequiredContext
+  ): Promise<ExportFileResult[]> {
+    const did = await asDID(domain)
+    const host = convertDidWebToHost(did)
+
+    const basePath = (exportPath ? `./${exportPath.replace('.well-known', '')}/${host}` : `./exported/${host}`) + '/.well-known'
+    const exports: ExportFileResult[] = []
+    fs.mkdirSync(dirname(basePath), { recursive: true })
+
+    function typeFilter(verifiableCredential: VerifiableCredential) {
+      return (
+        !type ||
+        (verifiableCredential.type &&
+          (typeof verifiableCredential.type === 'string' ? verifiableCredential.type === type : verifiableCredential.type!.includes(type))) ||
+        verifiableCredential.credentialSubject['@type']?.includes(type)
+      )
+    }
+
+    if (includeVCs) {
+      const vcs = (await context.agent.dataStoreORMGetVerifiableCredentials())
+        .filter((uniquevc) => uniquevc.verifiableCredential.issuer === did || uniquevc.verifiableCredential.credentialSubject.id === did)
+        .filter((uniquevc) => typeFilter(uniquevc.verifiableCredential))
+        .filter((uniqueVc) => !hash || uniqueVc.hash === hash)
+
+      vcs.forEach((key) => {
+        let fileName =
+          typeof key.verifiableCredential.type === 'string' || !key.verifiableCredential.type || key.verifiableCredential.type.length <= 1
+            ? type
+              ? `vc-${type}-${key.hash}`
+              : `vc-${key.hash}`
+            : 'vc-' + key.verifiableCredential.type!.find((t) => t !== 'VerifiableCredential') + '-' + key.hash
+        if (!fileName) {
+          type ? `vc-${type}-${key.hash}` : `vc-${key.hash}`
+        }
+        fileName += '.json'
+        const path = `${basePath}/${fileName}`
+        fs.mkdirSync(dirname(path), { recursive: true })
+        fs.writeFileSync(path, JSON.stringify(key.verifiableCredential, null, 2))
+        exports.push({ file: fileName, path: dirname(path) })
+      })
+    }
+    if (includeVPs) {
+      const vps = (await context.agent.dataStoreORMGetVerifiablePresentations())
+        .filter((uniquevp) => uniquevp.verifiablePresentation.holder === did)
+        .filter((uniquevp) => !type || uniquevp.verifiablePresentation.verifiableCredential?.some((vc) => typeFilter(vc as VerifiableCredential)))
+        .filter((uniqueVp) => !hash || uniqueVp.hash === hash)
+
+      vps.forEach((key) => {
+        const file = type ? `vp-${type}-${key.hash}.json` : `vp-${key.hash}.json`
+        const path = `${basePath}/${file}`
+        fs.mkdirSync(dirname(path), { recursive: true })
+        fs.writeFileSync(path, JSON.stringify(key.verifiablePresentation, null, 2))
+        exports.push({ file, path: dirname(path) })
+      })
+    }
+
+    return exports
   }
 }

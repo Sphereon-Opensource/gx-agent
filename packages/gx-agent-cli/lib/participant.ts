@@ -2,7 +2,7 @@ import { InvalidArgumentError, program } from 'commander'
 
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import { asDID, exampleParticipantSD, exampleParticipantSD2210, getAgent, IVerifySelfDescribedCredential } from '@sphereon/gx-agent'
+import { asDID, exampleParticipantSD, exampleParticipantSD2210, ExportFileResult, getAgent, IVerifySelfDescribedCredential } from '@sphereon/gx-agent'
 
 const participant = program.command('participant').description('Participant commands')
 const sd = participant.command('sd').alias('self-description').description('Participant self-description commands')
@@ -88,6 +88,31 @@ sd.command('export-example')
     if (cmd.show) {
       console.log(JSON.stringify(credential, null, 2))
     }
+  })
+
+export async function exportParticipant(cmd: any): Promise<ExportFileResult[]> {
+  const did = await asDID(cmd.did)
+  const typeStr = 'LegalPerson'
+  const agent = await getAgent()
+  const exportResult = await agent.exportVCsToPath({
+    domain: did,
+    hash: cmd.sdId,
+    type: typeStr,
+    includeVCs: true,
+    includeVPs: true,
+    exportPath: cmd.path,
+  })
+  return exportResult
+}
+
+sd.command('export')
+  .description('Exports participant self-description(s) to disk')
+  .option('-d, --did <string>', 'the DID or domain which will be used')
+  .option('-sid, --sd-id <string>', 'id of your self-description')
+  .option('-p, --path <string>', 'A base path to export the files to. Defaults to "exported"')
+  .action(async (cmd) => {
+    printTable(await exportParticipant(cmd))
+    console.log(`Participant self-description file has been written to the above paths`)
   })
 
 sd.command('list')

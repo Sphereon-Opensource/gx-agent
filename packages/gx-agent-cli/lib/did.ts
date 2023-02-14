@@ -2,7 +2,7 @@ import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import { DIDResolutionResult, IIdentifier } from '@veramo/core'
-import { asDID, convertDidWebToHost, getAgent } from '@sphereon/gx-agent'
+import { asDID, convertDidWebToHost, ExportFileResult, getAgent } from '@sphereon/gx-agent'
 
 const did = program.command('did').description('Decentralized Identifiers (DID) commands')
 
@@ -74,6 +74,34 @@ did
     }
   })
 
+export async function exportDID(cmd: any, did: string): Promise<ExportFileResult[]> {
+  const agent = await getAgent()
+  const path = cmd.path ? cmd.path : 'exported'
+  const didStr = await asDID(did)
+  try {
+    const exportResult = await agent.exportDIDToPath({ domain: didStr, path })
+    if (!exportResult || exportResult.length === 0) {
+      console.error(`Nothing exported for ${didStr}`)
+    } else {
+      printTable(
+        exportResult.map((result) => {
+          return { DID: didStr, ...result }
+        })
+      )
+      console.log('Well-known DID files have been exported.')
+      console.log(
+        `Please copy everything from ${path}/${convertDidWebToHost(
+          didStr
+        )}, to your webserver. Do not forget to include the hidden .well-known directory!`
+      )
+    }
+    return exportResult
+  } catch (e: any) {
+    console.error(e.message)
+    throw e
+  }
+}
+
 did
   .command('export')
   .description(
@@ -82,29 +110,7 @@ did
   .argument('[did]', 'the DID or domain of certificate (CN). Optional if participantDID is configured or only one DID is present')
   .option('-p, --path <string>', 'A base path to export the files to. Defaults to "exported"')
   .action(async (did, cmd) => {
-    const agent = await getAgent()
-    const path = cmd.path ? cmd.path : 'exported'
-    const didStr = await asDID(did)
-    try {
-      const exportResult = await agent.exportDIDToPath({ domain: didStr, path })
-      if (!exportResult || exportResult.length === 0) {
-        console.error(`Nothing exported for ${didStr}`)
-      } else {
-        printTable(
-          exportResult.map((result) => {
-            return { DID: didStr, ...result }
-          })
-        )
-        console.log('Well-known DID files have been exported.')
-        console.log(
-          `Please copy everything from ${path}/${convertDidWebToHost(
-            didStr
-          )}, to your webserver. Do not forget to include the hidden .well-known directory!`
-        )
-      }
-    } catch (e: any) {
-      console.error(e.message)
-    }
+    await exportDID(cmd, did)
   })
 
 did

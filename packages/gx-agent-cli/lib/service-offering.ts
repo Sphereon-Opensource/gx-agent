@@ -138,6 +138,31 @@ sd.command('export-example')
     }
   })
 
+export async function exportServiceOffering(cmd: any) {
+  const did = await asDID(cmd.did)
+  const typeStr = 'ServiceOffering'
+  const agent = await getAgent()
+  const exportResult = await agent.exportVCsToPath({
+    domain: did,
+    hash: cmd.sdId,
+    type: typeStr,
+    includeVCs: true,
+    includeVPs: true,
+    exportPath: cmd.path,
+  })
+  return exportResult
+}
+
+sd.command('export')
+  .description('Exports serviceOffering self-description(s) to disk')
+  .option('-d, --did <string>', 'the DID or domain which will be used')
+  .option('-sid, --sd-id <string>', 'id of your self-description')
+  .option('-p, --path <string>', 'A base path to export the files to. Defaults to "exported"')
+  .action(async (cmd) => {
+    const exportResult = await exportServiceOffering(cmd)
+    printTable(exportResult)
+    console.log(`Service Offering self-description file has been written to the above paths`)
+  })
 sd.command('list')
   .description('List service-offering self-description(s)')
   .option('-d, --did <string>', 'the DID or domain which will be used')
