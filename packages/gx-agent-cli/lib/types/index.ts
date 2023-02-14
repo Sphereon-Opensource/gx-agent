@@ -1,1 +1,1 @@
-export * from './gx.types'
+export * from './gx.types.js'

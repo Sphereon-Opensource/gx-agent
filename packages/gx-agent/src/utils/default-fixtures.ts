@@ -1,12 +1,12 @@
-import {IGaiaxCredentialType, ServiceOfferingType} from '../types'
+import { IGaiaxCredentialType, ServiceOfferingType } from '../types/index.js'
 import { v4 as uuidv4 } from 'uuid'
-import { convertDidWebToHost } from './did-utils'
+import { convertDidWebToHost } from './did-utils.js'
 
 export function exampleParticipantSD({ did }: { did?: string; version?: string }) {
   return {
     '@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.gaia-x.eu/v2206/api/shape'],
     issuer: `${did ? did : 'your DID here'}`,
-    id: uuidv4(),
+    id: `urn:uuid:${uuidv4()}`,
     credentialSubject: {
       id: `${did ? did : 'your DID here'}`,
       'gx-participant:name': 'Example Company',
@@ -54,7 +54,7 @@ export function exampleParticipantSD2210({ did }: { did?: string; version?: stri
   return {
     '@context': ['https://www.w3.org/2018/credentials/v1'],
     issuer: `${did ? did : 'your DID here'}`,
-    id: uuidv4(),
+    id: `urn:uuid:${uuidv4()}`,
     credentialSubject: {
       '@context': {
         cc: 'http://creativecommons.org/ns#',
@@ -79,7 +79,7 @@ export function exampleParticipantSD2210({ did }: { did?: string; version?: stri
         foaf: 'http://xmlns.com/foaf/0.1/',
         did: 'https://www.w3.org/TR/did-core/#',
       },
-      '@id': `${did ? did : 'your DID here'}`,
+      'id': `${did ? did : 'your DID here'}`,
       '@type': 'gax-trust-framework:LegalPerson',
       'gax-trust-framework:legalName': {
         '@value': 'your legalName here',
@@ -146,7 +146,7 @@ export function exampleServiceOfferingSD({ url, did }: { url: string; did?: stri
   return {
     '@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.gaia-x.eu/v2206/api/shape'],
     issuer: `${did ? did : 'your DID here'}`,
-    id: uuidv4(),
+    id: `urn:uuid:${uuidv4()}`,
     credentialSubject: {
       id: `${did ? did : 'your DID here'}`,
       'gx-service-offering:providedBy': `${url ? url : 'https://participant.example.com'}` + '/.well-known/participant.json',
@@ -179,6 +179,9 @@ export function exampleServiceOfferingSD({ url, did }: { url: string; did?: stri
 export function exampleServiceOfferingSD2210({ url, did, type }: { url: string; did?: string; type: ServiceOfferingType; version?: string }) {
   let credentialSubject
   switch (type) {
+    case ServiceOfferingType.DcatDataSet:
+      credentialSubject = createDcatDataSetSubject(url, did)
+      break
     case ServiceOfferingType.AutoscaledVirtualMachine:
       credentialSubject = createAutoscaledVirtualMachineSubject(url, did)
       break
@@ -288,7 +291,7 @@ export function exampleServiceOfferingSD2210({ url, did, type }: { url: string; 
   return {
     '@context': ['https://www.w3.org/2018/credentials/v1'],
     issuer: `${did ? did : 'your DID here'}`,
-    id: uuidv4(),
+    id: `urn:uuid:${uuidv4()}`,
     credentialSubject,
     type: ['VerifiableCredential'],
   }
@@ -386,7 +389,7 @@ function createVirtualMachineSubject(did?: string) {
     ...tenantSeparationFixture(),
     ...dataProtectionRegimeFixture(),
     ...dataAccountExportFixture(),
-    ...dcatDescriptionFixture(),
+    ...dctDescriptionFixture(),
     ...dcatKeywordFixture(),
     ...provisionTypeFixture(),
     ...providedByFixture(did),
@@ -414,7 +417,7 @@ function createInstantiatedVirtualResourceSubject(did?: string) {
     'gax-core:operatedBy': {
       '@id': ' operated by dids**',
     },
-    ...dcatDescriptionFixture(),
+    ...dctDescriptionFixture(),
     'gax-trust-framework:license': {
       '@value': 'your license identifiers or urls**',
       '@type': 'xsd:string',
@@ -483,7 +486,7 @@ function createPlatformOfferingSubject(did?: string) {
     ...dependsOnFixture(),
     ...dataProtectionRegimeFixture(),
     ...dataAccountExportFixture(),
-    ...dcatDescriptionFixture(),
+    ...dctDescriptionFixture(),
     ...dcatKeywordFixture(),
     ...provisionTypeFixture(),
     ...providedByFixture(did),
@@ -539,7 +542,7 @@ function createInfrastructureOfferingSubject(did?: string) {
     ...dependsOnFixture(),
     ...dataProtectionRegimeFixture(),
     ...dataAccountExportFixture(),
-    ...dcatDescriptionFixture(),
+    ...dctDescriptionFixture(),
     ...dcatKeywordFixture(),
     ...provisionTypeFixture(),
     ...providedByFixture(did),
@@ -672,7 +675,7 @@ function createContainerSubject(did?: string) {
     ...dependsOnFixture(),
     ...dataProtectionRegimeFixture(),
     ...dataAccountExportFixture(),
-    ...dcatDescriptionFixture(),
+    ...dctDescriptionFixture(),
     ...dcatKeywordFixture(),
     ...provisionTypeFixture(),
     ...gxEndpointFixture(),
@@ -787,7 +790,7 @@ function createAutoscaledContainerSubject(did?: string) {
     ...tenantSeparationFixture(),
     ...dataProtectionRegimeFixture(),
     ...dataAccountExportFixture(),
-    ...dcatDescriptionFixture(),
+    ...dctDescriptionFixture(),
     ...dcatKeywordFixture(),
     ...provisionTypeFixture(),
     ...gxEndpointFixture(),
@@ -814,7 +817,7 @@ function createCatalogueSubject(did?: string) {
     ...dependsOnFixture(),
     ...dataProtectionRegimeFixture(),
     ...dataAccountExportFixture(),
-    ...dcatDescriptionFixture(),
+    ...dctDescriptionFixture(),
     ...dcatKeywordFixture(),
     ...provisionTypeFixture(),
     ...gxEndpointFixture(),
@@ -840,7 +843,7 @@ function createComputeSubject(did?: string) {
     ...tenantSeparationFixture(),
     ...dataProtectionRegimeFixture(),
     ...dataAccountExportFixture(),
-    ...dcatDescriptionFixture(),
+    ...dctDescriptionFixture(),
     ...dcatKeywordFixture(),
     ...provisionTypeFixture(),
     ...gxEndpointFixture(),
@@ -913,7 +916,7 @@ function createBareMetalSubject(did?: string) {
     ...dependsOnFixture(),
     ...dataProtectionRegimeFixture(),
     ...dataAccountExportFixture(),
-    ...dcatDescriptionFixture(),
+    ...dctDescriptionFixture(),
     ...dcatKeywordFixture(),
     ...provisionTypeFixture(),
     ...gxEndpointFixture(),
@@ -992,12 +995,157 @@ function instantiationReqFixture() {
   }
 }
 
-function dcatDescriptionFixture() {
+function dctDescriptionFixture() {
   return {
     'dct:description': {
       '@value': 'your description of this Virtual Machine',
       '@type': 'xsd:string',
     },
+  }
+}
+
+function createDcatDataSetSubject(url: string, did?: string) {
+  return {
+    ...getGeneralServiceOffering2210Subject(did),
+    ...dcatDataSetFixture(url, did),
+  }
+}
+function dcatDataSetFixture(url: string, did?: string) {
+  return {
+    '@context': {
+      cc: 'http://creativecommons.org/ns#',
+      schema: 'http://schema.org/',
+      cred: 'https://www.w3.org/2018/credentials#',
+      void: 'http://rdfs.org/ns/void#',
+      owl: 'http://www.w3.org/2002/07/owl#',
+      xsd: 'http://www.w3.org/2001/XMLSchema#',
+      'gax-validation': 'http://w3id.org/gaia-x/validation#',
+      skos: 'http://www.w3.org/2004/02/skos/core#',
+      voaf: 'http://purl.org/vocommons/voaf#',
+      rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
+      vcard: 'http://www.w3.org/2006/vcard/ns#',
+      'gax-core': 'http://w3id.org/gaia-x/core#',
+      dct: 'http://purl.org/dc/terms/',
+      sh: 'http://www.w3.org/ns/shacl#',
+      'gax-trust-framework': 'http://w3id.org/gaia-x/gax-trust-framework#',
+      rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+      ids: 'https://w3id.org/idsa/core/',
+      dcat: 'http://www.w3.org/ns/dcat#',
+      vann: 'http://purl.org/vocab/vann/',
+      foaf: 'http://xmlns.com/foaf/0.1/',
+      did: 'https://www.w3.org/TR/did-core/#',
+      adms: 'http://www.w3.org/ns/adms#',
+    },
+    '@graph': [
+      {
+        '@id': '_:N2a4f48da451d4602880c4d1cd8fd52b6',
+        '@type': 'vcard:Address',
+        'vcard:country-name': 'Sweden',
+        'vcard:locality': 'Stockholm',
+        'vcard:postal-code': '11436',
+        'vcard:street-address': 'Stureg. 14',
+      },
+      {
+        '@id': `${url}/datasets/dcat#ds1`,
+        '@type': 'dcat:Dataset',
+        'adms:contactPoint': {
+          '@id': `${url}/contacts/n1`,
+        },
+        'dcat:distribution': {
+          '@id': `${url}/datasets/dcat#dist1`,
+        },
+        'dcat:keyword': ['Nobel prize', 'science', 'prize'],
+        'dcat:landingPage': {
+          '@id': `${url}`,
+        },
+        'dcat:theme': {
+          '@id': 'http://eurovoc.europa.eu/100142',
+        },
+        'dct:accrualPeriodicity': {
+          '@id': 'http://purl.org/cld/freq/daily',
+        },
+        'dct:conformsTo': {
+          '@id': 'http://www.nobelprize.org/nobel_organizations/nobelmedia/nobelprize_org/developer/manual-linkeddata/terms.html',
+        },
+        'dct:description': 'This dataset contains Nobel prizes, Nobel laureates and information about related media resources. ',
+        'dct:issued': '2014-01-15',
+        'dct:language': {
+          '@id': 'http://publications.europa.eu/resource/authority/language/ENG',
+        },
+        'dct:modified': '2014-08-27',
+        'dct:publisher': {
+          '@id': `${url}/publisher/n2`,
+        },
+        'dct:spatial': {
+          '@id': 'http://sws.geonames.org/2673730',
+        },
+        'dct:temporal': {
+          '@id': 'http://data.nobelprize.org/period',
+        },
+        'dct:title': {
+          '@language': 'en',
+          '@value': 'Linked Nobel prizes',
+        },
+      },
+      {
+        '@id': `${url}/publisher/n2`,
+        '@type': 'foaf:Agent',
+        'dct:type': {
+          '@id': '_:Ne69579d666ed410a9c307f188d9ffd21',
+        },
+        'foaf:name': 'Nobel Media AB',
+      },
+      {
+        '@id': `${url}/publisher/n0`,
+        '@type': 'foaf:Agent',
+        'dct:type': {
+          '@id': 'http://purl.org/adms/publishertype/Company',
+        },
+        'foaf:name': 'Nobel Media AB',
+      },
+      {
+        '@id': '_:N43230c0d821748bd881b4a5178ee0e39',
+        '@type': ['vcard:Work', 'vcard:Voice'],
+        'vcard:hasValue': {
+          '@id': 'tel:086631722',
+        },
+      },
+      {
+        '@id': '_:Ne69579d666ed410a9c307f188d9ffd21',
+        'dcat:keyword': 'http://purl.org/adms/publishertype/Company',
+      },
+      {
+        '@id': 'http://data.nobelprize.org/period',
+        '@type': 'dct:PeriodOfTime',
+        'schema:endDate': {
+          '@type': 'xsd:date',
+          '@value': '2024-01-05',
+        },
+        'schema:startDate': {
+          '@type': 'xsd:date',
+          '@value': '2022-03-01',
+        },
+      },
+      {
+        '@id': `${url}/contacts/n1`,
+        '@type': 'vcard:VCard',
+        'vcard:fn': 'Nobel Media AB',
+        'vcard:hasAddress': {
+          '@id': '_:N2a4f48da451d4602880c4d1cd8fd52b6',
+        },
+        'vcard:hasEmail': {
+          '@id': 'mailto:info@nobelmedia.org',
+        },
+        'vcard:hasTelephone': {
+          '@id': '_:N43230c0d821748bd881b4a5178ee0e39',
+        },
+      },
+      {
+        '@id': 'http://sws.geonames.org/2673730',
+        '@type': 'dct:Location',
+        'rdfs:label': 'Stockholm',
+      },
+    ],
   }
 }
 
@@ -1278,6 +1426,7 @@ function gxMeasureFixture() {
     },
   }
 }
+
 function gxAvailabilityFixture() {
   return {
     'gax-trust-framework:availability': gxMeasureFixture(),

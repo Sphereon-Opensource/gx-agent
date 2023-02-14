@@ -1,10 +1,10 @@
 import { CredentialPayload, DIDDocument, IAgentContext, IKey, PresentationPayload, TKeyType, VerifiableCredential } from '@veramo/core'
 import { RequiredAgentMethods } from '@sphereon/ssi-sdk-vc-handler-ld-local'
-import { SphereonLdSignature } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/ld-suites'
 import * as u8a from 'uint8arrays'
 import { encodeJoseBlob } from '@veramo/utils'
-import { JsonWebKey } from './gx-impl/JsonWebKeyWithRSASupport'
-import { JsonWebSignature } from './gx-impl/JsonWebSignatureWithRSASupport'
+import { JsonWebKey } from './gx-impl/JsonWebKeyWithRSASupport.js'
+import { JsonWebSignature } from './gx-impl/JsonWebSignatureWithRSASupport.js'
+import { SphereonLdSignature } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/ld-suites.js'
 
 /**
  * WARNING:
@@ -18,6 +18,7 @@ export class GXJsonWebSignature2020 extends SphereonLdSignature {
   }
 
   getSupportedVeramoKeyType(): TKeyType {
+    // @ts-ignore
     return 'RSA'
   }
 

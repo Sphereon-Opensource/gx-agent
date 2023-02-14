@@ -2,7 +2,7 @@ import { homedir } from 'os'
 import fs from 'fs'
 import { dirname } from 'path'
 import yaml from 'yaml'
-import { EcosystemConfig } from '../types'
+import { EcosystemConfig } from '../types/index.js'
 import { SecretBox } from '@veramo/kms-local'
 
 export function getUserHome(): string {

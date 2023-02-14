@@ -135,7 +135,6 @@ vp.command('issue')
       const id = await agent.didManagerGet({ did })
       const didDoc = await exportToDIDDocument(id)
       const url = `https://${convertDidWebToHost(did)}`
-      console.log(url)
       nock.cleanAll()
       nock(url)
         .get(`/.well-known/did.json`)

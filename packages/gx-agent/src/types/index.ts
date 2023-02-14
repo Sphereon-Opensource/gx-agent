@@ -1,2 +1,1 @@
-export * from './IGXComplianceClient'
-export * from './IConfig'
+export * from './IGXComplianceClient.js'

@@ -1,5 +1,5 @@
-import { GXComplianceClient } from './GXComplianceClient'
-import { BlsKeyManagementSystem } from '@sphereon/ssi-sdk-bls-kms-local/dist/BlsKeyManagementSystem'
+import { GXComplianceClient } from './GXComplianceClient.js'
+import { BlsKeyManagementSystem } from '@sphereon/ssi-sdk-bls-kms-local'
 import { CredentialHandlerLDLocal, LdDefaultContexts, MethodNames } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 import { CredentialPlugin } from '@veramo/credential-w3c'
 import { KeyManager } from '@veramo/key-manager'
@@ -11,27 +11,28 @@ import { DataStore, DataStoreORM, DIDStore, Entities, KeyStore, migrations, Priv
 import { DataSource } from 'typeorm'
 import { Resolver } from 'did-resolver'
 import { getResolver } from 'web-did-resolver'
-// @ts-ignore
 import fs from 'fs'
 import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
-import { GXPluginMethodMap, IGaiaxComplianceConfig } from '../types'
-import { GXJsonWebSignature2020 } from '../suites/GXJsonWebSignature2020'
-import { getAgentConfigPath, getConfigAsObject } from '../utils/config-utils'
+import { GXPluginMethodMap, IGaiaxComplianceConfig } from '../types/index.js'
+import { getAgentConfigPath, getConfigAsObject } from '../utils/index.js'
+import { OrPromise } from '@veramo/utils'
+import { GXJsonWebSignature2020 } from '../suites/index.js'
 
 export let globalConfig: any
 
+
 export async function setupGXAgent(opts: {
   dbFile?: string
-  dbConnection?: Promise<DataSource>
+  dbConnection?: OrPromise<DataSource>
   dbEncryptionKey: string
   customContext?: Map<string, ContextDoc>
   config?: IGaiaxComplianceConfig
-}) {
+}) : Promise<ConfiguredAgent> {
   if (!opts.dbConnection && !opts.dbFile) {
     throw Error('Either a db connection or dbFile needs to be supplied. None given')
   }
-  const dbConnection: Promise<DataSource> = opts.dbConnection ? opts.dbConnection : newDBConnection(opts.dbFile!)
+  const dbConnection: OrPromise<DataSource> = opts.dbConnection ? opts.dbConnection : newDBConnection(opts.dbFile!)
 
   const privateKeyStore = new PrivateKeyStore(dbConnection, new SecretBox(opts.dbEncryptionKey))
   const kmsName = opts.config?.kmsName ? opts.config.kmsName : 'local'
@@ -46,15 +47,15 @@ export async function setupGXAgent(opts: {
       new KeyManager({
         store: keyStore,
         kms: {
-          [kmsName]: kms,
-        },
+          [kmsName]: kms
+        }
       }),
       new DIDManager({
         providers: {
-          'did:web': new WebDIDProvider({ defaultKms: kmsName }),
+          'did:web': new WebDIDProvider({ defaultKms: kmsName })
         },
         store: new DIDStore(dbConnection),
-        defaultProvider: 'did:web',
+        defaultProvider: 'did:web'
       }),
       new CredentialPlugin(),
       new CredentialHandlerLDLocal({
@@ -63,29 +64,25 @@ export async function setupGXAgent(opts: {
         suites: [new GXJsonWebSignature2020()],
         bindingOverrides: new Map([
           ['createVerifiableCredentialLD', MethodNames.createVerifiableCredentialLDLocal],
-          ['createVerifiablePresentationLD', MethodNames.createVerifiablePresentationLDLocal],
+          ['createVerifiablePresentationLD', MethodNames.createVerifiablePresentationLDLocal]
           // We test the verify methods by using the LDLocal versions directly in the tests
-        ]),
+        ])
       }),
       new DataStore(dbConnection),
       new DataStoreORM(dbConnection),
       new GXComplianceClient({
         kmsName: kmsName,
         complianceServiceVersion: opts.config?.complianceServiceVersion ?? 'v2206',
-        complianceServiceUrl: opts.config?.complianceServiceUrl ?? 'http://localhost:3000',
+        complianceServiceUrl: opts.config?.complianceServiceUrl ?? 'http://localhost:3000'
       }),
       new DIDResolverPlugin({
-        resolver,
-      }),
-    ],
+        resolver
+      })
+    ]
   })
 
-  return {
-    agent,
-    kms,
-    dbConnection,
-    resolver,
-  }
+
+  return agent
 }
 
 export async function createDatabase(dbConnection: Promise<DataSource>) {
@@ -105,7 +102,7 @@ async function newDBConnection(databaseFile: string): Promise<DataSource> {
     entities: Entities,
     migrations: migrations,
     migrationsRun: true,
-    logger: 'advanced-console',
+    logger: 'advanced-console'
   }).initialize()
 }
 
@@ -125,9 +122,7 @@ export async function getAgent(opts?: { path?: string }): Promise<ConfiguredAgen
     globalConfig = config
 
     // console.log(JSON.stringify(config.gx, null, 2))
-    return await (
-      await setupGXAgent({ dbEncryptionKey, dbFile, config: config.gx })
-    ).agent
+    return await setupGXAgent({ dbEncryptionKey, dbFile, config: config.gx })
     // return createAgentFromConfig<GXPluginMethodMap>(getConfigAsObject(fileName ? fileName : 'agent.yml'))
   } catch (e: any) {
     console.error('Unable to create agent from ' + path + '.', e.message)

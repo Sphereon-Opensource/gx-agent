@@ -1,6 +1,6 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
-import { EcosystemConfig, getAgent } from '@sphereon/gx-agent'
+import { getAgent, EcosystemConfig } from '@sphereon/gx-agent'
 import { CredentialPayload } from '@veramo/core'
 import {
   addEcosystemConfigObject,
@@ -9,7 +9,7 @@ import {
   getAgentConfigPath,
   getEcosystemConfigObject,
   getEcosystemConfigObjects,
-} from '@sphereon/gx-agent/dist/utils/config-utils'
+} from '@sphereon/gx-agent'
 import fs from 'fs'
 
 const ecosystem = program.command('ecosystem').description('Ecosystem specific commands')
@@ -102,6 +102,7 @@ ecosystem
   .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential')
   .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
   .option('-s, --show', 'Show self descriptions')
+  .option('-s, --show', 'Print the Verifiable Presentation to console')
   .action(async (name, cmd) => {
     const agent = await getAgent()
     try {
@@ -118,8 +119,8 @@ ecosystem
         ecosystemUrl: ecosystemConfig.url,
         selfDescriptionVC,
         complianceVC,
-        persist: cmd.persist === true,
-        show: cmd.show === true,
+        persist: cmd.persist,
+        show: cmd.show,
       })
       if (cmd.show) {
         console.log(JSON.stringify(selfDescription, null, 2))
@@ -170,8 +171,8 @@ ecosystem
         complianceId: cmd.complianceId,
         ecosystemComplianceId: cmd.ecosystemComplianceId,
         serviceOffering,
-        persist: cmd.persist === true,
-        show: cmd.show === true,
+        persist: cmd.persist,
+        show: cmd.show,
       })
       printTable([{ ...onboardingResult }])
     } catch (e: any) {

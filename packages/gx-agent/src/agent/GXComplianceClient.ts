@@ -28,7 +28,7 @@ import {
   IVerifySelfDescribedCredential,
   schema,
   VerifiableCredentialResponse,
-} from '../index'
+} from '../index.js'
 
 import {
   IAcquireComplianceCredentialArgs,
@@ -37,14 +37,13 @@ import {
   IAddServiceOfferingUnsignedArgs,
   IGaiaxComplianceConfig,
   IGaiaxOnboardingResult,
-} from '../types'
+} from '../types/index.js'
 import { ICredentialSubject } from '@sphereon/ssi-types'
-import { DID } from './DID'
-import { CredentialHandler } from './CredentialHandler'
-import { extractApiTypeFromVC } from '../utils'
-import { getApiVersionedUrl, postRequest } from '../utils'
-import { extractSignInfo } from '../utils'
-import * as process from 'process'
+import { DID } from './DID.js'
+import { CredentialHandler } from './CredentialHandler.js'
+import { extractApiTypeFromVC } from '../utils/index.js'
+import { getApiVersionedUrl, postRequest } from '../utils/index.js'
+import { extractSignInfo } from '../utils/index.js'
 
 /**
  * {@inheritDoc IGXComplianceClient}

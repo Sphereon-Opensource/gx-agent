@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es6" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */,
-    "module": "commonjs" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
     "allowJs": true /* Allow javascript files to be compiled. */,
     "declaration": true /* Generates corresponding '.d.ts' file. */,
     "downlevelIteration": true /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */,
@@ -10,8 +11,7 @@
     "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
     "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
 
-    "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
-    /*"baseUrl": "./", */ /* Base directory to resolve non-absolute module names. */
+    "baseUrl": ".", /* Base directory to resolve non-absolute module names. */
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true /* Skip type checking of declaration files. */,
@@ -21,6 +21,11 @@
     "preserveConstEnums": true,
     "declarationMap": true,
     "composite": true
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
   },
   "exclude": ["**/__tests__/**/*", "**/dist/**/*", "**/build/**/*"]
 }

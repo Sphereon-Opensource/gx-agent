@@ -1,4 +1,4 @@
-import { GXComplianceClient } from './GXComplianceClient'
+import { GXComplianceClient } from './GXComplianceClient.js'
 import {
   AuthenticationProofPurpose,
   GXRequiredContext,
@@ -6,10 +6,10 @@ import {
   ICheckVerifiablePresentationArgs,
   IIssueVerifiableCredentialArgs,
   IIssueVerifiablePresentationArgs,
-} from '../types'
+} from '../types/index.js'
 import { v4 as uuidv4 } from 'uuid'
 import { UniqueVerifiableCredential, UniqueVerifiablePresentation } from '@veramo/core'
-import { asDID, extractSignInfo, extractSubjectDIDFromVCs } from '../utils'
+import { asDID, extractSignInfo, extractSubjectDIDFromVCs } from '../utils/index.js'
 
 export class CredentialHandler {
   public readonly _client: GXComplianceClient
