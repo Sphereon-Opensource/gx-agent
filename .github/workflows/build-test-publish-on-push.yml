@@ -46,6 +46,7 @@ jobs:
 #          path: ${{ steps.yarn-cache-path-path.outputs.path }}
 #          key: ${{ runner.os }}-yarn-2-${{ hashFiles('**/package.json') }}
 
+      - run: npm install -g pnpm
       - run: pnpm install
       - run: pnpm build
       - name: run integration tests
