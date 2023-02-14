@@ -13,7 +13,7 @@ import {
 import fs from 'fs'
 
 const ecosystem = program.command('ecosystem').description('Ecosystem specific commands')
-
+const so = ecosystem.command('so').alias('service-offering').description('Service offering self-description commands')
 ecosystem
   .command('add')
   .alias('update')
@@ -131,11 +131,9 @@ ecosystem
     }
   })
 
-ecosystem
-  .command('submit-service-offering')
-  .alias('service-offering')
-  .alias('so')
-  .description('Onboards the participant to the new ecosystem')
+so
+  .command('submit')
+  .description('Submits as service offering in the ecosystem')
   .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
   .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential from Gaia-X compliance')
