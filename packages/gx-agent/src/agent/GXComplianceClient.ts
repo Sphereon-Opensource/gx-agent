@@ -278,6 +278,8 @@ export class GXComplianceClient implements IAgentPlugin {
       url = url + '/service-offering/validate/vc'
     } else if (vc.type!.includes('LegalPerson') || vc.type!.includes('NaturalPerson')) {
       url = url + '/participant/validate/vc'
+    } else if (vc.type!.includes('ParticipantCredential')) {
+      url = url + '/participant/validate/vc'
     }
 
     if (args.show) {
