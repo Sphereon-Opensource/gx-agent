@@ -91,10 +91,10 @@ importers:
       '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.179
       '@sphereon/ssi-sdk-vc-handler-ld-local': 0.8.1-unstable.179
       '@sphereon/ssi-types': 0.8.1-unstable.179
-      '@transmute/jose-ld': ^0.7.0-unstable.80
+      '@transmute/jose-ld': ^0.7.0-unstable.67
       '@transmute/lds-ecdsa-secp256k1-recovery2020': ^0.0.7
-      '@transmute/security-context': ^0.7.0-unstable.80
-      '@transmute/web-crypto-key-pair': ^0.7.0-unstable.80
+      '@transmute/security-context': ^0.7.0-unstable.67
+      '@transmute/web-crypto-key-pair': ^0.7.0-unstable.67
       '@types/debug': ^4.1.7
       '@types/jest': ^27.0.2
       '@types/node': 16.11.7

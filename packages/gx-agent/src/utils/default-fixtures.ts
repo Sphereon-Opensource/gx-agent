@@ -1,6 +1,7 @@
 import { IGaiaxCredentialType, ServiceOfferingType } from '../types/index.js'
 import { v4 as uuidv4 } from 'uuid'
-import { convertDidWebToHost } from './did-utils.js'
+import { convertDidWebToHost } from './index.js';
+
 
 export function exampleParticipantSD({ did }: { did?: string; version?: string }) {
   return {

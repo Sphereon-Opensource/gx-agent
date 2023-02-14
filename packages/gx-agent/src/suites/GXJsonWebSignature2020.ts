@@ -18,7 +18,6 @@ export class GXJsonWebSignature2020 extends SphereonLdSignature {
   }
 
   getSupportedVeramoKeyType(): TKeyType {
-    // @ts-ignore
     return 'RSA'
   }
 
