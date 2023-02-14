@@ -36,13 +36,13 @@ serviceOffering
     let soVcId = cmd.soId
     try {
       if (cmd.soInputFile) {
-        const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.inputFile, 'utf-8')) as CredentialPayload
+        const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.soInputFile, 'utf-8')) as CredentialPayload
         const did = typeof credential.issuer === 'string' ? credential.issuer : credential.issuer ? credential.issuer.id : await asDID()
         const vc = await agent.issueVerifiableCredential({
           credential,
           keyRef: cmd.keyIdentifier,
           domain: did,
-          persist: cmd.persist,
+          persist: true,
         })
         soVcId = vc.hash
         printTable([
@@ -52,7 +52,7 @@ serviceOffering
             subject: vc.verifiableCredential.credentialSubject.id,
             'issuance-date': vc.verifiableCredential.issuanceDate,
             id: vc.hash,
-            persisted: cmd.persist === true,
+            persisted: true,
           },
         ])
       }
