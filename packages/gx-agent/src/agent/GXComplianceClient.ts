@@ -274,12 +274,12 @@ export class GXComplianceClient implements IAgentPlugin {
     console.log('Agent validation of the self-description. Valid: ' + valid)
 
     let url = this.getApiVersionedUrl()
-    if (vc && vc.type!.includes('ServiceOffering')) {
+    if (vc.type!.includes('LegalPerson') || vc.type!.includes('NaturalPerson')) {
+      url = url + '/participant/validate/vc'
+    } else if (vc.credentialSubject['@type']?.includes('LegalPerson')) {
+      url = url + '/participant/validate/vc'
+    } else {
       url = url + '/service-offering/validate/vc'
-    } else if (vc.type!.includes('LegalPerson') || vc.type!.includes('NaturalPerson')) {
-      url = url + '/participant/validate/vc'
-    } else if (vc.type!.includes('ParticipantCredential')) {
-      url = url + '/participant/validate/vc'
     }
 
     if (args.show) {
