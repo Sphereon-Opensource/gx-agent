@@ -4,8 +4,8 @@ import { dirname } from 'path'
 import yaml from 'yaml'
 import { EcosystemConfig } from '../types/index.js'
 import { SecretBox } from '@veramo/kms-local'
-import {fileURLToPath} from "url";
-import * as path from "path";
+import { fileURLToPath } from 'url'
+import * as path from 'path'
 
 export function getUserHome(): string {
   return homedir()
@@ -31,8 +31,8 @@ export async function createAgentConfig(filePath: string) {
   const agentPath = `${dir}/agent.yml`
 
   if (!fs.existsSync(agentPath)) {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = path.dirname(__filename)
     const templateFile = __dirname + '/../fixtures/template-agent.yml'
     const contents = fs.readFileSync(templateFile)
     const config: any = yaml.parse(contents.toString('utf8'))

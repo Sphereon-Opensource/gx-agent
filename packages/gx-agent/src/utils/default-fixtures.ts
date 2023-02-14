@@ -1,7 +1,6 @@
 import { IGaiaxCredentialType, ServiceOfferingType } from '../types/index.js'
 import { v4 as uuidv4 } from 'uuid'
-import { convertDidWebToHost } from './index.js';
-
+import { convertDidWebToHost } from './index.js'
 
 export function exampleParticipantSD({ did }: { did?: string; version?: string }) {
   return {
@@ -80,7 +79,7 @@ export function exampleParticipantSD2210({ did }: { did?: string; version?: stri
         foaf: 'http://xmlns.com/foaf/0.1/',
         did: 'https://www.w3.org/TR/did-core/#',
       },
-      'id': `${did ? did : 'your DID here'}`,
+      id: `${did ? did : 'your DID here'}`,
       '@type': 'gax-trust-framework:LegalPerson',
       'gax-trust-framework:legalName': {
         '@value': 'your legalName here',

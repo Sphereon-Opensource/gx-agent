@@ -344,7 +344,6 @@ export const ControllerProofPurpose = pkg.purposes.ControllerProofPurpose
 export const AssertionProofPurpose = pkg.purposes.AssertionProofPurpose
 export const AuthenticationProofPurpose = pkg.purposes.AuthenticationProofPurpose
 
-
 export interface EcosystemConfig {
   name: string
   description?: string

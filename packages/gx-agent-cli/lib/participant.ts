@@ -100,7 +100,10 @@ sd.command('list')
       const vcs = await agent.dataStoreORMGetVerifiableCredentials()
       const did = cmd.did ? await asDID(cmd.did) : undefined
       const sds = vcs.filter(
-        (vc) => (vc.verifiableCredential.type!.includes('LegalPerson') || vc.verifiableCredential.credentialSubject['@type'] === 'gax-trust-framework:LegalPerson') && (!did || vc.verifiableCredential.issuer === did)
+        (vc) =>
+          (vc.verifiableCredential.type!.includes('LegalPerson') ||
+            vc.verifiableCredential.credentialSubject['@type'] === 'gax-trust-framework:LegalPerson') &&
+          (!did || vc.verifiableCredential.issuer === did)
       )
       printTable(
         sds.map((sd) => {

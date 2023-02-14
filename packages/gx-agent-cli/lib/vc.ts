@@ -125,19 +125,18 @@ vc.command('verify')
       try {
         id = await agent.didManagerGet({ did })
 
-          const didDoc = await exportToDIDDocument(id)
-          const url = `https://${convertDidWebToHost(did)}`
+        const didDoc = await exportToDIDDocument(id)
+        const url = `https://${convertDidWebToHost(did)}`
 
-          console.log(`$$$$$$$$$$$$$$$$$$URL: ${url}: ${JSON.stringify(id, null, 2)}`)
+        console.log(`$$$$$$$$$$$$$$$$$$URL: ${url}: ${JSON.stringify(id, null, 2)}`)
 
-          nock.cleanAll()
-          nock(url)
-            .get(`/.well-known/did.json`)
-            .times(10)
-            .reply(200, {
-              ...didDoc,
-            })
-
+        nock.cleanAll()
+        nock(url)
+          .get(`/.well-known/did.json`)
+          .times(10)
+          .reply(200, {
+            ...didDoc,
+          })
       } catch (e) {
         // DID not hosted by us, which is fine
       }

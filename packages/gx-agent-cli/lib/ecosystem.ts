@@ -131,8 +131,7 @@ ecosystem
     }
   })
 
-so
-  .command('submit')
+so.command('submit')
   .description('Submits as service offering in the ecosystem')
   .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')

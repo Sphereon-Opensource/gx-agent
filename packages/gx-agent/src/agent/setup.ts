@@ -21,14 +21,13 @@ import { GXJsonWebSignature2020 } from '../suites/index.js'
 
 export let globalConfig: any
 
-
 export async function setupGXAgent(opts: {
   dbFile?: string
   dbConnection?: OrPromise<DataSource>
   dbEncryptionKey: string
   customContext?: Map<string, ContextDoc>
   config?: IGaiaxComplianceConfig
-}) : Promise<ConfiguredAgent> {
+}): Promise<ConfiguredAgent> {
   if (!opts.dbConnection && !opts.dbFile) {
     throw Error('Either a db connection or dbFile needs to be supplied. None given')
   }
@@ -47,15 +46,15 @@ export async function setupGXAgent(opts: {
       new KeyManager({
         store: keyStore,
         kms: {
-          [kmsName]: kms
-        }
+          [kmsName]: kms,
+        },
       }),
       new DIDManager({
         providers: {
-          'did:web': new WebDIDProvider({ defaultKms: kmsName })
+          'did:web': new WebDIDProvider({ defaultKms: kmsName }),
         },
         store: new DIDStore(dbConnection),
-        defaultProvider: 'did:web'
+        defaultProvider: 'did:web',
       }),
       new CredentialPlugin(),
       new CredentialHandlerLDLocal({
@@ -66,22 +65,21 @@ export async function setupGXAgent(opts: {
           ['createVerifiableCredentialLD', MethodNames.createVerifiableCredentialLDLocal],
           ['createVerifiablePresentationLD', MethodNames.createVerifiablePresentationLDLocal],
           ['verifyCredentialLD', MethodNames.verifyCredentialLDLocal],
-          ['verifyPresentationLD', MethodNames.verifyPresentationLDLocal]
-        ])
+          ['verifyPresentationLD', MethodNames.verifyPresentationLDLocal],
+        ]),
       }),
       new DataStore(dbConnection),
       new DataStoreORM(dbConnection),
       new GXComplianceClient({
         kmsName: kmsName,
         complianceServiceVersion: opts.config?.complianceServiceVersion ?? 'v2206',
-        complianceServiceUrl: opts.config?.complianceServiceUrl ?? 'http://localhost:3000'
+        complianceServiceUrl: opts.config?.complianceServiceUrl ?? 'http://localhost:3000',
       }),
       new DIDResolverPlugin({
-        resolver
-      })
-    ]
+        resolver,
+      }),
+    ],
   })
-
 
   return agent
 }
@@ -103,7 +101,7 @@ async function newDBConnection(databaseFile: string): Promise<DataSource> {
     entities: Entities,
     migrations: migrations,
     migrationsRun: true,
-    logger: 'advanced-console'
+    logger: 'advanced-console',
   }).initialize()
 }
 

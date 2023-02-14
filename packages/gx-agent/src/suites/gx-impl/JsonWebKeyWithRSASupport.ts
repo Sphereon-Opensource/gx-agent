@@ -20,7 +20,7 @@ const getKeyPairForType = (k: any) => {
   if (k.type === 'JsonWebKey2020') {
     return getKeyPairForKtyAndCrv(k.publicKeyJwk.kty, k.publicKeyJwk.crv)
   }
-  if (k.type === 'RSAVerificationKey2018'/* || k.publicKeyJwk.kty === 'RSA'*/) {
+  if (k.type === 'RSAVerificationKey2018' /* || k.publicKeyJwk.kty === 'RSA'*/) {
     return WebCryptoKey
   }
 
