@@ -2,7 +2,7 @@ import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import { DIDResolutionResult, IIdentifier } from '@veramo/core'
-import { asDID, convertDidWebToHost, getAgent } from '@sphereon/gx-agent'
+import { asDID, convertDidWebToHost, ExportFileResult, getAgent } from '@sphereon/gx-agent'
 
 const did = program.command('did').description('Decentralized Identifiers (DID) commands')
 
@@ -18,12 +18,13 @@ did
     '-kid, --key-identifier <string>',
     'An optional key identifier name for the certificate and key. Will be stored in the DID Document. A default will be used if not supplied'
   )
+  .option('-s, --show', 'Show resulting did')
   .action(async (cmd) => {
     const agent = await getAgent()
     const privateKeyPEM = fs.readFileSync(cmd.privateKeyFile, 'utf-8')
     const certificatePEM = fs.readFileSync(cmd['certFile'], 'utf-8')
     const certificateChainPEM = fs.readFileSync(cmd['caChainFile'], 'utf-8')
-    const did = await asDID(cmd.domain)
+    const did = await asDID(cmd.domain, cmd.show === true)
     const cn = convertDidWebToHost(did)
     const x5cFile = cmd['caChainFile'].split('\\').pop().split('/').pop()
     const x5u = cmd['caChainUrl']
@@ -56,7 +57,7 @@ did
     try {
       const identifiers: IIdentifier[] = await agent.didManagerFind({ provider: 'did:web' })
       if (!identifiers || identifiers.length === 0) {
-        console.log('No identifiers stored in the agent!')
+        console.error('No identifiers stored in the agent!')
       } else {
         printTable(
           identifiers.map((id) => {
@@ -73,6 +74,34 @@ did
     }
   })
 
+export async function exportDID(cmd: any, did: string): Promise<ExportFileResult[]> {
+  const agent = await getAgent()
+  const path = cmd.path ? cmd.path : 'exported'
+  const didStr = await asDID(did)
+  try {
+    const exportResult = await agent.exportDIDToPath({ domain: didStr, path })
+    if (!exportResult || exportResult.length === 0) {
+      console.error(`Nothing exported for ${didStr}`)
+    } else {
+      printTable(
+        exportResult.map((result) => {
+          return { DID: didStr, ...result }
+        })
+      )
+      console.log('Well-known DID files have been exported.')
+      console.log(
+        `Please copy everything from ${path}/${convertDidWebToHost(
+          didStr
+        )}, to your webserver. Do not forget to include the hidden .well-known directory!`
+      )
+    }
+    return exportResult
+  } catch (e: any) {
+    console.error(e.message)
+    throw e
+  }
+}
+
 did
   .command('export')
   .description(
@@ -81,29 +110,7 @@ did
   .argument('[did]', 'the DID or domain of certificate (CN). Optional if participantDID is configured or only one DID is present')
   .option('-p, --path <string>', 'A base path to export the files to. Defaults to "exported"')
   .action(async (did, cmd) => {
-    const agent = await getAgent()
-    const path = cmd.path ? cmd.path : 'exported'
-    const didStr = await asDID(did)
-    try {
-      const exportResult = await agent.exportDIDToPath({ domain: didStr, path })
-      if (!exportResult || exportResult.length === 0) {
-        console.log(`Nothing exported for ${didStr}`)
-      } else {
-        printTable(
-          exportResult.map((result) => {
-            return { DID: didStr, ...result }
-          })
-        )
-        console.log('Well-known DID files have been exported.')
-        console.log(
-          `Please copy everything from ${path}/${convertDidWebToHost(
-            didStr
-          )}, to your webserver. Do not forget to include the hidden .well-known directory!`
-        )
-      }
-    } catch (e: any) {
-      console.error(e.message)
-    }
+    await exportDID(cmd, did)
   })
 
 did
@@ -145,7 +152,7 @@ did
       } else if (result.didResolutionMetadata) {
         console.log(printTable([{ ...result.didResolutionMetadata }]))
       } else {
-        console.log(`Unknown error occurred resolving DID ${didStr}`)
+        console.error(`Unknown error occurred resolving DID ${didStr}`)
       }
     } catch (e: any) {
       console.error(e.message)

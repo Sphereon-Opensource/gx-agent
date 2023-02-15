@@ -2,14 +2,7 @@ import { InvalidArgumentError, program } from 'commander'
 
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import {
-  asDID,
-  convertDidWebToHost,
-  exampleParticipantSD,
-  exampleServiceOfferingSD,
-  getAgent,
-  IVerifySelfDescribedCredential,
-} from '@sphereon/gx-agent'
+import { asDID, exampleParticipantSD, exampleParticipantSD2210, ExportFileResult, getAgent, IVerifySelfDescribedCredential } from '@sphereon/gx-agent'
 
 const participant = program.command('participant').description('Participant commands')
 const sd = participant.command('sd').alias('self-description').description('Participant self-description commands')
@@ -20,6 +13,7 @@ sd.command('submit')
   )
   .option('-sif, --sd-input-file <string>', 'Unsigned self-description input file location')
   .option('-sid, --sd-id <string>', 'id of a signed self-description stored in the agent')
+  // .option('-p, --persist', 'Persist the credential. If not provided the VerifiablePresentation will not be stored in the agent')
   .option('-s, --show', 'Show self descriptions')
   .action(async (cmd) => {
     try {
@@ -32,9 +26,13 @@ sd.command('submit')
       const selfDescription = cmd.sdId
         ? await agent.acquireComplianceCredentialFromExistingParticipant({
             participantSDId: cmd.sdId,
+            persist: true,
+            show: cmd.show,
           })
         : await agent.acquireComplianceCredentialFromUnsignedParticipant({
             credential: JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8')),
+            persist: true,
+            show: cmd.show,
           })
 
       printTable([
@@ -51,19 +49,18 @@ sd.command('submit')
         console.log(JSON.stringify(selfDescription, null, 2))
       }
     } catch (error: any) {
-      console.error(error.message)
+      console.error(error)
     }
   })
 
 sd.command('verify')
   .description('verifies a self-description')
-  .option('-id, --sd-id <string>', 'id of your self-description')
+  .requiredOption('-sid, --sd-id <string>', 'id of your self-description')
   .option('-s, --show', 'Show self descriptions')
-  // .option('-sf, --sd-file <string>', 'your sd file')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()
-      const args: IVerifySelfDescribedCredential = { show: cmd.show, id: cmd.sdId }
+      const args: IVerifySelfDescribedCredential = { show: cmd.show === true, id: cmd.sdId }
 
       const result = await agent.verifySelfDescription(args)
       printTable([{ conforms: result.conforms }])
@@ -74,26 +71,48 @@ sd.command('verify')
 
 sd.command('export-example')
   .description('Creates an example participant self-description input credential file')
-  // .argument('<type>', 'Credential type. One of: "participant" or "service-offering"')
   .option('-d, --did <string>', 'the DID or domain which will be used')
+  .option(
+    '-v, --version <string>',
+    "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
+  )
   .option('-s, --show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
-    const typeStr = 'participant' //type.toLowerCase().includes('participant') ? 'participant' : 'service-offering'
+    const typeStr = 'participant'
     const fileName = `${typeStr}-input-credential.json`
-    const credential =
-      typeStr === 'participant'
-        ? exampleParticipantSD({ did })
-        : exampleServiceOfferingSD({
-            did,
-            url: `https://${convertDidWebToHost(did)}`,
-          })
+    const credential = cmd.version && cmd.version === 'v2206' ? exampleParticipantSD({ did }) : exampleParticipantSD2210({ did })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
     console.log(`Example self-description file has been written to ${fileName}. Please adjust the contents and use one of the onboarding methods`)
     if (cmd.show) {
       console.log(JSON.stringify(credential, null, 2))
     }
+  })
+
+export async function exportParticipant(cmd: any): Promise<ExportFileResult[]> {
+  const did = await asDID(cmd.did)
+  const typeStr = 'LegalPerson'
+  const agent = await getAgent()
+  const exportResult = await agent.exportVCsToPath({
+    domain: did,
+    hash: cmd.sdId,
+    type: typeStr,
+    includeVCs: true,
+    includeVPs: true,
+    exportPath: cmd.path,
+  })
+  return exportResult
+}
+
+sd.command('export')
+  .description('Exports participant self-description(s) to disk')
+  .option('-d, --did <string>', 'the DID or domain which will be used')
+  .option('-sid, --sd-id <string>', 'id of your self-description')
+  .option('-p, --path <string>', 'A base path to export the files to. Defaults to "exported"')
+  .action(async (cmd) => {
+    printTable(await exportParticipant(cmd))
+    console.log(`Participant self-description file has been written to the above paths`)
   })
 
 sd.command('list')
@@ -105,15 +124,17 @@ sd.command('list')
       const agent = await getAgent()
       const vcs = await agent.dataStoreORMGetVerifiableCredentials()
       const did = cmd.did ? await asDID(cmd.did) : undefined
-      const sds = await vcs.filter(
-        (vc) => vc.verifiableCredential.type!.includes('LegalPerson') && (!did || vc.verifiableCredential.issuer === did)
-        // vc?.verifiableCredential?.type?.includes('LegalPerson') && (!cmd.domain || vc.verifiableCredential.issuer === (await asDID(cmd.domain)))
+      const sds = vcs.filter(
+        (vc) =>
+          (vc.verifiableCredential.type!.includes('LegalPerson') ||
+            vc.verifiableCredential.credentialSubject['@type'] === 'gax-trust-framework:LegalPerson') &&
+          (!did || vc.verifiableCredential.issuer === did)
       )
       printTable(
         sds.map((sd) => {
           return {
             issuer: sd.verifiableCredential.issuer,
-            subject: sd.verifiableCredential.id,
+            subject: sd.verifiableCredential.credentialSubject.id,
             'issuance-data': sd.verifiableCredential.issuanceDate,
             id: sd.hash,
           }
@@ -138,7 +159,7 @@ sd.command('show')
       const agent = await getAgent()
       const vc = await agent.dataStoreGetVerifiableCredential({ hash: id })
       if (!vc) {
-        console.log(`Participant self-description with id ${id} not found`)
+        console.error(`Participant self-description with id ${id} not found`)
       } else {
         printTable([
           {
@@ -163,7 +184,7 @@ sd.command('delete')
       const agent = await getAgent()
       const vc = await agent.dataStoreDeleteVerifiableCredential({ hash: id })
       if (!vc) {
-        console.log(`Participant self-description with id ${id} not found`)
+        console.error(`Participant self-description with id ${id} not found`)
       } else {
         console.log(`Participant self-description with id ${id} deleted`)
       }
@@ -175,7 +196,7 @@ sd.command('delete')
 sd.command('create')
   .description('creates a signed self-description based on your self-description input file')
   .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of your self-description input file (a credential that is not signed)')
-  .option('--show', 'Show the resulting self-description Verifiable Credential')
+  .option('-s --show', 'Show the resulting self-description Verifiable Credential')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()

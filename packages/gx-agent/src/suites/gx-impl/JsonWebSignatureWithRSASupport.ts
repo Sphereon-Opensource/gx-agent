@@ -2,7 +2,7 @@
 import jsonld from 'jsonld'
 
 import { subtle } from '@transmute/web-crypto-key-pair'
-import { JsonWebKey } from './JsonWebKeyWithRSASupport'
+import { JsonWebKey } from './JsonWebKeyWithRSASupport.js'
 import * as u8a from 'uint8arrays'
 import { Verifier } from '@transmute/jose-ld'
 

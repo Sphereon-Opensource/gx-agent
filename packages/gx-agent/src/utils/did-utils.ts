@@ -1,7 +1,7 @@
-import { GXRequiredContext, ISignInfo } from '../types'
+import { GXRequiredContext, ISignInfo } from '../types/index.js'
 import { DIDDocument, DIDDocumentSection, IIdentifier, IService, TKeyType } from '@veramo/core'
 import { mapIdentifierKeysToDocWithJwkSupport } from '@sphereon/ssi-sdk-did-utils'
-import { getAgent, globalConfig } from '../agent'
+import { getAgent, globalConfig } from '../agent/index.js'
 
 export function convertDidWebToHost(did: string) {
   did = did.substring(8)
@@ -50,6 +50,10 @@ export async function exportToDIDDocument(identifier: IIdentifier, opts?: { serv
     RSA: 'JsonWebKey2020',
   } as Record<TKeyType, string>
 
+  if ((!identifier.keys || identifier.keys.length === 0) && !identifier.controllerKeyId) {
+    throw Error(`No keys found for identifier: ${identifier}`)
+  }
+
   const allKeys = identifier.keys.map((key) => ({
     id: identifier.did + '#' + key.kid,
     type: keyMapping[key.type],
@@ -80,7 +84,7 @@ export async function exportToDIDDocument(identifier: IIdentifier, opts?: { serv
   return didDoc
 }
 
-export async function asDID(input?: string): Promise<string> {
+export async function asDID(input?: string, show?: boolean): Promise<string> {
   let did = input ? input : globalConfig?.gx?.particpantDID
   if (!did) {
     const ids = await (await getAgent()).didManagerFind()
@@ -92,8 +96,9 @@ export async function asDID(input?: string): Promise<string> {
       )
     }
   }
-
-  console.log(did)
+  if (show) {
+    console.log(did)
+  }
   if (did.startsWith('did:web:')) {
     return did
   }

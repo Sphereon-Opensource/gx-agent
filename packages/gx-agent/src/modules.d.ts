@@ -1,5 +1,7 @@
 declare module 'ed25519-signature-2018-context'
 declare module 'ed25519-signature-2020-context'
+declare module 'uint8arrays'
+declare module 'web-did-resolver'
 declare module '@digitalcredentials/vc'
 declare module '@digitalcredentials/jsonld'
 declare module '@digitalcredentials/jsonld-signatures'

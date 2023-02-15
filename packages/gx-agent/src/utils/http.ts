@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch'
-import { IGaiaxComplianceConfig } from '../types'
+import { IGaiaxComplianceConfig } from '../types/index.js'
 
 export async function postRequest(url: string, body: BodyInit): Promise<unknown> {
   try {
@@ -23,11 +23,14 @@ export async function postRequest(url: string, body: BodyInit): Promise<unknown>
 export function getApiVersionedUrl(config: IGaiaxComplianceConfig, baseUrl?: string) {
   if (!config && !baseUrl) {
     config = {
-      complianceServiceUrl: 'http://localhost:3002',
+      complianceServiceUrl: 'http://localhost:3003',
       complianceServiceVersion: '2206',
     }
   }
+  if (config.complianceServiceVersion === 'v2210') {
+    config.complianceServiceVersion = '2210vp'
+  }
   return baseUrl
-    ? `${baseUrl}${config.complianceServiceVersion ? `/${config.complianceServiceVersion}` : ''}/api`
-    : `${config.complianceServiceUrl}${config.complianceServiceVersion ? `/${config.complianceServiceVersion}` : ''}/api`
+    ? `${baseUrl}/api${config.complianceServiceVersion ? `/${config.complianceServiceVersion}` : ''}`
+    : `${config.complianceServiceUrl}/api${config.complianceServiceVersion ? `/${config.complianceServiceVersion}` : ''}`
 }

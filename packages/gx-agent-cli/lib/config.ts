@@ -1,7 +1,7 @@
-import 'cross-fetch/polyfill'
+// import 'cross-fetch/polyfill'
 import { program } from 'commander'
 import { getAgent } from '@sphereon/gx-agent'
-import { createAgentConfig, getDefaultAgentFile, getConfigAsString } from '@sphereon/gx-agent/dist/utils/config-utils'
+import { createAgentConfig, getDefaultAgentFile, getConfigAsString } from '@sphereon/gx-agent'
 
 const config = program.command('config').description('Agent configuration')
 

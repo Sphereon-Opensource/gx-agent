@@ -17,7 +17,7 @@ import {
   VerifiablePresentation,
 } from '@veramo/core'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
-import { purposes } from '@digitalcredentials/jsonld-signatures'
+import pkg from '@digitalcredentials/jsonld-signatures'
 import { _ExtendedIKey } from '@veramo/utils'
 
 export interface IGXComplianceClient extends IPluginMethodMap {
@@ -35,7 +35,7 @@ export interface IGXComplianceClient extends IPluginMethodMap {
 
   submitServiceOffering(args: IAddServiceOfferingArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
 
-  createAndSubmitServiceOffering(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
+  createAndSubmitServiceOffering(args: IAddServiceOfferingUnsignedArgs, context: GXRequiredContext): Promise<VerifiableCredentialResponse>
 
   createDIDFromX509(args: IImportDIDArg, context: GXRequiredContext): Promise<IIdentifier>
 
@@ -43,6 +43,18 @@ export interface IGXComplianceClient extends IPluginMethodMap {
 
   exportDIDToPath(
     { domain, services, path }: { domain: string; path?: string; services?: IService[] },
+    context: GXRequiredContext
+  ): Promise<ExportFileResult[]>
+
+  exportVCsToPath(
+    {
+      domain,
+      type,
+      hash,
+      exportPath,
+      includeVCs,
+      includeVPs,
+    }: { domain: string; type?: string; hash?: string; exportPath?: string; includeVCs: boolean; includeVPs: boolean },
     context: GXRequiredContext
   ): Promise<ExportFileResult[]>
 
@@ -59,6 +71,8 @@ export interface IGXComplianceClient extends IPluginMethodMap {
   onboardParticipantWithCredential(args: IOnboardParticipantWithCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
 
   onboardParticipantWithCredentialIds(args: IOnboardParticipantWithCredentialIdsArgs, context: GXRequiredContext): Promise<VerifiableCredential>
+
+  onboardServiceOfferingOnEcosystem(args: IOnboardServiceOfferingOnEcosystemArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
 
   verifySelfDescription(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult>
 }
@@ -82,9 +96,9 @@ export enum MethodNames {
 }
 
 export interface IGaiaxComplianceConfig {
-  kmsName?: string
   complianceServiceUrl: string
   complianceServiceVersion: string
+  kmsName?: string
 }
 
 export interface IGaiaxConformityResult {
@@ -109,21 +123,20 @@ export interface IIssueVerifiableCredentialArgs {
   credential: CredentialPayload
   domain?: string
   keyRef?: string
-
   persist?: boolean
 }
 
 export interface IIssueVerifiablePresentationArgs {
+  domain: string
+  verifiableCredentials: VerifiableCredential[]
   challenge?: string
   keyRef?: string
-  verifiableCredentials: VerifiableCredential[]
-  domain: string
-
   persist?: boolean
 }
 
 export interface ICheckVerifiablePresentationArgs {
   verifiablePresentation: VerifiablePresentation
+  show?: boolean
   challenge?: string
 }
 
@@ -133,60 +146,88 @@ export interface ICheckVerifiableCredentialArgs {
 
 export interface IAcquireComplianceCredentialArgs {
   selfDescriptionVP: VerifiablePresentation
+  show?: boolean
 }
 
 export interface IAcquireComplianceCredentialFromExistingParticipantArgs {
   participantSDId: string
+  persist?: boolean
+  show?: boolean
 }
 
 export interface IOnboardParticipantOnEcosystem {
   selfDescriptionVC: VerifiableCredential
   complianceVC: VerifiableCredential
-  // purpose?: typeof purposes
-  ecosystemUrl?: string
   domain?: string
   challenge?: string
+  ecosystemUrl?: string
   keyRef?: string
+  persist?: boolean
+  show?: boolean
 }
 
 export interface IOnboardParticipantWithCredentialArgs {
-  selfDescriptionVC: VerifiableCredential
   complianceVC: VerifiableCredential
+  selfDescriptionVC: VerifiableCredential
   // purpose?: typeof purposes
   baseUrl?: string
   domain?: string
   challenge?: string
   keyRef?: string
+  persist?: boolean
 }
 
 export interface IOnboardParticipantWithCredentialIdsArgs {
-  selfDescriptionId: string
   complianceId: string
+  selfDescriptionId: string
+  persist?: boolean
+}
+
+export interface IOnboardServiceOfferingOnEcosystemArgs {
+  ecosystemUrl: string
+  sdId: string
+  complianceId: string
+  ecosystemComplianceId: string
+  serviceOffering: CredentialPayload
+  persist?: boolean
+  show?: boolean
+}
+
+export interface IOnboardServiceOfferingOnEcosystemArgs {
+  ecosystemUrl: string
+  sdId: string
+  complianceId: string
+  ecosystemComplianceId: string
+  serviceOffering: CredentialPayload
+  persist?: boolean
+  show?: boolean
 }
 
 export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
   credential: CredentialPayload
+  persist?: boolean
+  show?: boolean
 }
 
 export interface IAddServiceOfferingUnsignedArgs {
-  challenge?: string
-  serviceOfferingCredential: CredentialPayload
-  complianceId?: string
-  complianceVC?: VerifiableCredential
-  keyRef?: string
-  domain?: string
+  serviceOfferingId: string
+  participantId: string
+  complianceId: string
+  persist?: boolean
+  show?: boolean
 }
 
 export interface IAddServiceOfferingArgs {
   serviceOfferingVP: VerifiablePresentation
+  baseUrl?: string
 }
 
 export interface IIssueAndSaveVerifiablePresentationArgs {
   challenge: string
   keyRef: string
-  purpose?: typeof purposes
   verifiableCredentials: VerifiableCredential[]
   verificationMethodId: string
+  purpose?: typeof pkg.purposes
 }
 
 export interface VerifiableCredentialResponse {
@@ -271,7 +312,52 @@ export interface JWK extends JsonWebKey {
   x5u?: string
 }
 
-export const ProofPurpose = purposes.ProofPurpose
-export const ControllerProofPurpose = purposes.ControllerProofPurpose
-export const AssertionProofPurpose = purposes.AssertionProofPurpose
-export const AuthenticationProofPurpose = purposes.AuthenticationProofPurpose
+export enum ServiceOfferingType {
+  DcatDataSet = 'dcat:Dataset',
+  AutoscaledVirtualMachine = 'AutoscaledVirtualMachine',
+  ComputeFunction = 'ComputeFunction',
+  IdentityAccessManagementOffering = 'IdentityAccessManagementOffering',
+  VirtualMachine = 'VirtualMachine',
+  InstantiatedVirtualResource = 'InstantiatedVirtualResource',
+  VerifiableCredentialWallet = 'VerifiableCredentialWallet',
+  PlatformOffering = 'PlatformOffering',
+  Location = 'Location',
+  ObjectStorageOffering = 'ObjectStorageOffering',
+  BigData = 'BigData',
+  InfrastructureOffering = 'InfrastructureOffering',
+  Connectivity = 'Connectivity',
+  ServiceOffering = 'ServiceOffering',
+  Database = 'Database',
+  WalletOffering = 'WalletOffering',
+  ImageRegistryOffering = 'ImageRegistryOffering',
+  IdentityFederation = 'IdentityFederation',
+  SoftwareOffering = 'SoftwareOffering',
+  LinkConnectivity = 'LinkConnectivity',
+  PhysicalConnectivity = 'PhysicalConnectivity',
+  Container = 'Container',
+  Interconnection = 'Interconnection',
+  StorageOffering = 'StorageOffering',
+  AutoscaledContainer = 'AutoscaledContainer',
+  Catalogue = 'Catalogue',
+  Compute = 'Compute',
+  NetworkOffering = 'NetworkOffering',
+  NetworkConnectivity = 'NetworkConnectivity',
+  LocatedServiceOffering = 'LocatedServiceOffering',
+  BareMetal = 'BareMetal',
+  FileStorageOffering = 'FileStorageOffering',
+  IdentityProvider = 'IdentityProvider',
+  Orchestration = 'Orchestration',
+  BlockStorageOffering = 'BlockStorageOffering',
+  DigitalIdentityWallet = 'DigitalIdentityWallet',
+}
+
+export const ProofPurpose = pkg.purposes.ProofPurpose
+export const ControllerProofPurpose = pkg.purposes.ControllerProofPurpose
+export const AssertionProofPurpose = pkg.purposes.AssertionProofPurpose
+export const AuthenticationProofPurpose = pkg.purposes.AuthenticationProofPurpose
+
+export interface EcosystemConfig {
+  name: string
+  description?: string
+  url: string
+}

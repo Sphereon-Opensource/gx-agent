@@ -92,9 +92,7 @@ vc.command('list')
         })
       )
     } catch (e: any) {
-      console.error(e.message)
-    } finally {
-      nock.cleanAll()
+      console.error(e)
     }
   })
 
@@ -102,7 +100,7 @@ vc.command('verify')
   .description('Verifies a Verifiable Credential using a Credential from an input file or stored in the agent')
   .option('-f, --input-file <string>', 'File containing a Verifiable Credential')
   .option('-id, --vc-id <string>', 'Use a persisted VC as input for verification')
-  .option('--show', 'Print the Verifiable Credential to console')
+  .option('-s, --show', 'Print the Verifiable Credential to console')
   .action(async (cmd) => {
     const agent = await getAgent()
     if (!cmd.inputFile && !cmd.vcId) {
@@ -126,13 +124,12 @@ vc.command('verify')
       let id: IIdentifier | undefined
       try {
         id = await agent.didManagerGet({ did })
-      } catch (e) {
-        // DID not hosted by us, which is fine
-      }
 
-      if (id) {
         const didDoc = await exportToDIDDocument(id)
         const url = `https://${convertDidWebToHost(did)}`
+
+        console.log(`$$$$$$$$$$$$$$$$$$URL: ${url}: ${JSON.stringify(id, null, 2)}`)
+
         nock.cleanAll()
         nock(url)
           .get(`/.well-known/did.json`)
@@ -140,7 +137,10 @@ vc.command('verify')
           .reply(200, {
             ...didDoc,
           })
+      } catch (e) {
+        // DID not hosted by us, which is fine
       }
+
       try {
         const result = await agent.checkVerifiableCredential({ verifiableCredential })
 
@@ -154,7 +154,7 @@ vc.command('verify')
           },
         ])
       } catch (e: any) {
-        console.log(e.message)
+        console.error(e.message)
       }
 
       if (cmd.show === true) {

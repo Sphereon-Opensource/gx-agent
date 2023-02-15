@@ -42,7 +42,7 @@ vp.command('verify')
   .description('Verify a Verifiable Presentation from file or agent id')
   .option('-f, --input-file <string>', 'File containing a Verifiable Presentation')
   .option('-id, --vc-id <string>', 'Use a persisted VP in the agent as input for verification')
-  .option('--show', 'Print the Verifiable Presentation to console')
+  .option('-s, --show', 'Print the Verifiable Presentation to console')
   .action(async (cmd) => {
     const agent = await getAgent()
     try {
@@ -59,11 +59,6 @@ vp.command('verify')
       let id: IIdentifier | undefined
       try {
         id = await agent.didManagerGet({ did: verifiablePresentation.holder })
-      } catch (e) {
-        // DID not hosted by us, which is fine
-      }
-
-      if (id) {
         const didDoc = await exportToDIDDocument(id)
         const url = `https://${convertDidWebToHost(verifiablePresentation.holder)}`
         nock.cleanAll()
@@ -73,8 +68,11 @@ vp.command('verify')
           .reply(200, {
             ...didDoc,
           })
+      } catch (e) {
+        // DID not hosted by us, which is fine
       }
-      const result = await agent.checkVerifiablePresentation({ verifiablePresentation })
+
+      const result = await agent.checkVerifiablePresentation({ verifiablePresentation, show: cmd.show === true })
 
       printTable([
         {
@@ -135,7 +133,6 @@ vp.command('issue')
       const id = await agent.didManagerGet({ did })
       const didDoc = await exportToDIDDocument(id)
       const url = `https://${convertDidWebToHost(did)}`
-      console.log(url)
       nock.cleanAll()
       nock(url)
         .get(`/.well-known/did.json`)

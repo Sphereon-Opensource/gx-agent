@@ -1,6 +1,6 @@
 import { ICredentialSubject } from '@sphereon/ssi-types'
 import { CredentialPayload, VerifiableCredential } from '@veramo/core'
-import { IGaiaxCredentialType } from '../types'
+import { IGaiaxCredentialType } from '../types/index.js'
 
 export function extractSubjectDIDFromVCs(verifiableCredentials: VerifiableCredential[] | CredentialPayload) {
   const credentialSubject = Array.isArray(verifiableCredentials)

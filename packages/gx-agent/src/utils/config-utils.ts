@@ -2,8 +2,10 @@ import { homedir } from 'os'
 import fs from 'fs'
 import { dirname } from 'path'
 import yaml from 'yaml'
-import { EcosystemConfig } from '../types'
+import { EcosystemConfig } from '../types/index.js'
 import { SecretBox } from '@veramo/kms-local'
+import { fileURLToPath } from 'url'
+import * as path from 'path'
 
 export function getUserHome(): string {
   return homedir()
@@ -24,18 +26,20 @@ export function createAgentDir(path: string): string {
   return dirname(path)
 }
 
-export async function createAgentConfig(path: string) {
-  const dir = createAgentDir(path)
+export async function createAgentConfig(filePath: string) {
+  const dir = createAgentDir(filePath)
   const agentPath = `${dir}/agent.yml`
 
   if (!fs.existsSync(agentPath)) {
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = path.dirname(__filename)
     const templateFile = __dirname + '/../fixtures/template-agent.yml'
     const contents = fs.readFileSync(templateFile)
     const config: any = yaml.parse(contents.toString('utf8'))
     try {
       config.constants.dbEncryptionKey = await SecretBox.createSecretKey()
       config.gx.dbEncryptionKey = config.constants.dbEncryptionKey
-      config.gx.dbFile = `${getDefaultAgentDir()}/db/gx.db.sqlite`
+      config.gx.dbFile = `${dir}/db/gx.db.sqlite`
       const yamlString: string = yaml.stringify(config)
       fs.writeFileSync(agentPath, yamlString)
     } catch (error) {
@@ -128,9 +132,6 @@ export function normalizeEcosystemConfigurationObject(ecosystemConfig: Ecosystem
   if (!ecosystemConfig.url.startsWith('http')) {
     ecosystemConfig.url = `https://${ecosystemConfig.url}`
   }
-  if (ecosystemConfig.url.endsWith('/')) {
-    ecosystemConfig.url = ecosystemConfig.url.substring(0, ecosystemConfig.url.length - 1)
-  }
   return ecosystemConfig
 }
 
@@ -139,6 +140,9 @@ export function addEcosystemConfigObject(agentPath: string, newEcosystem: Ecosys
   const config = getConfigAsObject(agentPath)
   const ecosystems = getEcosystemConfigObjects(agentPath)
   const others = ecosystems.filter((ecosystem) => ecosystem.name.toLowerCase() !== newEcosystem.name.toLowerCase())
+  if (newEcosystem.url.endsWith('/')) {
+    newEcosystem.url = newEcosystem.url.substring(0, newEcosystem.url.length - 1)
+  }
   const ecosystemConfigs = [...others, newEcosystem]
   config.gx.ecosystems = ecosystemConfigs
   writeConfigObject(config, agentPath)

@@ -1,9 +1,10 @@
 /**
  * @public
  */
-const schema = require('../plugin.schema.json')
+// @ts-ignore
+import schema from '../plugin.schema.json' assert { type: 'json' }
 export { schema }
-export { GXComplianceClient } from './agent/GXComplianceClient'
-export * from './types'
-export * from './agent'
-export * from './utils'
+export * from './suites/index.js'
+export * from './types/index.js'
+export * from './agent/index.js'
+export * from './utils/index.js'
