@@ -130,11 +130,15 @@ export interface IIssueVerifiablePresentationArgs {
   domain: string
   verifiableCredentials: VerifiableCredential[]
   challenge?: string
+
+  targetUrl?: string
   keyRef?: string
   persist?: boolean
 }
 
 export interface ICheckVerifiablePresentationArgs {
+
+  targetDomain?: string
   verifiablePresentation: VerifiablePresentation
   show?: boolean
   challenge?: string
