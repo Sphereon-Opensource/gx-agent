@@ -128,8 +128,6 @@ vc.command('verify')
         const didDoc = await exportToDIDDocument(id)
         const url = `https://${convertDidWebToHost(did)}`
 
-        console.log(`$$$$$$$$$$$$$$$$$$URL: ${url}: ${JSON.stringify(id, null, 2)}`)
-
         nock.cleanAll()
         nock(url)
           .get(`/.well-known/did.json`)

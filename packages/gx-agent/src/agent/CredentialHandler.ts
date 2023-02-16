@@ -66,24 +66,24 @@ export class CredentialHandler {
   /** {@inheritDoc IGXComplianceClient.issueVerifiablePresentation} */
   public async issueVerifiablePresentation(
     args: IIssueVerifiablePresentationArgs,
-    context: GXRequiredContext
+    context: GXRequiredContext,
   ): Promise<UniqueVerifiablePresentation> {
     const did = await asDID(args.domain!)
     const signInfo = await extractSignInfo({ did, section: 'authentication', keyRef: args.keyRef }, context)
 
     const verifiablePresentation = await context.agent.createVerifiablePresentationLDLocal({
       presentation: {
-        id: uuidv4(),
+        id: `urn:uuid:${uuidv4()}`,
         issuanceDate: new Date(),
         type: ['VerifiablePresentation'],
         '@context': ['https://www.w3.org/2018/credentials/v1'],
         verifiableCredential: args.verifiableCredentials,
         holder: did,
       },
-      // purpose: args.purpose, // todo: Make dynamic basied on signInfo and arg
+      // purpose: args.purpose, // todo: Make dynamic based on signInfo and arg
       keyRef: signInfo.keyRef,
       challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
-      domain: this.config().complianceServiceUrl,
+      domain: args.targetUrl ?? this.config().complianceServiceUrl,
     })
     let hash = '' //todo: determine id, without saving
     if (args.persist) {
@@ -93,14 +93,14 @@ export class CredentialHandler {
   }
 
   public async checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<boolean> {
-    const domain = this.config().complianceServiceUrl
-    const challenge = args.challenge ? args.challenge : GXComplianceClient.getDateChallenge()
+    const domain = args.targetDomain ?? args.verifiablePresentation?.proof?.domain ?? this.config().complianceServiceUrl
+    const challenge = args.challenge ?? args.verifiablePresentation?.proof?.challenge
     const result = await context.agent.verifyPresentationLDLocal({
       presentation: args.verifiablePresentation,
       challenge,
       domain,
       fetchRemoteContexts: true,
-      presentationPurpose: new AuthenticationProofPurpose({ domain: args.verifiablePresentation.holder, challenge }),
+      presentationPurpose: new AuthenticationProofPurpose({ domain, challenge }),
     })
     if (args.show) {
       console.log(result)
