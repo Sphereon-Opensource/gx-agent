@@ -173,7 +173,7 @@ importers:
     specifiers:
       '@microsoft/api-extractor': ^7.33.6
       '@microsoft/api-extractor-model': ^7.25.2
-      '@sphereon/gx-agent': ^0.2.1
+      '@sphereon/gx-agent': ^0.3.0
       '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.179
       '@types/blessed': ^0.1.19
       '@types/debug': 4.1.7
