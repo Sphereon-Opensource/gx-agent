@@ -102,6 +102,7 @@ vp.command('issue')
   .option('-ids, --vc-ids <string...>', '1 or more Verifiable Credential IDS stored in the agent')
   .option('-f, --vc-files <string...>', 'File(s) containing Verifiable Credentials')
   .option('-c, --challenge <string>', 'Use a challenge')
+  .option('-t, --target-domain <string>', 'Target domain, used to protect against replay attacks')
   .option('-p, --persist', 'Persist the presentation. If not provided the presentation will not be stored in the agent')
   .option('-s, --show', 'Print the Verifiable Presentation to console')
 
@@ -144,7 +145,7 @@ vp.command('issue')
       const uniqueVP = await agent.issueVerifiablePresentation({
         challenge: cmd.challenge as string,
         verifiableCredentials,
-        domain: did,
+        domain: cmd.targetDomain,
         persist: cmd.persist === true,
       })
 

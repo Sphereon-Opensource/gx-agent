@@ -69,7 +69,8 @@ sd.command('verify')
     }
   })
 
-sd.command('export-example')
+sd.command('example-input')
+  .alias('example')
   .description('Creates an example participant self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option(

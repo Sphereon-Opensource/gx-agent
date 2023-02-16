@@ -94,14 +94,15 @@ sd.command('verify')
     }
   })
 
-sd.command('export-example')
+sd.command('example-input')
+  .alias('example')
   .description('Creates an example service-offering self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option(
     '-v, --version <string>',
     "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
   )
-  .option(
+  .requiredOption(
     '-t, --type <string>',
     `ServiceOffering type is mandatory of you select latest version. Type can be chosen from this list: ${Object.keys(ServiceOfferingType).map(
       (key) => ' ' + key
