@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.4.1](https://github.com/Sphereon/gx-agent/compare/v0.4.0...v0.4.1) (2023-03-02)
+
+
+### Bug Fixes
+
+* fix dependencies ([6a1c1d0](https://github.com/Sphereon/gx-agent/commit/6a1c1d0880e39c7279dd5c0206e0df5345eff0a3))
+
+
+
+
+
 # [0.4.0](https://github.com/Sphereon/gx-agent/compare/v0.3.0...v0.4.0) (2023-03-02)
 
 
