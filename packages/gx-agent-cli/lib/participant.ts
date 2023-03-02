@@ -2,7 +2,15 @@ import { InvalidArgumentError, program } from 'commander'
 
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import { asDID, exampleParticipantSD, exampleParticipantSD2210, ExportFileResult, getAgent, IVerifySelfDescribedCredential } from '@sphereon/gx-agent'
+import {
+  asDID, createSDCredentialFromPayload,
+  exampleParticipantSD,
+  exampleParticipantSD2210,
+  ExportFileResult,
+  getAgent,
+  IVerifySelfDescribedCredential,
+  VerifiableCredentialResponse
+} from '@sphereon/gx-agent'
 
 const participant = program.command('participant').description('Participant commands')
 const sd = participant.command('sd').alias('self-description').description('Participant self-description commands')
@@ -23,17 +31,25 @@ sd.command('submit')
         throw new InvalidArgumentError('sd-id and sd-file options cannot both be provided at the same time')
       }
       const agent = await getAgent()
-      const selfDescription = cmd.sdId
-        ? await agent.acquireComplianceCredentialFromExistingParticipant({
-            participantSDId: cmd.sdId,
-            persist: true,
-            show: cmd.show,
-          })
-        : await agent.acquireComplianceCredentialFromUnsignedParticipant({
-            credential: JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8')),
-            persist: true,
-            show: cmd.show,
-          })
+      let selfDescription : VerifiableCredentialResponse
+      if (cmd.sdId) {
+        selfDescription =  await agent.acquireComplianceCredentialFromExistingParticipant({
+          participantSDId: cmd.sdId,
+          persist: true,
+          show: cmd.show,
+        })
+      } else {
+        let sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
+        if (!sd.credentialSubject) {
+          const did = await asDID()
+          sd = createSDCredentialFromPayload({did, payload: sd})
+        }
+        selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
+          credential: sd,
+          persist: true,
+          show: cmd.show,
+        })
+      }
 
       printTable([
         {
@@ -90,6 +106,27 @@ sd.command('example-input')
       console.log(JSON.stringify(credential, null, 2))
     }
   })
+
+sd.command('wizard-credential')
+  .description('Takes data from the SD Creation Wizard and creates a SD Credential out of it. Link to the wizard: https://sd-creation-wizard.gxfs.dev/')
+  .option('-d, --did <string>', 'the DID or domain which will be used')
+  .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of the SD Wizard file you downloaded)')
+  .option('--show', 'Show the resulting self-description Verifiable Credential')
+  .action(async (cmd) => {
+    const did = await asDID(cmd.did)
+    const payload = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
+    const credential = createSDCredentialFromPayload({ did, payload })
+    const fileName = `${cmd.sdInputFile.replace('.json', '')}-sd-credential.json`
+    fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
+    printTable([{ 'credential file': fileName, did }])
+    console.log(
+      `SD Wizard file has been converted to a self-description credential file and written to ${fileName}. Please check and adjust the contents and use one of the onboarding methods`
+    )
+    if (cmd.show) {
+      console.log(JSON.stringify(credential, null, 2))
+    }
+  })
+
 
 export async function exportParticipant(cmd: any): Promise<ExportFileResult[]> {
   const did = await asDID(cmd.did)
@@ -201,14 +238,18 @@ sd.command('create')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()
-      const sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
-      if (!sd.type.includes('LegalPerson')) {
+      let sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
+      if (!sd.credentialSubject) {
+        const did = await asDID()
+        sd = createSDCredentialFromPayload({did, payload: sd})
+      }
+      if (!sd.type.includes('LegalPerson') && sd.credentialSubject['@type'] !== 'gax-trust-framework:LegalPerson') {
         throw new Error(
-          'Self-description input file is not of the correct type. Please use `participant sd export-example-sd` command and update the content to create a correct input file'
+          'Self-description input file is not of the correct type. Please use `participant sd export-example-sd` or `participant sd sd-wizard-credential` commands and update the content to create a correct input file'
         )
       }
       const selfDescription = await agent.issueVerifiableCredential({
-        ...sd,
+        credential: sd,
         persist: true,
       })
       printTable([{ ...selfDescription }])
