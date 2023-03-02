@@ -1,6 +1,6 @@
 {
   "name": "@sphereon/gx-agent",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "exports": {
@@ -80,8 +80,7 @@
     "@veramo/did-discovery": "4.2.0",
     "@veramo/did-resolver": "4.2.0",
     "@veramo/key-manager": "4.2.0",
-    "@veramo/message-handler": "4.2.0",
-    "@veramo/utils": "4.2.0"
+    "@veramo/message-handler": "4.2.0"
   },
   "files": [
     "dist/**/*",
