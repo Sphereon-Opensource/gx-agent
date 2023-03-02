@@ -4,12 +4,13 @@ import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import {
   asDID,
-  convertDidWebToHost, createSDCredentialFromPayload,
+  convertDidWebToHost,
+  createSDCredentialFromPayload,
   exampleServiceOfferingSD,
   exampleServiceOfferingSD2210,
   getAgent,
   IVerifySelfDescribedCredential,
-  ServiceOfferingType
+  ServiceOfferingType,
 } from '@sphereon/gx-agent'
 import { CredentialPayload } from '@veramo/core'
 
@@ -41,7 +42,7 @@ sd.command('submit')
           credential,
           keyRef: cmd.keyIdentifier,
           domain: did,
-          persist: true
+          persist: true,
         })
         soVcId = vc.hash
         printTable([
@@ -51,8 +52,8 @@ sd.command('submit')
             subject: vc.verifiableCredential.credentialSubject.id,
             'issuance-date': vc.verifiableCredential.issuanceDate,
             id: vc.hash,
-            persisted: true
-          }
+            persisted: true,
+          },
         ])
       }
       const vc = await agent.createAndSubmitServiceOffering({
@@ -60,7 +61,7 @@ sd.command('submit')
         participantId: cmd.sdId,
         complianceId: cmd.complianceId,
         persist: cmd.persist,
-        show: cmd.show
+        show: cmd.show,
       })
       printTable([
         {
@@ -69,8 +70,8 @@ sd.command('submit')
           subject: vc.verifiableCredential.credentialSubject.id,
           'issuance-date': vc.verifiableCredential.issuanceDate,
           id: vc.hash,
-          persisted: cmd.persist
-        }
+          persisted: cmd.persist,
+        },
       ])
     } catch (error: any) {
       console.error(error.message)
@@ -95,7 +96,9 @@ sd.command('verify')
   })
 
 sd.command('wizard-credential')
-  .description('Takes data from the SD Creation Wizard and creates a SD Credential out of it. Link to the wizard: https://sd-creation-wizard.gxfs.dev/')
+  .description(
+    'Takes data from the SD Creation Wizard and creates a SD Credential out of it. Link to the wizard: https://sd-creation-wizard.gxfs.dev/'
+  )
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of the SD Wizard file you downloaded)')
   .option('--show', 'Show the resulting self-description Verifiable Credential')
@@ -114,14 +117,13 @@ sd.command('wizard-credential')
     }
   })
 
-
 sd.command('example-input')
   .alias('example')
   .description('Creates an example service-offering self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option(
     '-v, --version <string>',
-    'Version of SelfDescription object you want to create: \'v2206\', or \'v2210\', if no version provided, it will default to `v2210`'
+    "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
   )
   .requiredOption(
     '-t, --type <string>',
@@ -141,12 +143,12 @@ sd.command('example-input')
     if (cmd.version && cmd.version === 'v2206') {
       credential = exampleServiceOfferingSD({
         did,
-        url
+        url,
       })
     } else if ((!cmd.version && !cmd.type) || (cmd.version === 'latest' && !cmd.type)) {
       console.error('for v2210 version, you should provide type.')
     } else if ((!cmd.version || cmd.version === 'latest') && cmd.type) {
-      console.log('IMPORTANT: the values specified with \'*\' should be populated by you.')
+      console.log("IMPORTANT: the values specified with '*' should be populated by you.")
       // @ts-ignore
       credential = exampleServiceOfferingSD2210({ url, did, type: ServiceOfferingType[cmd.type] })
     }
@@ -170,7 +172,7 @@ export async function exportServiceOffering(cmd: any) {
     type: typeStr,
     includeVCs: true,
     includeVPs: true,
-    exportPath: cmd.path
+    exportPath: cmd.path,
   })
   return exportResult
 }
@@ -194,15 +196,20 @@ sd.command('list')
       const agent = await getAgent()
       const vcs = await agent.dataStoreORMGetVerifiableCredentials()
       const did = cmd.did ? await asDID(cmd.did) : undefined
-      const sds = vcs.filter((vc) => (vc.verifiableCredential.type!.includes('ServiceOffering') ||
-        (vc.verifiableCredential.credentialSubject['@type'] && vc.verifiableCredential.credentialSubject['@type'] !== 'gax-trust-framework:LegalPerson')) && (!did || vc.verifiableCredential.issuer === did))
+      const sds = vcs.filter(
+        (vc) =>
+          (vc.verifiableCredential.type!.includes('ServiceOffering') ||
+            (vc.verifiableCredential.credentialSubject['@type'] &&
+              vc.verifiableCredential.credentialSubject['@type'] !== 'gax-trust-framework:LegalPerson')) &&
+          (!did || vc.verifiableCredential.issuer === did)
+      )
       printTable(
         sds.map((sd) => {
           return {
             issuer: sd.verifiableCredential.issuer,
             subject: sd.verifiableCredential.id,
             'issuance-data': sd.verifiableCredential.issuanceDate,
-            id: sd.hash
+            id: sd.hash,
           }
         })
       )
@@ -232,8 +239,8 @@ sd.command('show')
             issuer: vc.issuer,
             subject: vc.id,
             'issuance-data': vc.issuanceDate,
-            id: vc.hash
-          }
+            id: vc.hash,
+          },
         ])
         console.log(`id: ${id}\n${JSON.stringify(vc, null, 2)}`)
       }
@@ -278,7 +285,7 @@ sd.command('create')
       }
       const selfDescription = await agent.issueVerifiableCredential({
         ...sd,
-        persist: true
+        persist: true,
       })
       printTable([{ ...selfDescription }])
       if (cmd.show) {

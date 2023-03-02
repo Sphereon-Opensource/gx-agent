@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "build:copyfiles": "copyfiles fixtures/*.* ./dist/"
+    "build:copyfiles": "copyfiles fixtures/*.* ./dist/ && copyfiles plugin.schema.json ./dist/"
   },
   "dependencies": {
     "@sphereon/did-uni-client": "^0.5.1-unstable.1",

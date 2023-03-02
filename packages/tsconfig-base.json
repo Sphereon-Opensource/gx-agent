@@ -22,10 +22,5 @@
     "declarationMap": true,
     "composite": true
   },
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS"
-    }
-  },
   "exclude": ["**/__tests__/**/*", "**/dist/**/*", "**/build/**/*"]
 }

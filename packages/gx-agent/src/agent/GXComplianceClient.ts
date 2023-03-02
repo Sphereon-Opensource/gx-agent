@@ -10,7 +10,6 @@ import {
 
 import {
   asDID,
-  AssertionProofPurpose,
   convertDidWebToHost,
   CredentialValidationResult,
   ExportFileResult,
@@ -262,7 +261,6 @@ export class GXComplianceClient implements IAgentPlugin {
     try {
       valid = await context.agent.verifyCredentialLDLocal({
         credential: vc,
-        purpose: new AssertionProofPurpose(),
         fetchRemoteContexts: true,
       })
 

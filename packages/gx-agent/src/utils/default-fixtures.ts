@@ -3,8 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { convertDidWebToHost } from './index.js'
 import { CredentialPayload } from '@veramo/core'
 
-
-export function createSDCredentialFromPayload({ did, payload }: { payload: unknown; did?: string; }): CredentialPayload {
+export function createSDCredentialFromPayload({ did, payload }: { payload: unknown; did?: string }): CredentialPayload {
   const json = typeof payload === 'string' ? payload : JSON.stringify(payload)
   const credentialSubject = { ...getGeneralServiceOffering2210Subject(did), ...JSON.parse(json) }
   if (credentialSubject['@id']) {
@@ -20,7 +19,7 @@ export function createSDCredentialFromPayload({ did, payload }: { payload: unkno
     issuer: `${did ? did : 'your DID here'}`,
     type: ['VerifiableCredential'],
     id: `urn:uuid:${uuidv4()}`,
-    credentialSubject
+    credentialSubject,
   }
 }
 
@@ -37,38 +36,38 @@ export function exampleParticipantSD({ did }: { did?: string; version?: string }
       'gx-participant:registrationNumber': [
         {
           'gx-participant:registrationNumberType': 'local',
-          'gx-participant:registrationNumberNumber': '93056589'
+          'gx-participant:registrationNumberNumber': '93056589',
         },
         {
           'gx-participant:registrationNumberType': 'vat',
-          'gx-participant:registrationNumberNumber': 'NL001234567B01'
+          'gx-participant:registrationNumberNumber': 'NL001234567B01',
         },
         {
           'gx-participant:registrationNumberType': 'leiCode',
-          'gx-participant:registrationNumberNumber': '9695007586GCAKPYJ703'
+          'gx-participant:registrationNumberNumber': '9695007586GCAKPYJ703',
         },
         {
           'gx-participant:registrationNumberType': 'EUID',
-          'gx-participant:registrationNumberNumber': 'FR5910.424761419'
-        }
+          'gx-participant:registrationNumberNumber': 'FR5910.424761419',
+        },
       ],
       'gx-participant:headquarterAddress': {
         'gx-participant:addressCountryCode': 'NL',
         'gx-participant:addressCode': 'NL-NLD',
         'gx-participant:streetAddress': '2 rue Kellermann',
         'gx-participant:postalCode': '59100',
-        'gx-participant:locality': 'Roubaix'
+        'gx-participant:locality': 'Roubaix',
       },
       'gx-participant:legalAddress': {
         'gx-participant:addressCountryCode': 'NL',
         'gx-participant:addressCode': 'NL-NLD',
         'gx-participant:streetAddress': '2 rue Kellermann',
         'gx-participant:postalCode': '59100',
-        'gx-participant:locality': 'Roubaix'
+        'gx-participant:locality': 'Roubaix',
       },
-      'gx-participant:termsAndConditions': '70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700'
+      'gx-participant:termsAndConditions': '70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700',
     },
-    type: [IGaiaxCredentialType.LegalPerson]
+    type: [IGaiaxCredentialType.LegalPerson],
   }
 }
 
@@ -99,68 +98,68 @@ export function exampleParticipantSD2210({ did }: { did?: string; version?: stri
         dcat: 'http://www.w3.org/ns/dcat#',
         vann: 'http://purl.org/vocab/vann/',
         foaf: 'http://xmlns.com/foaf/0.1/',
-        did: 'https://www.w3.org/TR/did-core/#'
+        did: 'https://www.w3.org/TR/did-core/#',
       },
       id: `${did ? did : 'your DID here'}`,
       '@type': 'gax-trust-framework:LegalPerson',
       'gax-trust-framework:legalName': {
         '@value': 'your legalName here',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       // TODO: do we need an enum for this? because the gx example has a lot of German values in it such as GmbH, GbR, ...
       'gax-trust-framework:legalForm': 'your legalForm here (LLC, LP, Corporation, Nonprofit corporation, JSCo, ...) ',
       'gax-trust-framework:registrationNumber': {
         '@value': 'your registrationNumber here',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'gax-trust-framework:legalAddress': {
         '@type': 'vcard:Address',
         'vcard:country-name': {
           '@value': 'your Country name here',
-          '@type': 'xsd:string'
+          '@type': 'xsd:string',
         },
         'vcard:gps': {
           '@value': 'your gps coordinates here',
-          '@type': 'xsd:string'
+          '@type': 'xsd:string',
         },
         'vcard:street-address': {
           '@value': 'your street address here',
-          '@type': 'xsd:string'
+          '@type': 'xsd:string',
         },
         'vcard:postal-code': {
           '@value': 'your postal code here',
-          '@type': 'xsd:string'
+          '@type': 'xsd:string',
         },
         'vcard:locality': {
           '@value': 'your city here',
-          '@type': 'xsd:string'
-        }
+          '@type': 'xsd:string',
+        },
       },
       'gax-trust-framework:headquarterAddress': {
         '@type': 'vcard:Address',
         'vcard:country-name': {
           '@value': 'your country name here',
-          '@type': 'xsd:string'
+          '@type': 'xsd:string',
         },
         'vcard:gps': {
           '@value': 'your gps coordinates here',
-          '@type': 'xsd:string'
+          '@type': 'xsd:string',
         },
         'vcard:street-address': {
           '@value': 'your street address here',
-          '@type': 'xsd:string'
+          '@type': 'xsd:string',
         },
         'vcard:postal-code': {
           '@value': 'your postal code here',
-          '@type': 'xsd:string'
+          '@type': 'xsd:string',
         },
         'vcard:locality': {
           '@value': 'your city here',
-          '@type': 'xsd:string'
-        }
-      }
+          '@type': 'xsd:string',
+        },
+      },
     },
-    type: ['VerifiableCredential']
+    type: ['VerifiableCredential'],
   }
 }
 
@@ -177,32 +176,28 @@ export function exampleServiceOfferingSD({ url, did }: { url: string; did?: stri
       'gx-service-offering:termsAndConditions': [
         {
           'gx-service-offering:url': `${url ? url : 'https://participant.example.com'}` + '/terms-and-conditions/',
-          'gx-service-offering:hash': 'myrandomhash'
-        }
+          'gx-service-offering:hash': 'myrandomhash',
+        },
       ],
       'gx-service-offering:gdpr': [
         {
-          'gx-service-offering:imprint': `${url ? url : 'https://participant.example.com'}` + '/terms-and-conditions/'
+          'gx-service-offering:imprint': `${url ? url : 'https://participant.example.com'}` + '/terms-and-conditions/',
         },
         {
-          'gx-service-offering:privacyPolicy': `${url ? url : 'https://participant.example.com'}` + '/personal-data-protection/'
-        }
+          'gx-service-offering:privacyPolicy': `${url ? url : 'https://participant.example.com'}` + '/personal-data-protection/',
+        },
       ],
       'gx-service-offering:dataExport': {
         'gx-service-offering:requestType': 'email',
         'gx-service-offering:accessType': 'digital',
-        'gx-service-offering:formatType': 'mime/png'
-      }
+        'gx-service-offering:formatType': 'mime/png',
+      },
     },
-    type: [IGaiaxCredentialType.ServiceOffering]
+    type: [IGaiaxCredentialType.ServiceOffering],
   }
 }
 
-export function exampleServiceOfferingSD2210({
-                                               url,
-                                               did,
-                                               type
-                                             }: { url: string; did?: string; type: ServiceOfferingType; version?: string }) {
+export function exampleServiceOfferingSD2210({ url, did, type }: { url: string; did?: string; type: ServiceOfferingType; version?: string }) {
   let credentialSubject
   switch (type) {
     case ServiceOfferingType.DcatDataSet:
@@ -319,7 +314,7 @@ export function exampleServiceOfferingSD2210({
     issuer: `${did ? did : 'your DID here'}`,
     id: `urn:uuid:${uuidv4()}`,
     credentialSubject,
-    type: ['VerifiableCredential']
+    type: ['VerifiableCredential'],
   }
 }
 
@@ -346,10 +341,10 @@ function getGeneralServiceOffering2210Subject(did?: string) {
       dcat: 'http://www.w3.org/ns/dcat#',
       vann: 'http://purl.org/vocab/vann/',
       foaf: 'http://xmlns.com/foaf/0.1/',
-      did: 'https://www.w3.org/TR/did-core/#'
+      did: 'https://www.w3.org/TR/did-core/#',
     },
     //fixme id should change to did:web:registry.gaia-x.eu:<service-type>:random alphanumeric like: 0EhGVCJEBe9p2AxKPydcK6O3F3Wememi4sui
-    id: `${did ? did : 'your DID here'}`
+    id: `${did ? did : 'your DID here'}`,
   }
 }
 
@@ -358,7 +353,7 @@ function createAutoscaledVirtualMachineSubject(url: string, did?: string) {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:AutoscaledVirtualMachine',
     'gax-trust-framework:autoscaledVmServiceSpec': {
-      '@id': 'spec**'
+      '@id': 'spec**',
     },
     ...codeArtifactFixture(),
     ...offeredByFixture(),
@@ -367,7 +362,7 @@ function createAutoscaledVirtualMachineSubject(url: string, did?: string) {
     ...termsAndConditionsFixture(),
     ...policyFixture(),
     ...dataAccountExportFixture(),
-    ...providedByFixture(did)
+    ...providedByFixture(did),
   }
 }
 
@@ -379,24 +374,24 @@ function createComputeFunctionSubject(url: string, did?: string) {
     ...serviceOfferingNameFixture(),
     ...offeredByFixture(),
     'gax-trust-framework:code': {
-      '@id': 'your code **'
+      '@id': 'your code **',
     },
     ...codeArtifactFixture(),
     'gax-trust-framework:trigger': {
-      '@id': 'your trigger**'
+      '@id': 'your trigger**',
     },
     ...instantiationReqFixture(),
     ...termsAndConditionsFixture(),
     ...policyFixture(),
     ...dataAccountExportFixture(),
-    ...providedByFixture(did)
+    ...providedByFixture(did),
   }
 }
 
 function createIdentityAccessManagementOfferingSubject(did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
-    '@type': 'gax-trust-framework:IdentityAccessManagementOffering'
+    '@type': 'gax-trust-framework:IdentityAccessManagementOffering',
   }
 }
 
@@ -421,7 +416,7 @@ function createVirtualMachineSubject(did?: string) {
     ...providedByFixture(did),
     ...aggregationOfFixture(),
     ...dependsOnFixture(),
-    ...serviceOfferingLocationsFixture()
+    ...serviceOfferingLocationsFixture(),
   }
 }
 
@@ -433,56 +428,56 @@ function createInstantiatedVirtualResourceSubject(did?: string) {
       '@type': 'foaf:Agent',
       'foaf:name': {
         '@value': 'ownedBy name*',
-        '@type': 'xsd:string'
-      }
+        '@type': 'xsd:string',
+      },
     },
     'gax-trust-framework:maintainedBy': {
-      '@id': 'your maintained by list**'
+      '@id': 'your maintained by list**',
     },
     ...serviceOfferingNameFixture(),
     'gax-core:operatedBy': {
-      '@id': ' operated by dids**'
+      '@id': ' operated by dids**',
     },
     ...dctDescriptionFixture(),
     'gax-trust-framework:license': {
       '@value': 'your license identifiers or urls**',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:hostedOn': {
-      '@id': 'where the instance of this virtual resource is being excecuted on**'
+      '@id': 'where the instance of this virtual resource is being excecuted on**',
     },
     ...policyFixture(),
     'gax-trust-framework:instanceOf': {
-      '@id': 'your resource is instance of**'
+      '@id': 'your resource is instance of**',
     },
     ...aggregationOfFixture(),
     'gax-trust-framework:tenantOwnedBy': {
-      '@id': 'your tenant is owned by'
+      '@id': 'your tenant is owned by',
     },
     'gax-trust-framework:serviceAccessPoint': {
       '@type': 'gax-trust-framework:ServiceAccessPoint',
       ...serviceOfferingNameFixture(),
       'gax-trust-framework:host': {
         '@value': 'undefined**',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'gax-trust-framework:protocol': {
         '@value': 'undefined**',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'gax-trust-framework:version': {
         '@value': 'undefined**',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'gax-trust-framework:port': {
         '@value': 'undefined**',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'gax-trust-framework:openAPI': {
         '@value': 'undefined**',
-        '@type': 'xsd:string'
-      }
-    }
+        '@type': 'xsd:string',
+      },
+    },
   }
 }
 
@@ -492,12 +487,12 @@ function createVerifiableCredentialWalletSubject(did?: string) {
     '@type': 'gax-trust-framework:VerifiableCredentialWallet',
     'gax-trust-framework:verifiableCredentialExportFormat': {
       '@value': 'your export vc format**',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:privateKeyExportFormat': {
       '@value': 'private key export format**',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
@@ -518,7 +513,7 @@ function createPlatformOfferingSubject(did?: string) {
     ...providedByFixture(did),
     ...aggregationOfFixture(),
     ...dependsOnFixture(),
-    ...serviceOfferingLocationsFixture()
+    ...serviceOfferingLocationsFixture(),
   }
 }
 
@@ -527,18 +522,18 @@ function createLocationSubject(did?: string) {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:Location',
     'gax-trust-framework:hasProvider': {
-      '@id': 'didprociderOfThisso*'
+      '@id': 'didprociderOfThisso*',
     },
     'gax-trust-framework:canHostServiceOffering': {
-      '@id': 'yourlistofhostsforthisso*'
+      '@id': 'yourlistofhostsforthisso*',
     },
     'gax-trust-framework:hasAdministrativeLocation': {
       '@value': 'iso3166-2digitstringforthisso*',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:hasLocatedServiceOffering': {
-      '@id': 'idsoflocatedsosinthislocation*'
-    }
+      '@id': 'idsoflocatedsosinthislocation*',
+    },
   }
 }
 
@@ -546,14 +541,14 @@ function createObjectStorageOfferingSubject(did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:ObjectStorageOffering',
-    'gax-trust-framework:fileSystem': 'filesystem'
+    'gax-trust-framework:fileSystem': 'filesystem',
   }
 }
 
 //todo: https://sd-creation-wizard.gxfs.dev/select-file has problem with this type
 function createBigDataSubject(did?: string) {
   return {
-    ...getGeneralServiceOffering2210Subject(did)
+    ...getGeneralServiceOffering2210Subject(did),
   }
 }
 
@@ -574,7 +569,7 @@ function createInfrastructureOfferingSubject(did?: string) {
     ...providedByFixture(did),
     ...aggregationOfFixture(),
     ...dependsOnFixture(),
-    ...serviceOfferingLocationsFixture()
+    ...serviceOfferingLocationsFixture(),
   }
 }
 
@@ -582,7 +577,7 @@ function createConnectivitySubject(did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:Connectivity',
-    ...instantiationReqFixture()
+    ...instantiationReqFixture(),
   }
 }
 
@@ -597,26 +592,26 @@ function createServiceOfferingSubject(did?: string) {
     ...cloudFunctionalDescriptionFixture(),
     ...mainContactFixture(),
     ...additionalContactFixture(),
-    'trusted-cloud:typeOfProcessedData': '\'personal data according to GDPR\' or \'no information\'',
+    'trusted-cloud:typeOfProcessedData': "'personal data according to GDPR' or 'no information'",
     ...subcontractorsFixture(),
     ...dataCentresFixture(),
     ...certificatesFixture(),
     ...contractsFixture(),
-    ...trustedCloudSecurityFixture()
+    ...trustedCloudSecurityFixture(),
   }
 }
 
 //todo: https://sd-creation-wizard.gxfs.dev/select-file has problem with this type
 function createDatabaseSubject(did?: string) {
   return {
-    ...getGeneralServiceOffering2210Subject(did)
+    ...getGeneralServiceOffering2210Subject(did),
   }
 }
 
 //todo: https://sd-creation-wizard.gxfs.dev/select-file has problem with this type
 function createWalletOfferingSubject(did?: string) {
   return {
-    ...getGeneralServiceOffering2210Subject(did)
+    ...getGeneralServiceOffering2210Subject(did),
   }
 }
 
@@ -628,16 +623,16 @@ function createImageRegistryOfferingSubject(did?: string) {
     'gax-trust-framework:encryption': {
       '@type': 'gax-trust-framework:Encryption',
       'gax-trust-framework:encryptionAlgorithm': 'rsa or none',
-      'gax-trust-framework:keyManagement': 'managed, byok or hyok'
+      'gax-trust-framework:keyManagement': 'managed, byok or hyok',
     },
-    'gax-trust-framework:privateImagesAllowed': true
+    'gax-trust-framework:privateImagesAllowed': true,
   }
 }
 
 //todo: https://sd-creation-wizard.gxfs.dev/select-file has problem with this type
 function createIdentityFederationSubject(did?: string) {
   return {
-    ...getGeneralServiceOffering2210Subject(did)
+    ...getGeneralServiceOffering2210Subject(did),
   }
 }
 
@@ -656,7 +651,7 @@ function createSoftwareOfferingSubject(did?: string) {
     ...certificatesFixture(),
     ...dataCentresFixture(),
     ...contractsFixture(),
-    ...trustedCloudSecurityFixture()
+    ...trustedCloudSecurityFixture(),
   }
 }
 
@@ -671,7 +666,7 @@ function createLinkConnectivitySubject(did?: string) {
     ...gxJitterFixture(),
     ...gxVlanTypeFixture(),
     ...gxVlanTagFixture(),
-    ...vlanEtherTypeFixture()
+    ...vlanEtherTypeFixture(),
   }
 }
 
@@ -680,7 +675,7 @@ function createPhysicalConnectivitySubject(did?: string) {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:PhysicalConnectivity',
     ...instantiationRequirementsFixture(),
-    ...gxConnectionFixture()
+    ...gxConnectionFixture(),
   }
 }
 
@@ -708,7 +703,7 @@ function createContainerSubject(did?: string) {
     ...aggregationOfFixture(),
     ...dependsOnFixture(),
     ...serviceOfferingLocationsFixture(),
-    ...providedByFixture(did)
+    ...providedByFixture(did),
   }
 }
 
@@ -721,41 +716,41 @@ function createInterconnectionSubject(did?: string) {
       '@type': 'vcard:Address',
       'vcard:country-name': {
         '@value': 'yourCountryName*',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'vcard:gps': {
         '@value': 'yourGPS',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'vcard:street-address': {
         '@value': 'yourStreetName',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'vcard:postal-code': {
         '@value': 'yourPostalCode',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'vcard:locality': {
         '@value': 'yourCity',
-        '@type': 'xsd:string'
-      }
+        '@type': 'xsd:string',
+      },
     },
     'gax-trust-framework:nicPortReq': {
       '@value': 'yournicPortRec',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'http://w3id.org/gaia-x/gax-trust-framework#interface.type': {
       '@value': 'yourInterfaceType',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:vendor': 'intel',
     'gax-trust-framework:connectionPointA': {
       '@value': 'idOfTheconnectionSource',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:connectionPointZ': {
       '@value': 'idOfTheconnectionDestination',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:latency': gxMeasureFixture(),
     ...gxAvailabilityFixture(),
@@ -764,28 +759,28 @@ function createInterconnectionSubject(did?: string) {
     'gax-trust-framework:targetPercentile': gxMeasureFixture(),
     'gax-trust-framework:connectionType': {
       '@value': 'your connection type',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     ...gxVlanTypeFixture(),
     ...gxVlanTagFixture(),
     ...vlanEtherTypeFixture(),
     'gax-trust-framework:connectedNetwork_A': {
       '@value': 'number value',
-      '@type': 'xsd:decimal'
+      '@type': 'xsd:decimal',
     },
     'gax-trust-framework:connectedNetwork_Z': {
       '@value': 'number value',
-      '@type': 'xsd:decimal'
+      '@type': 'xsd:decimal',
     },
     'gax-trust-framework:prefixSet_A': {
       '@value': 'yourPrefixSet_A',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:prefixSet_Z': {
       '@value': 'yourPrefixSet_Z',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
-    ...gxBandwidthFixture()
+    ...gxBandwidthFixture(),
   }
 }
 
@@ -793,10 +788,10 @@ function createStorageOfferingSubject(did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:StorageOffering',
-    'gax-trust-framework:serviceType': '\'bare-metal\', \'virtual\' or \'mixed\'',
-    'gax-trust-framework:encryptionMethod': '\'None\', \'managed\', \'byok\' or \'hyok\'',
+    'gax-trust-framework:serviceType': "'bare-metal', 'virtual' or 'mixed'",
+    'gax-trust-framework:encryptionMethod': "'None', 'managed', 'byok' or 'hyok'",
     'gax-trust-framework:snapshotSupported': true,
-    'gax-trust-framework:backupsSupported': true
+    'gax-trust-framework:backupsSupported': true,
   }
 }
 
@@ -824,7 +819,7 @@ function createAutoscaledContainerSubject(did?: string) {
     ...aggregationOfFixture(),
     ...dependsOnFixture(),
     ...serviceOfferingLocationsFixture(),
-    ...standardConformityFixture()
+    ...standardConformityFixture(),
   }
 }
 
@@ -835,7 +830,7 @@ function createCatalogueSubject(did?: string) {
     ...serviceOfferingNameFixture(),
     'gax-trust-framework:getVerifiableCredentialsIDs': {
       '@value': 'your VerifiableCredential locations *',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     ...offeredByFixture(),
     ...termsAndConditionsFixture(),
@@ -851,7 +846,7 @@ function createCatalogueSubject(did?: string) {
     ...aggregationOfFixture(),
     ...dependsOnFixture(),
     ...serviceOfferingLocationsFixture(),
-    ...standardConformityFixture()
+    ...standardConformityFixture(),
   }
 }
 
@@ -877,7 +872,7 @@ function createComputeSubject(did?: string) {
     ...aggregationOfFixture(),
     ...dependsOnFixture(),
     ...serviceOfferingLocationsFixture(),
-    ...standardConformityFixture()
+    ...standardConformityFixture(),
   }
 }
 
@@ -885,10 +880,10 @@ function createNetworkOfferingSubject(did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:NetworkOffering',
-    'gax-trust-framework:serviceType': '\'virtual\', \'bare-metal\' or \'mixed\'',
-    'gax-trust-framework:publicIpAddressProvisioning': '\'floating\', \'fixed\' or \'provider-network\'',
-    'gax-trust-framework:ipVersion': '\'IPv4\' or \'IPv6\'',
-    'gax-trust-framework:tenantSeparation': '\'physical\' or \'virtual\''
+    'gax-trust-framework:serviceType': "'virtual', 'bare-metal' or 'mixed'",
+    'gax-trust-framework:publicIpAddressProvisioning': "'floating', 'fixed' or 'provider-network'",
+    'gax-trust-framework:ipVersion': "'IPv4' or 'IPv6'",
+    'gax-trust-framework:tenantSeparation': "'physical' or 'virtual'",
   }
 }
 
@@ -899,12 +894,12 @@ function createNetworkConnectivitySubject(did?: string) {
     ...instantiationRequirementsFixture(),
     'gax-trust-framework:SourceAccessPoint': {
       '@value': 'your source accesspoint',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:DestinationAccessPoint': {
       '@value': 'your destination accesspoint',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
@@ -913,17 +908,17 @@ function createLocatedServiceOfferingSubject(did?: string) {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:LocatedServiceOffering',
     'gax-trust-framework:isImplementationOf': {
-      '@id': 'Id of the Service Offering referenced by this located service'
+      '@id': 'Id of the Service Offering referenced by this located service',
     },
     'gax-trust-framework:isHostedOn': {
-      '@id': 'Id of the Location where this located service is hosted on'
+      '@id': 'Id of the Location where this located service is hosted on',
     },
     'gax-trust-framework:hasComplianceCertificateClaim': {
-      '@id': 'Ids of the compliance reference claims claimed by the provider for the located service'
+      '@id': 'Ids of the compliance reference claims claimed by the provider for the located service',
     },
     'gax-trust-framework:hasComplianceCertificateCredential': {
-      '@id': 'Ids of the compliance reference claim claimed by the provider for the located service'
-    }
+      '@id': 'Ids of the compliance reference claim claimed by the provider for the located service',
+    },
   }
 }
 
@@ -950,7 +945,7 @@ function createBareMetalSubject(did?: string) {
     ...aggregationOfFixture(),
     ...dependsOnFixture(),
     ...serviceOfferingLocationsFixture(),
-    ...standardConformityFixture()
+    ...standardConformityFixture(),
   }
 }
 
@@ -958,14 +953,14 @@ function createFileStorageOfferingSubject(did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:FileStorageOffering',
-    'gax-trust-framework:fileSystem': '\'FAT32\', \'exFAT\' or \'NTFS\''
+    'gax-trust-framework:fileSystem': "'FAT32', 'exFAT' or 'NTFS'",
   }
 }
 
 //todo: https://sd-creation-wizard.gxfs.dev/select-file has problem with this type
 function createIdentityProviderSubject(did?: string) {
   return {
-    ...getGeneralServiceOffering2210Subject(did)
+    ...getGeneralServiceOffering2210Subject(did),
   }
 }
 
@@ -973,7 +968,7 @@ function createOrchestrationSubject(did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:Orchestration',
-    'gax-trust-framework:type': '\'Docker Swarm\', \'Apache Mesos\' or \'Kubernetes\''
+    'gax-trust-framework:type': "'Docker Swarm', 'Apache Mesos' or 'Kubernetes'",
   }
 }
 
@@ -983,15 +978,15 @@ function createBlockStorageOfferingSubject(did?: string) {
     '@type': 'gax-trust-framework:BlockStorageOffering',
     'gax-trust-framework:volumeTypes': {
       '@value': 'your volume types',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
 //todo: https://sd-creation-wizard.gxfs.dev/select-file has problem with this type
 function createDigitalIdentityWalletSubject(did?: string) {
   return {
-    ...getGeneralServiceOffering2210Subject(did)
+    ...getGeneralServiceOffering2210Subject(did),
   }
 }
 
@@ -1001,13 +996,13 @@ function termsAndConditionsFixture() {
       '@type': 'gax-trust-framework:TermsAndConditions',
       'gax-trust-framework:content': {
         '@value': 'your terms and conditions content url *',
-        '@type': 'xsd:anyURI'
+        '@type': 'xsd:anyURI',
       },
       'gax-trust-framework:hash': {
         '@value': 'your terms and conditions content hash *',
-        '@type': 'xsd:string'
-      }
-    }
+        '@type': 'xsd:string',
+      },
+    },
   }
 }
 
@@ -1015,9 +1010,9 @@ function instantiationReqFixture() {
   return {
     'gax-trust-framework:instantiationReq': [
       {
-        '@id': 'your instantiation req *'
-      }
-    ]
+        '@id': 'your instantiation req *',
+      },
+    ],
   }
 }
 
@@ -1025,8 +1020,8 @@ function dctDescriptionFixture() {
   return {
     'dct:description': {
       '@value': 'your description of this Virtual Machine',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
@@ -1054,10 +1049,10 @@ function createDcatDataSetSubject(url: string, did?: string) {
       vann: 'http://purl.org/vocab/vann/',
       foaf: 'http://xmlns.com/foaf/0.1/',
       did: 'https://www.w3.org/TR/did-core/#',
-      adms: 'http://www.w3.org/ns/adms#'
+      adms: 'http://www.w3.org/ns/adms#',
     },
     ...dcatDataSetFixture(url, did),
-    id: `${did ? did : 'your DID here'}`
+    id: `${did ? did : 'your DID here'}`,
   }
 }
 
@@ -1070,109 +1065,109 @@ function dcatDataSetFixture(url: string, did?: string) {
         'vcard:country-name': 'Sweden',
         'vcard:locality': 'Stockholm',
         'vcard:postal-code': '11436',
-        'vcard:street-address': 'Stureg. 14'
+        'vcard:street-address': 'Stureg. 14',
       },
       {
         '@id': `${url}/datasets/dcat#ds1`,
         '@type': 'dcat:Dataset',
         'adms:contactPoint': {
-          '@id': `${url}/contacts/n1`
+          '@id': `${url}/contacts/n1`,
         },
         'dcat:distribution': {
-          '@id': `${url}/datasets/dcat#dist1`
+          '@id': `${url}/datasets/dcat#dist1`,
         },
         'dcat:keyword': ['Nobel prize', 'science', 'prize'],
         'dcat:landingPage': {
-          '@id': `${url}`
+          '@id': `${url}`,
         },
         'dcat:theme': {
-          '@id': 'http://eurovoc.europa.eu/100142'
+          '@id': 'http://eurovoc.europa.eu/100142',
         },
         'dct:accrualPeriodicity': {
-          '@id': 'http://purl.org/cld/freq/daily'
+          '@id': 'http://purl.org/cld/freq/daily',
         },
         'dct:conformsTo': {
-          '@id': 'http://www.nobelprize.org/nobel_organizations/nobelmedia/nobelprize_org/developer/manual-linkeddata/terms.html'
+          '@id': 'http://www.nobelprize.org/nobel_organizations/nobelmedia/nobelprize_org/developer/manual-linkeddata/terms.html',
         },
         'dct:description': 'This dataset contains Nobel prizes, Nobel laureates and information about related media resources. ',
         'dct:issued': '2014-01-15',
         'dct:language': {
-          '@id': 'http://publications.europa.eu/resource/authority/language/ENG'
+          '@id': 'http://publications.europa.eu/resource/authority/language/ENG',
         },
         'dct:modified': '2014-08-27',
         'dct:publisher': {
-          '@id': `${url}/publisher/n2`
+          '@id': `${url}/publisher/n2`,
         },
         'dct:spatial': {
-          '@id': 'http://sws.geonames.org/2673730'
+          '@id': 'http://sws.geonames.org/2673730',
         },
         'dct:temporal': {
-          '@id': 'http://data.nobelprize.org/period'
+          '@id': 'http://data.nobelprize.org/period',
         },
         'dct:title': {
           '@language': 'en',
-          '@value': 'Linked Nobel prizes'
-        }
+          '@value': 'Linked Nobel prizes',
+        },
       },
       {
         '@id': `${url}/publisher/n2`,
         '@type': 'foaf:Agent',
         'dct:type': {
-          '@id': '_:Ne69579d666ed410a9c307f188d9ffd21'
+          '@id': '_:Ne69579d666ed410a9c307f188d9ffd21',
         },
-        'foaf:name': 'Nobel Media AB'
+        'foaf:name': 'Nobel Media AB',
       },
       {
         '@id': `${url}/publisher/n0`,
         '@type': 'foaf:Agent',
         'dct:type': {
-          '@id': 'http://purl.org/adms/publishertype/Company'
+          '@id': 'http://purl.org/adms/publishertype/Company',
         },
-        'foaf:name': 'Nobel Media AB'
+        'foaf:name': 'Nobel Media AB',
       },
       {
         '@id': '_:N43230c0d821748bd881b4a5178ee0e39',
         '@type': ['vcard:Work', 'vcard:Voice'],
         'vcard:hasValue': {
-          '@id': 'tel:086631722'
-        }
+          '@id': 'tel:086631722',
+        },
       },
       {
         '@id': '_:Ne69579d666ed410a9c307f188d9ffd21',
-        'dcat:keyword': 'http://purl.org/adms/publishertype/Company'
+        'dcat:keyword': 'http://purl.org/adms/publishertype/Company',
       },
       {
         '@id': 'http://data.nobelprize.org/period',
         '@type': 'dct:PeriodOfTime',
         'schema:endDate': {
           '@type': 'xsd:date',
-          '@value': '2024-01-05'
+          '@value': '2024-01-05',
         },
         'schema:startDate': {
           '@type': 'xsd:date',
-          '@value': '2022-03-01'
-        }
+          '@value': '2022-03-01',
+        },
       },
       {
         '@id': `${url}/contacts/n1`,
         '@type': 'vcard:VCard',
         'vcard:fn': 'Nobel Media AB',
         'vcard:hasAddress': {
-          '@id': '_:N2a4f48da451d4602880c4d1cd8fd52b6'
+          '@id': '_:N2a4f48da451d4602880c4d1cd8fd52b6',
         },
         'vcard:hasEmail': {
-          '@id': 'mailto:info@nobelmedia.org'
+          '@id': 'mailto:info@nobelmedia.org',
         },
         'vcard:hasTelephone': {
-          '@id': '_:N43230c0d821748bd881b4a5178ee0e39'
-        }
+          '@id': '_:N43230c0d821748bd881b4a5178ee0e39',
+        },
       },
       {
         '@id': 'http://sws.geonames.org/2673730',
         '@type': 'dct:Location',
-        'rdfs:label': 'Stockholm'
-      }
-    ]
+        'rdfs:label': 'Stockholm',
+      },
+    ],
   }
 }
 
@@ -1180,8 +1175,8 @@ function tenantSeparationFixture() {
   return {
     'gax-trust-framework:tenantSeparation': {
       '@value': 'your tenant separation (default value: hw-virtualized)',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
@@ -1189,16 +1184,16 @@ function dcatKeywordFixture() {
   return {
     'dcat:keyword': {
       '@value': 'your list of keywords',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
 function providedByFixture(did?: string) {
   return {
     'gax-trust-framework:providedBy': {
-      '@id': `${did ? did : 'Your did here *'}`
-    }
+      '@id': `${did ? did : 'Your did here *'}`,
+    },
   }
 }
 
@@ -1208,61 +1203,61 @@ function dataAccountExportFixture() {
       '@type': 'gax-trust-framework:DataAccountExport',
       'gax-trust-framework:requestType': {
         '@value': 'your request type *',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'gax-trust-framework:accessType': {
         '@value': 'your access type *',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'gax-trust-framework:formatType': {
         '@value': 'you format type *',
-        '@type': 'xsd:string'
-      }
-    }
+        '@type': 'xsd:string',
+      },
+    },
   }
 }
 
 function contractsFixture() {
   return {
     'trusted-cloud:contracts': {
-      '@id': 'your contracts *'
-    }
+      '@id': 'your contracts *',
+    },
   }
 }
 
 function trustedCloudSecurityFixture() {
   return {
     'trusted-cloud:security': {
-      '@id': 'your security *'
+      '@id': 'your security *',
     },
     'trusted-cloud:dataProtection': {
-      '@id': 'your data protection *'
+      '@id': 'your data protection *',
     },
     'trusted-cloud:operativeProcesses': {
-      '@id': 'your operative processes *'
+      '@id': 'your operative processes *',
     },
     'trusted-cloud:interoperability': {
-      '@id': 'your interoperability *'
+      '@id': 'your interoperability *',
     },
     'trusted-cloud:serviceArchitecture': {
-      '@id': 'your service architecture *'
-    }
+      '@id': 'your service architecture *',
+    },
   }
 }
 
 function aggregationOfFixture() {
   return {
     'gax-core:aggregationOf': {
-      '@id': 'your ServiceOffering is an aggregation of these'
-    }
+      '@id': 'your ServiceOffering is an aggregation of these',
+    },
   }
 }
 
 function dependsOnFixture() {
   return {
     'gax-core:dependsOn': {
-      '@id': 'a did which this ServiceOffering is dependant on'
-    }
+      '@id': 'a did which this ServiceOffering is dependant on',
+    },
   }
 }
 
@@ -1272,53 +1267,53 @@ function mainContactFixture() {
       '@type': 'vcard:Agent',
       'vcard:given-name': {
         '@value': 'contact first name *',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'vcard:family-name': {
         '@value': 'contact family name *',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'vcard:nickname': {
         '@value': 'contact nickname',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'vcard:position': {
         '@value': 'contact position',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'vcard:email': {
         '@value': 'contact email *',
-        '@type': 'xsd:anyURI'
+        '@type': 'xsd:anyURI',
       },
       'vcard:tel': {
         '@value': 'contact tel *',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'vcard:image': {
         '@value': 'contact image',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'vcard:address': {
         '@value': 'contact address',
-        '@type': 'xsd:string'
-      }
-    }
+        '@type': 'xsd:string',
+      },
+    },
   }
 }
 
 function additionalContactFixture() {
   return {
     'trusted-cloud:AdditionalContact': {
-      '@type': 'vcard:Agent'
-    }
+      '@type': 'vcard:Agent',
+    },
   }
 }
 
 function subcontractorsFixture() {
   return {
     'trusted-cloud:subContractors': {
-      '@id': 'your subcontractors'
-    }
+      '@id': 'your subcontractors',
+    },
   }
 }
 
@@ -1327,21 +1322,21 @@ function certificatesFixture() {
     'trusted-cloud:certificates': {
       '@type': 'trusted-cloud:CertificateScope',
       'trusted-cloud:certificate': {
-        '@id': 'your certificate *'
+        '@id': 'your certificate *',
       },
       'trusted-cloud:scope': {
         '@value': 'relevenace of certificate for this scope *',
-        '@type': 'xsd:string'
-      }
-    }
+        '@type': 'xsd:string',
+      },
+    },
   }
 }
 
 function dataCentresFixture() {
   return {
     'trusted-cloud:dataCentres': {
-      '@id': 'your data centres'
-    }
+      '@id': 'your data centres',
+    },
   }
 }
 
@@ -1349,9 +1344,9 @@ function offeredByFixture(did?: string) {
   return {
     'gax-core:offeredBy': [
       {
-        '@id': `${did ? did : 'your DID here'}`
-      }
-    ]
+        '@id': `${did ? did : 'your DID here'}`,
+      },
+    ],
   }
 }
 
@@ -1361,19 +1356,19 @@ function cloudGeneralInformationFixture() {
       '@type': 'trusted-cloud:GeneralInformationService',
       'trusted-cloud:name': {
         '@value': 'your service name *',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'trusted-cloud:serviceLogo': {
         '@value': 'your service logo',
-        '@type': 'xsd:anyURI'
+        '@type': 'xsd:anyURI',
       },
-      'trusted-cloud:provisionType': '\'private\', \'public\' or \'hybrid\' *',
-      'trusted-cloud:serviceModel': '\'Iaas\', \'Paas\' or \'SaaS\' *',
+      'trusted-cloud:provisionType': "'private', 'public' or 'hybrid' *",
+      'trusted-cloud:serviceModel': "'Iaas', 'Paas' or 'SaaS' *",
       'trusted-cloud:website': {
         '@value': 'your service website *',
-        '@type': 'xsd:anyURI'
-      }
-    }
+        '@type': 'xsd:anyURI',
+      },
+    },
   }
 }
 
@@ -1383,34 +1378,34 @@ function cloudFunctionalDescriptionFixture() {
       '@type': 'trusted-cloud:FunctionalDescriptionService',
       'trusted-cloud:description': {
         '@value': 'functional description',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'trusted-cloud:briefDescription': {
         '@value': 'functional brief description',
-        '@type': 'xsd:string'
-      }
-    }
+        '@type': 'xsd:string',
+      },
+    },
   }
 }
 
 function gxConnectionFixture() {
   return {
     'gax-trust-framework:CircuitType': {
-      '@value': '\'wired medium access\' or \'wireless medium access\'',
-      '@type': 'xsd:string'
+      '@value': "'wired medium access' or 'wireless medium access'",
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:InterfaceType': {
       '@value': 'your interface type',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:SourceAccessPoint': {
       '@value': 'your source accesspoint',
-      '@type': 'xsd:string'
+      '@type': 'xsd:string',
     },
     'gax-trust-framework:DestinationAccessPoint': {
       '@value': 'your destination accesspoint',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
@@ -1418,16 +1413,16 @@ function instantiationRequirementsFixture() {
   return {
     'gax-trust-framework:InstantiationRequirements': {
       '@value': 'your instantiation req',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
 function resourceLimitsFixture() {
   return {
     'gax-trust-framework:resourceLimits': {
-      '@id': 'all container resource limits *'
-    }
+      '@id': 'all container resource limits *',
+    },
   }
 }
 
@@ -1435,8 +1430,8 @@ function vlanEtherTypeFixture() {
   return {
     'gax-trust-framework:vlanEtherType': {
       '@value': 'your vlan ether type',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
@@ -1445,30 +1440,30 @@ function gxMeasureFixture() {
     '@type': 'gax-trust-framework:Measure',
     'gax-trust-framework:value': {
       '@value': 'value *',
-      '@type': 'xsd:float'
+      '@type': 'xsd:float',
     },
     'gax-trust-framework:unit': {
       '@value': 'unit *',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
 function gxAvailabilityFixture() {
   return {
-    'gax-trust-framework:availability': gxMeasureFixture()
+    'gax-trust-framework:availability': gxMeasureFixture(),
   }
 }
 
 function gxPacketLossFixture() {
   return {
-    'gax-trust-framework:packetLoss': gxMeasureFixture()
+    'gax-trust-framework:packetLoss': gxMeasureFixture(),
   }
 }
 
 function gxJitterFixture() {
   return {
-    'gax-trust-framework:jitter': gxMeasureFixture()
+    'gax-trust-framework:jitter': gxMeasureFixture(),
   }
 }
 
@@ -1476,20 +1471,20 @@ function gxVlanTypeFixture() {
   return {
     'gax-trust-framework:vlanType': {
       '@value': 'your vlan type',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
 function gxVlanTagFixture() {
   return {
-    'gax-trust-framework:vlanTag': gxMeasureFixture()
+    'gax-trust-framework:vlanTag': gxMeasureFixture(),
   }
 }
 
 function gxBandwidthFixture() {
   return {
-    'gax-trust-framework:bandwidth': gxMeasureFixture()
+    'gax-trust-framework:bandwidth': gxMeasureFixture(),
   }
 }
 
@@ -1497,16 +1492,16 @@ function serviceOfferingNameFixture() {
   return {
     'gax-trust-framework:name': {
       '@value': 'your service name *',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
 function imageFixture() {
   return {
     'gax-trust-framework:image': {
-      '@id': 'all your container images *'
-    }
+      '@id': 'all your container images *',
+    },
   }
 }
 
@@ -1514,8 +1509,8 @@ function dataProtectionRegimeFixture() {
   return {
     'gax-trust-framework:dataProtectionRegime': {
       '@value': 'data protection regime list',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
@@ -1525,14 +1520,14 @@ function gxEndpointFixture() {
       '@type': 'gax-trust-framework:Endpoint',
       'gax-trust-framework:endPointURL': {
         '@value': 'your endpoint url',
-        '@type': 'xsd:anyURI'
+        '@type': 'xsd:anyURI',
       },
       ...standardConformityFixture(),
       'gax-trust-framework:endpointDescription': {
         '@value': 'your endpoint description',
-        '@type': 'xsd:anyURI'
-      }
-    }
+        '@type': 'xsd:anyURI',
+      },
+    },
   }
 }
 
@@ -1540,8 +1535,8 @@ function serviceOfferingLocationsFixture() {
   return {
     'gax-trust-framework:ServiceOfferingLocations': {
       '@value': 'your ServiceLocation',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
@@ -1549,8 +1544,8 @@ function provisionTypeFixture() {
   return {
     'gax-trust-framework:provisionType': {
       '@value': 'your service provisiontype',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
 
@@ -1560,17 +1555,17 @@ function standardConformityFixture() {
       '@type': 'gax-trust-framework:Standard',
       'gax-trust-framework:title': {
         '@value': 'your standard name *',
-        '@type': 'xsd:string'
+        '@type': 'xsd:string',
       },
       'gax-trust-framework:standardReference': {
         '@value': 'your standard reference (url) *',
-        '@type': 'xsd:anyURI'
+        '@type': 'xsd:anyURI',
       },
       'gax-trust-framework:publisher': {
         '@value': 'publisher of your standard',
-        '@type': 'xsd:string'
-      }
-    }
+        '@type': 'xsd:string',
+      },
+    },
   }
 }
 
@@ -1578,9 +1573,9 @@ function codeArtifactFixture() {
   return {
     'gax-trust-framework:codeArtifact': [
       {
-        '@id': 'your code artifact *'
-      }
-    ]
+        '@id': 'your code artifact *',
+      },
+    ],
   }
 }
 
@@ -1588,7 +1583,7 @@ function policyFixture() {
   return {
     'gax-trust-framework:policy': {
       '@value': 'your policy list here *',
-      '@type': 'xsd:string'
-    }
+      '@type': 'xsd:string',
+    },
   }
 }
