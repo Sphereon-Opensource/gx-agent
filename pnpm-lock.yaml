@@ -1,9 +1,11 @@
 lockfileVersion: 5.4
 
 overrides:
-  '@sphereon/ssi-sdk-core': 0.8.1-unstable.179
-  '@sphereon/ssi-types': 0.8.1-unstable.179
-  '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.179
+  '@sphereon/ssi-sdk-core': 0.8.1-unstable.242
+  '@sphereon/ssi-types': 0.8.1-unstable.242
+  '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.242
+  '@sphereon/ssi-sdk-bls-key-manager': 0.9.2-unstable.18
+  '@sphereon/ssi-sdk-bls-kms-local': 0.9.2-unstable.18
   '@veramo/core': 4.2.0
   '@veramo/credential-w3c': 4.2.0
   '@veramo/data-store': 4.2.0
@@ -11,6 +13,10 @@ overrides:
   '@veramo/credential-ld': 4.2.0
   '@veramo/utils': 4.2.0
   '@veramo/did-manager': 4.2.0
+  '@veramo/did-discovery': 4.2.0
+  '@veramo/did-resolver': 4.2.0
+  '@veramo/key-manager': 4.2.0
+  '@veramo/message-handler': 4.2.0
 
 importers:
 
@@ -84,13 +90,13 @@ importers:
       '@babel/preset-env': ^7.20.2
       '@digitalcredentials/jsonld': ^5.2.1
       '@digitalcredentials/jsonld-signatures': ^9.3.1
-      '@sphereon/did-uni-client': ^0.5.0
+      '@sphereon/did-uni-client': ^0.5.1-unstable.1
       '@sphereon/ssi-sdk-bls-key-manager': 0.9.2-unstable.18
       '@sphereon/ssi-sdk-bls-kms-local': 0.9.2-unstable.18
-      '@sphereon/ssi-sdk-core': 0.8.1-unstable.179
-      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.179
-      '@sphereon/ssi-sdk-vc-handler-ld-local': 0.8.1-unstable.179
-      '@sphereon/ssi-types': 0.8.1-unstable.179
+      '@sphereon/ssi-sdk-core': 0.8.1-unstable.242
+      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.242
+      '@sphereon/ssi-sdk-vc-handler-ld-local': 0.8.1-unstable.242
+      '@sphereon/ssi-types': 0.8.1-unstable.242
       '@transmute/jose-ld': ^0.7.0-unstable.67
       '@transmute/lds-ecdsa-secp256k1-recovery2020': ^0.0.7
       '@transmute/security-context': ^0.7.0-unstable.67
@@ -126,13 +132,13 @@ importers:
     dependencies:
       '@digitalcredentials/jsonld': 5.2.1
       '@digitalcredentials/jsonld-signatures': 9.3.1
-      '@sphereon/did-uni-client': 0.5.0
+      '@sphereon/did-uni-client': 0.5.1-unstable.1
       '@sphereon/ssi-sdk-bls-key-manager': 0.9.2-unstable.18
       '@sphereon/ssi-sdk-bls-kms-local': 0.9.2-unstable.18
-      '@sphereon/ssi-sdk-core': 0.8.1-unstable.179
-      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.179
-      '@sphereon/ssi-sdk-vc-handler-ld-local': 0.8.1-unstable.179_typescript@4.6.4
-      '@sphereon/ssi-types': 0.8.1-unstable.179
+      '@sphereon/ssi-sdk-core': 0.8.1-unstable.242
+      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.242
+      '@sphereon/ssi-sdk-vc-handler-ld-local': 0.8.1-unstable.242_typescript@4.6.4
+      '@sphereon/ssi-types': 0.8.1-unstable.242
       '@transmute/jose-ld': 0.7.0-unstable.80
       '@transmute/lds-ecdsa-secp256k1-recovery2020': 0.0.7
       '@transmute/security-context': 0.7.0-unstable.80
@@ -174,7 +180,7 @@ importers:
       '@microsoft/api-extractor': ^7.33.6
       '@microsoft/api-extractor-model': ^7.25.2
       '@sphereon/gx-agent': ^0.4.0
-      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.179
+      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.242
       '@types/blessed': ^0.1.19
       '@types/debug': 4.1.7
       '@types/inquirer': ^9.0.3
@@ -214,7 +220,7 @@ importers:
       '@microsoft/api-extractor': 7.34.4_@types+node@16.11.7
       '@microsoft/api-extractor-model': 7.26.4_@types+node@16.11.7
       '@sphereon/gx-agent': link:../gx-agent
-      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.179
+      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.242
       '@types/blessed': 0.1.19
       '@types/swagger-ui-express': 4.1.3
       '@types/uuid': 9.0.0
@@ -2340,7 +2346,7 @@ packages:
     resolution: {integrity: sha512-QfyleXSD9slh4qM54wDaqKVPvtUH1NJMgsFc9BabqSHO1Ttpandv1EAvTCN9Lu73RbCX3LJpn+BfJmnjHbjCyw==}
     engines: {node: ^14.15.0 || >=16.0.0}
     dependencies:
-      chalk: 4.1.0
+      chalk: 4.1.2
       execa: 5.0.0
       strong-log-transformer: 2.1.0
     dev: true
@@ -2357,7 +2363,7 @@ packages:
       p-reduce: 2.1.0
       pacote: 13.6.1
       pify: 5.0.0
-      semver: 7.3.4
+      semver: 7.3.8
       slash: 3.0.0
       validate-npm-package-license: 3.0.4
       validate-npm-package-name: 4.0.0
@@ -3009,7 +3015,7 @@ packages:
       '@octokit/request-error': 3.0.3
       '@octokit/types': 9.0.0
       is-plain-object: 5.0.0
-      node-fetch: 2.6.7
+      node-fetch: 2.6.9
       universal-user-agent: 6.0.0
     transitivePeerDependencies:
       - encoding
@@ -3299,8 +3305,8 @@ packages:
       '@sinonjs/commons': 2.0.0
     dev: true
 
-  /@sphereon/did-uni-client/0.5.0:
-    resolution: {integrity: sha512-0PVGtonogsAIcBLUrcL3SgkyA8xum3V0kPu643h+PyOMrKPUSEgrDkDRaKuR+zoGZp5AS58044ENKRUzWIc8bg==}
+  /@sphereon/did-uni-client/0.5.1-unstable.1:
+    resolution: {integrity: sha512-p+pRQntrysJEqbWwyQl+RouxQYpT+3X1y+R6T3uM3Ou1GfvDk/dmZNrSM20V+vHkZzMZ4Aby7hikTydQvGPEsQ==}
     dependencies:
       cross-fetch: 3.1.5
       did-resolver: 4.0.1
@@ -3365,7 +3371,7 @@ packages:
     resolution: {integrity: sha512-yu035jhiRuDoQ/ab5j/kpzuUdDI6jeROL1Q10qc34V6pN+ToKTNf4jlYiY9raxtCWsmy/g3d1cCycGhIC9lJBw==}
     dependencies:
       '@mattrglobal/bbs-signatures': 1.1.0
-      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.179
+      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.242
       '@trust/keyto': 2.0.0-alpha1
       '@veramo/core': 4.2.0
       isomorphic-webcrypto: 2.3.8
@@ -3393,11 +3399,11 @@ packages:
       - typeorm-aurora-data-api-driver
     dev: false
 
-  /@sphereon/ssi-sdk-core/0.8.1-unstable.179:
-    resolution: {integrity: sha512-BJeRfN3i89Xu6jnkygwJWKFh5BjzApsRNK/V4j5Ix/+KbVrFON8DcxfjCEewMTbEd/0tvLWcEpoFHrsSCqxRtw==}
+  /@sphereon/ssi-sdk-core/0.8.1-unstable.242:
+    resolution: {integrity: sha512-ag75YqpJE47y+oFc/1uJlySx4ifZmRgs2HkQyuwcoQXHT1tw7Ov8+OKC1Uy6f3IEPPB8FImzz8eD35jP+CwtYg==}
     dependencies:
       '@scure/base': 1.1.1
-      '@sphereon/ssi-types': 0.8.1-unstable.179
+      '@sphereon/ssi-types': 0.8.1-unstable.242
       '@veramo/core': 4.2.0
       typeorm: 0.3.10
     transitivePeerDependencies:
@@ -3421,11 +3427,11 @@ packages:
       - typeorm-aurora-data-api-driver
     dev: false
 
-  /@sphereon/ssi-sdk-core/0.8.1-unstable.179_ts-node@8.10.2:
-    resolution: {integrity: sha512-BJeRfN3i89Xu6jnkygwJWKFh5BjzApsRNK/V4j5Ix/+KbVrFON8DcxfjCEewMTbEd/0tvLWcEpoFHrsSCqxRtw==}
+  /@sphereon/ssi-sdk-core/0.8.1-unstable.242_ts-node@8.10.2:
+    resolution: {integrity: sha512-ag75YqpJE47y+oFc/1uJlySx4ifZmRgs2HkQyuwcoQXHT1tw7Ov8+OKC1Uy6f3IEPPB8FImzz8eD35jP+CwtYg==}
     dependencies:
       '@scure/base': 1.1.1
-      '@sphereon/ssi-types': 0.8.1-unstable.179
+      '@sphereon/ssi-types': 0.8.1-unstable.242
       '@veramo/core': 4.2.0
       typeorm: 0.3.10_ts-node@8.10.2
     transitivePeerDependencies:
@@ -3449,15 +3455,17 @@ packages:
       - typeorm-aurora-data-api-driver
     dev: false
 
-  /@sphereon/ssi-sdk-did-utils/0.8.1-unstable.179:
-    resolution: {integrity: sha512-XuFZAqZY3+GYj3QxgasBbSnrLg6Tc969xaqzfM0Mzvf3gsn64w8GDfuvgpsy3mebmig/cTKJo6JwxUlDaKOPnA==}
+  /@sphereon/ssi-sdk-did-utils/0.8.1-unstable.242:
+    resolution: {integrity: sha512-y8Sbza35E3N9/YTUkggU6+4q6psnXRidp8q9PwiFKHWGpJxWFPZY/73LL8CcicqQDggKMrPbQVyk6vM9PMJq7w==}
     dependencies:
+      '@sphereon/did-uni-client': 0.5.1-unstable.1
       '@sphereon/jsencrypt': 3.3.2-unstable.0
-      '@sphereon/ssi-sdk-core': 0.8.1-unstable.179
-      '@sphereon/ssi-types': 0.8.1-unstable.179
+      '@sphereon/ssi-sdk-core': 0.8.1-unstable.242
+      '@sphereon/ssi-types': 0.8.1-unstable.242
       '@trust/keyto': 2.0.0-alpha1
       '@veramo/core': 4.2.0
       '@veramo/utils': 4.2.0
+      did-resolver: 4.0.1
       elliptic: 6.5.4
       uint8arrays: 3.1.1
     transitivePeerDependencies:
@@ -3482,15 +3490,17 @@ packages:
       - typeorm-aurora-data-api-driver
     dev: false
 
-  /@sphereon/ssi-sdk-did-utils/0.8.1-unstable.179_ts-node@8.10.2:
-    resolution: {integrity: sha512-XuFZAqZY3+GYj3QxgasBbSnrLg6Tc969xaqzfM0Mzvf3gsn64w8GDfuvgpsy3mebmig/cTKJo6JwxUlDaKOPnA==}
+  /@sphereon/ssi-sdk-did-utils/0.8.1-unstable.242_ts-node@8.10.2:
+    resolution: {integrity: sha512-y8Sbza35E3N9/YTUkggU6+4q6psnXRidp8q9PwiFKHWGpJxWFPZY/73LL8CcicqQDggKMrPbQVyk6vM9PMJq7w==}
     dependencies:
+      '@sphereon/did-uni-client': 0.5.1-unstable.1
       '@sphereon/jsencrypt': 3.3.2-unstable.0
-      '@sphereon/ssi-sdk-core': 0.8.1-unstable.179_ts-node@8.10.2
-      '@sphereon/ssi-types': 0.8.1-unstable.179
+      '@sphereon/ssi-sdk-core': 0.8.1-unstable.242_ts-node@8.10.2
+      '@sphereon/ssi-types': 0.8.1-unstable.242
       '@trust/keyto': 2.0.0-alpha1
       '@veramo/core': 4.2.0
       '@veramo/utils': 4.2.0
+      did-resolver: 4.0.1
       elliptic: 6.5.4
       uint8arrays: 3.1.1
     transitivePeerDependencies:
@@ -3515,8 +3525,8 @@ packages:
       - typeorm-aurora-data-api-driver
     dev: false
 
-  /@sphereon/ssi-sdk-vc-handler-ld-local/0.8.1-unstable.179_typescript@4.6.4:
-    resolution: {integrity: sha512-YnFsPebedqucvrRINTAII7R63I4tOzWEQOtBhXgxh5k+4yeAwawt451Z9eYmcpJKApgd+pUpaaZV3F6QNth+PQ==}
+  /@sphereon/ssi-sdk-vc-handler-ld-local/0.8.1-unstable.242_typescript@4.6.4:
+    resolution: {integrity: sha512-ZbPsjRZNKYU8v09nv9Nb7S5ckiNOfFe6iEjQWzkcwqo5C+n7tkQXZP6GWMCFaSb3JQlRQDFyUseHwr2GPAG4dA==}
     dependencies:
       '@digitalcredentials/did-method-key': 2.0.3
       '@digitalcredentials/did-web-resolver': 1.0.0
@@ -3529,8 +3539,8 @@ packages:
       '@digitalcredentials/x25519-key-agreement-2020-context': 1.0.0
       '@mattrglobal/jsonld-signatures-bbs': 1.1.2
       '@sphereon/ed25519-signature-2018': 0.7.0-unstable.2
-      '@sphereon/ssi-sdk-core': 0.8.1-unstable.179_ts-node@8.10.2
-      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.179_ts-node@8.10.2
+      '@sphereon/ssi-sdk-core': 0.8.1-unstable.242_ts-node@8.10.2
+      '@sphereon/ssi-sdk-did-utils': 0.8.1-unstable.242_ts-node@8.10.2
       '@transmute/ed25519-key-pair': 0.7.0-unstable.67
       '@transmute/jsonld-document-loader': 0.7.0-unstable.80
       '@transmute/vc-status-rl-2020': 0.7.0-unstable.67
@@ -3572,8 +3582,8 @@ packages:
       - web-streams-polyfill
     dev: false
 
-  /@sphereon/ssi-types/0.8.1-unstable.179:
-    resolution: {integrity: sha512-Se8n7sh3UEO+LGfUcO946TaQaGJf7ozY5tRo9V3Ssax0Rg5MMSOdlf+YE0tgZ7X84WZOrFTdzUVxpN2tpoYRlQ==}
+  /@sphereon/ssi-types/0.8.1-unstable.242:
+    resolution: {integrity: sha512-/Dy7WuT78gWOChhe4YTbDhr9xly1rxajPnGyPaYmeKOleY8c3az2zU2pRcAiL5nqFN0DkVnT0ncYeeENr9NzOw==}
     dependencies:
       jwt-decode: 3.1.2
     dev: false
@@ -4625,7 +4635,7 @@ packages:
       '@veramo/credential-w3c': 4.2.0
       '@veramo/data-store': 4.2.0_pg@8.9.0+sqlite3@5.1.4
       '@veramo/did-comm': 4.3.0
-      '@veramo/did-discovery': 4.3.0
+      '@veramo/did-discovery': 4.2.0
       '@veramo/did-jwt': 4.2.0
       '@veramo/did-manager': 4.2.0
       '@veramo/did-provider-ethr': 4.3.0
@@ -4634,7 +4644,7 @@ packages:
       '@veramo/did-resolver': 4.2.0
       '@veramo/key-manager': 4.2.0
       '@veramo/kms-local': 4.2.0
-      '@veramo/message-handler': 4.3.0
+      '@veramo/message-handler': 4.2.0
       '@veramo/remote-client': 4.3.0
       '@veramo/remote-server': 4.3.0_express@4.18.2
       '@veramo/selective-disclosure': 4.3.0
@@ -4758,7 +4768,7 @@ packages:
       '@veramo/core': 4.2.0
       '@veramo/did-jwt': 4.2.0
       '@veramo/did-resolver': 4.2.0
-      '@veramo/message-handler': 4.3.0
+      '@veramo/message-handler': 4.2.0
       '@veramo/utils': 4.2.0
       canonicalize: 1.0.8
       debug: 4.3.4
@@ -4781,7 +4791,7 @@ packages:
     resolution: {integrity: sha512-gwinKYd//jOCXrdr2NefXOHnuUT8Vz2sHvSMFvm41UVD9QMpeKpTrTEqGoYG/eDg/1+U9aQlb+AI6bFUNNsk0Q==}
     dependencies:
       '@veramo/core': 4.2.0
-      '@veramo/did-discovery': 4.3.0
+      '@veramo/did-discovery': 4.2.0
       '@veramo/did-manager': 4.2.0
       '@veramo/key-manager': 4.2.0
       '@veramo/utils': 4.2.0
@@ -4813,7 +4823,7 @@ packages:
     resolution: {integrity: sha512-gwinKYd//jOCXrdr2NefXOHnuUT8Vz2sHvSMFvm41UVD9QMpeKpTrTEqGoYG/eDg/1+U9aQlb+AI6bFUNNsk0Q==}
     dependencies:
       '@veramo/core': 4.2.0
-      '@veramo/did-discovery': 4.3.0
+      '@veramo/did-discovery': 4.2.0
       '@veramo/did-manager': 4.2.0
       '@veramo/key-manager': 4.2.0
       '@veramo/utils': 4.2.0
@@ -4847,7 +4857,7 @@ packages:
       '@ethersproject/signing-key': 5.7.0
       '@stablelib/ed25519': 1.0.3
       '@veramo/core': 4.2.0
-      '@veramo/message-handler': 4.3.0
+      '@veramo/message-handler': 4.2.0
       '@veramo/utils': 4.2.0
       cross-fetch: 3.1.5
       debug: 4.3.4
@@ -4860,8 +4870,8 @@ packages:
       - supports-color
     dev: false
 
-  /@veramo/did-discovery/4.3.0:
-    resolution: {integrity: sha512-K3Oalp8PucNxKx6mk5pJoPpa24mGJxRHsd+Oab+YCroyBhg5rEkZLwDOmPT+WjbxGeKSnXwEQuzxHW3IkwO9rA==}
+  /@veramo/did-discovery/4.2.0:
+    resolution: {integrity: sha512-U2baTL/KXgj84TF7hJxvUzh8oyfEQSsWSpqbRTQITE6bbSBaZiM/ZfgHRty8wuDFMFVV/f+xbkwdkOf3nY7SpQ==}
     dependencies:
       '@veramo/core': 4.2.0
       debug: 4.3.4
@@ -4873,7 +4883,7 @@ packages:
     resolution: {integrity: sha512-5CVuKhkYUjyAL7nDO5x+ET3FF66Rf8X6V+tufk874m/pjGTa+dGkMr9YAOvwoQCIQL50ZMT5gX/YDycYsWMLsg==}
     dependencies:
       '@veramo/core': 4.2.0
-      '@veramo/message-handler': 4.3.0
+      '@veramo/message-handler': 4.2.0
       debug: 4.3.4
       did-jwt: 6.11.1
       did-resolver: 4.0.1
@@ -4885,7 +4895,7 @@ packages:
     resolution: {integrity: sha512-hkJvDcCWiVTD0QUo3THOT+F7McIAv0wB1HjzkauY4rk7cBUDH59S4QjDOZie4J4L0zcFmYlu9zVJl52JbFhJWQ==}
     dependencies:
       '@veramo/core': 4.2.0
-      '@veramo/did-discovery': 4.3.0
+      '@veramo/did-discovery': 4.2.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -4992,11 +5002,10 @@ packages:
       - supports-color
     dev: false
 
-  /@veramo/message-handler/4.3.0:
-    resolution: {integrity: sha512-rWDNLENGp8+XFdr/u5rBLLi8MSryOeQiUg+ROvmcr2VltvkOqMv8fsJ4O2m3g2HStYwTw3XbTBhRJERChyhUSA==}
+  /@veramo/message-handler/4.2.0:
+    resolution: {integrity: sha512-bllhDlHl/4KUwlSFJjCWEHl8EqtcA+J8Va1qxJfInAeg6+XOR7ldKrrb3MVmsreuEkzUasdwQtdjHBzZCnMzcQ==}
     dependencies:
       '@veramo/core': 4.2.0
-      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -5037,7 +5046,7 @@ packages:
       '@veramo/core': 4.2.0
       '@veramo/credential-w3c': 4.2.0
       '@veramo/did-jwt': 4.2.0
-      '@veramo/message-handler': 4.3.0
+      '@veramo/message-handler': 4.2.0
       '@veramo/utils': 4.2.0
       debug: 4.3.4
       did-jwt: 6.11.1
@@ -5055,7 +5064,7 @@ packages:
     resolution: {integrity: sha512-WPwApczlPctOOTHyGlmCChB0k7Y6KopibKw1W7PbK8UswNL348LTxqOmjYOWjlycGmsebvWd48Z3Ae+Tw62QFw==}
     dependencies:
       '@veramo/core': 4.2.0
-      '@veramo/message-handler': 4.3.0
+      '@veramo/message-handler': 4.2.0
       cross-fetch: 3.1.5
       debug: 4.3.4
       url-parse: 1.5.10
@@ -5906,7 +5915,7 @@ packages:
       promise-inflight: 1.0.1
       rimraf: 3.0.2
       ssri: 9.0.1
-      tar: 6.1.11
+      tar: 6.1.13
       unique-filename: 2.0.1
     transitivePeerDependencies:
       - bluebird
@@ -8967,7 +8976,7 @@ packages:
     hasBin: true
     dependencies:
       async: 3.2.4
-      chalk: 4.1.0
+      chalk: 4.1.2
       filelist: 1.0.4
       minimatch: 3.0.5
     dev: true
@@ -10791,7 +10800,7 @@ packages:
       npmlog: 6.0.2
       rimraf: 3.0.2
       semver: 7.3.8
-      tar: 6.1.11
+      tar: 6.1.13
       which: 2.0.2
     transitivePeerDependencies:
       - bluebird
@@ -11125,7 +11134,7 @@ packages:
       '@yarnpkg/parsers': 3.0.0-rc.39
       '@zkochan/js-yaml': 0.0.6
       axios: 1.3.3
-      chalk: 4.1.0
+      chalk: 4.1.2
       cli-cursor: 3.1.0
       cli-spinners: 2.6.1
       cliui: 7.0.4
@@ -11487,7 +11496,7 @@ packages:
       read-package-json-fast: 2.0.3
       rimraf: 3.0.2
       ssri: 9.0.1
-      tar: 6.1.11
+      tar: 6.1.13
     transitivePeerDependencies:
       - bluebird
       - supports-color
