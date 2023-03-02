@@ -3,13 +3,14 @@ import { InvalidArgumentError, program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import {
-  asDID, createSDCredentialFromPayload,
+  asDID,
+  createSDCredentialFromPayload,
   exampleParticipantSD,
   exampleParticipantSD2210,
   ExportFileResult,
   getAgent,
   IVerifySelfDescribedCredential,
-  VerifiableCredentialResponse
+  VerifiableCredentialResponse,
 } from '@sphereon/gx-agent'
 
 const participant = program.command('participant').description('Participant commands')
@@ -31,9 +32,9 @@ sd.command('submit')
         throw new InvalidArgumentError('sd-id and sd-file options cannot both be provided at the same time')
       }
       const agent = await getAgent()
-      let selfDescription : VerifiableCredentialResponse
+      let selfDescription: VerifiableCredentialResponse
       if (cmd.sdId) {
-        selfDescription =  await agent.acquireComplianceCredentialFromExistingParticipant({
+        selfDescription = await agent.acquireComplianceCredentialFromExistingParticipant({
           participantSDId: cmd.sdId,
           persist: true,
           show: cmd.show,
@@ -42,7 +43,7 @@ sd.command('submit')
         let sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
         if (!sd.credentialSubject) {
           const did = await asDID()
-          sd = createSDCredentialFromPayload({did, payload: sd})
+          sd = createSDCredentialFromPayload({ did, payload: sd })
         }
         selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
           credential: sd,
@@ -108,7 +109,9 @@ sd.command('example-input')
   })
 
 sd.command('wizard-credential')
-  .description('Takes data from the SD Creation Wizard and creates a SD Credential out of it. Link to the wizard: https://sd-creation-wizard.gxfs.dev/')
+  .description(
+    'Takes data from the SD Creation Wizard and creates a SD Credential out of it. Link to the wizard: https://sd-creation-wizard.gxfs.dev/'
+  )
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of the SD Wizard file you downloaded)')
   .option('--show', 'Show the resulting self-description Verifiable Credential')
@@ -126,7 +129,6 @@ sd.command('wizard-credential')
       console.log(JSON.stringify(credential, null, 2))
     }
   })
-
 
 export async function exportParticipant(cmd: any): Promise<ExportFileResult[]> {
   const did = await asDID(cmd.did)
@@ -241,7 +243,7 @@ sd.command('create')
       let sd = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
       if (!sd.credentialSubject) {
         const did = await asDID()
-        sd = createSDCredentialFromPayload({did, payload: sd})
+        sd = createSDCredentialFromPayload({ did, payload: sd })
       }
       if (!sd.type.includes('LegalPerson') && sd.credentialSubject['@type'] !== 'gax-trust-framework:LegalPerson') {
         throw new Error(

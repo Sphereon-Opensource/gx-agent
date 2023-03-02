@@ -17,7 +17,7 @@ import {
   VerifiablePresentation,
 } from '@veramo/core'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
-import pkg from '@digitalcredentials/jsonld-signatures'
+
 import { _ExtendedIKey } from '@veramo/utils'
 
 export interface IGXComplianceClient extends IPluginMethodMap {
@@ -137,7 +137,6 @@ export interface IIssueVerifiablePresentationArgs {
 }
 
 export interface ICheckVerifiablePresentationArgs {
-
   targetDomain?: string
   verifiablePresentation: VerifiablePresentation
   show?: boolean
@@ -231,7 +230,6 @@ export interface IIssueAndSaveVerifiablePresentationArgs {
   keyRef: string
   verifiableCredentials: VerifiableCredential[]
   verificationMethodId: string
-  purpose?: typeof pkg.purposes
 }
 
 export interface VerifiableCredentialResponse {
@@ -354,12 +352,6 @@ export enum ServiceOfferingType {
   BlockStorageOffering = 'BlockStorageOffering',
   DigitalIdentityWallet = 'DigitalIdentityWallet',
 }
-
-export const ProofPurpose = pkg.purposes.ProofPurpose
-export const ControllerProofPurpose = pkg.purposes.ControllerProofPurpose
-export const AssertionProofPurpose = pkg.purposes.AssertionProofPurpose
-export const AuthenticationProofPurpose = pkg.purposes.AuthenticationProofPurpose
-
 export interface EcosystemConfig {
   name: string
   description?: string
