@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/Sphereon/gx-agent/compare/v0.3.0...v0.4.0) (2023-03-02)
+
+
+### Features
+
+* add support for SD wizard. Misc fixes ([17cf429](https://github.com/Sphereon/gx-agent/commit/17cf429bb2afff11b45b2a0249695fd735280c80))
+
+
+
+
+
 # [0.3.0](https://github.com/Sphereon/gx-agent/compare/v0.2.1...v0.3.0) (2023-02-16)
 
 
