@@ -22,6 +22,7 @@
     "@types/uuid": "^9.0.0",
     "@veramo/cli": "4.2.0",
     "@veramo/core": "4.2.0",
+    "@digitalcredentials/ed25519-verification-key-2020": "3.2.2",
     "commander": "^9.0.0",
     "console-table-printer": "^2.10.0",
     "cors": "^2.8.5",
