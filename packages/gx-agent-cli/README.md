@@ -851,7 +851,7 @@ you can provide the ID value of the self-description credential in the agent.
 You can use the `-s/--show` option, to show all the credentials used in the exchange.
 
 ```shell
-gx-agent so sd submit -sif ./service-offering-input-credential.json
+gx-agent so sd submit -sof ./service-offering-input-credential.json -sid <ID of your participant self-description vc> -cid <ID of your compliance VC from Gaia-X compliance>
 
 
 ```
@@ -859,7 +859,7 @@ gx-agent so sd submit -sif ./service-offering-input-credential.json
 or from an existing agent self-description credential:
 
 ```shell
-gx-agent so sd submit -id 5b55d322eb2bda3899c94ba6617aca2376314a02d59700a1c68d5dbee19aa640ba5576a57bdbd03a356dfa71735423e9ae4da09a2e3df05c1d6dd8c6f9a292f0
+gx-agent so sd submit -soi <ID of a signed ServiceOffering self-description stored>  -sid <ID of your participant self-description vc> -cid <ID of your compliance VC from Gaia-X compliance>
 
 Ouput:
 ┌──────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
