@@ -16,7 +16,7 @@
     "@microsoft/api-extractor": "^7.33.6",
     "@microsoft/api-extractor-model": "^7.25.2",
     "@sphereon/gx-agent": "^0.4.0",
-    "@sphereon/ssi-sdk-did-utils": "^0.8.1-unstable.179",
+    "@sphereon/ssi-sdk-did-utils": "^0.8.1-unstable.242",
     "@types/blessed": "^0.1.19",
     "@types/swagger-ui-express": "^4.1.3",
     "@types/uuid": "^9.0.0",
