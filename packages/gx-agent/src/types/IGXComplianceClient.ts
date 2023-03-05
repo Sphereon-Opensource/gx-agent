@@ -14,7 +14,7 @@ import {
   UniqueVerifiableCredential,
   UniqueVerifiablePresentation,
   VerifiableCredential,
-  VerifiablePresentation,
+  VerifiablePresentation
 } from '@veramo/core'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 
@@ -216,6 +216,8 @@ export interface IAddServiceOfferingUnsignedArgs {
   serviceOfferingId: string
   participantId: string
   complianceId: string
+
+  labelVCs?: VerifiableCredential[]
   persist?: boolean
   show?: boolean
 }
