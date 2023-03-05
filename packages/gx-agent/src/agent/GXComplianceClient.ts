@@ -179,8 +179,6 @@ export class GXComplianceClient implements IAgentPlugin {
     args: IAddServiceOfferingUnsignedArgs,
     context: GXRequiredContext
   ): Promise<VerifiableCredentialResponse> {
-    context.agent.dataStoreGetVerifiableCredential()
-
     const participantVC = await context.agent.dataStoreGetVerifiableCredential({
       hash: args.participantId,
     })
@@ -191,13 +189,14 @@ export class GXComplianceClient implements IAgentPlugin {
       hash: args.serviceOfferingId,
     })
     const did = complianceVC.credentialSubject.id ? complianceVC.credentialSubject.id : getIssuerString(participantVC)
+    const labelVCs = args.labelVCs
     const signInfo: ISignInfo = await extractSignInfo({ did, section: 'authentication' }, context)
     const serviceOfferingVP = await this.credentialHandler.issueVerifiablePresentation(
       {
         challenge: GXComplianceClient.getDateChallenge(),
         keyRef: signInfo.keyRef,
         // purpose: args.purpose,
-        verifiableCredentials: [serviceOfferingVC, complianceVC, participantVC],
+        verifiableCredentials: [serviceOfferingVC, complianceVC, participantVC, ...(labelVCs ? labelVCs: [])],
         domain: did,
         persist: args.persist,
       },
