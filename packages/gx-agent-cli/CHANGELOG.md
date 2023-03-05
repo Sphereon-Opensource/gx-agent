@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/Sphereon/gx-agent/compare/v0.4.4...v0.5.0) (2023-03-05)
+
+
+### Features
+
+* Add label VCs to submit method ([3a54f22](https://github.com/Sphereon/gx-agent/commit/3a54f2256e265a957f0be94b8ce7b60718cf3f60))
+
+
+
+
+
 ## [0.4.4](https://github.com/Sphereon/gx-agent/compare/v0.4.3...v0.4.4) (2023-03-05)
 
 
