@@ -369,7 +369,7 @@ function createAutoscaledVirtualMachineSubject(url: string, did?: string) {
 function createComputeFunctionSubject(url: string, did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
-    '@id': 'did:web:registry.gaia-x.eu:ComputeFunction:0EhGVCJEBe9p2AxKPydcK6O3F3Wememi4sui',
+    // '@id': 'did:web:registry.gaia-x.eu:ComputeFunction:0EhGVCJEBe9p2AxKPydcK6O3F3Wememi4sui',
     '@type': 'gax-trust-framework:ComputeFunction',
     ...serviceOfferingNameFixture(),
     ...offeredByFixture(),
