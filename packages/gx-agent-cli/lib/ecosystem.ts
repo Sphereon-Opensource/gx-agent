@@ -101,8 +101,7 @@ ecosystem
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
   .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential')
   .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
-  .option('-s, --show', 'Show self descriptions')
-  .option('-s, --show', 'Print the Verifiable Presentation to console')
+  .option('--show', 'Show self descriptions')
   .action(async (name, cmd) => {
     const agent = await getAgent()
     try {
@@ -139,7 +138,7 @@ so.command('submit')
   .requiredOption('-eid, --ecosystem-compliance-id <string>', 'ID of your compliance credential from ecosystem')
   .requiredOption('-sof, --so-input-file <string>', 'Unsigned service-offering input file location')
   .option('-p, --persist', 'Persists VPs created in the intermediate steps')
-  .option('-s, --show', 'Show self descriptions')
+  .option('--show', 'Show self descriptions')
   .action(async (name, cmd) => {
     const agent = await getAgent()
     if (!cmd.sdId) {

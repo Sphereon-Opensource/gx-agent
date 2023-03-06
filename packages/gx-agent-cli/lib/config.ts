@@ -29,7 +29,7 @@ config
   .description('Verify a Gaia-X agent config file syntax')
   .option('-f, --filename <string>', 'Config file name', getDefaultAgentFile())
   .option('-m, --method <string>', 'Check that a specific method is exposed by the agent.', 'execute')
-  .option('-s, --show', 'Show the configuration file')
+  .option('--show', 'Show the configuration file')
   .action(async (options) => {
     if (options.show) {
       console.log(getConfigAsString(options.filename))

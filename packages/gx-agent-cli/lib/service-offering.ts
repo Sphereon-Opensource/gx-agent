@@ -29,7 +29,7 @@ sd.command('submit')
   .option('-lai, --label-ids <string...>', 'ID(s) of any label Verifiable Credential you want to include with the service offering')
   .option('-laf, --label-files <string...>', 'Path(s) any label Verifiable Credential you want to include with the service offering')
   .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
-  .option('-s, --show', 'Show service offering')
+  .option('--show', 'Show service offering')
   .action(async (cmd) => {
     const agent = await getAgent()
     if (!cmd.soInputFile && !cmd.soId) {
@@ -96,7 +96,7 @@ sd.command('submit')
 sd.command('verify')
   .description('verifies a service-offering self-description')
   .option('-id, --sd-id <string>', 'id of your self-description')
-  .option('-s, --show', 'Show self descriptions')
+  .option('--show', 'Show self descriptions')
   // .option('-sf, --sd-file <string>', 'your sd file')
   .action(async (cmd) => {
     try {
@@ -146,7 +146,7 @@ sd.command('example-input')
       (key) => ' ' + key
     )}`
   )
-  .option('-s, --show', 'Show self descriptions')
+  .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
     const typeStr = 'service-offering'
@@ -205,7 +205,7 @@ sd.command('export')
 sd.command('list')
   .description('List service-offering self-description(s)')
   .option('-d, --did <string>', 'the DID or domain which will be used')
-  .option('-s, --show', 'Show self-descriptions')
+  .option('--show', 'Show self-descriptions')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()
