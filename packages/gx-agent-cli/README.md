@@ -871,6 +871,18 @@ Ouput:
 
 Notice that you now have a ServiceOffering Credential, which is issued by the compliance server
 
+_NOTE: you can run gx-agent vc list in any step and see your VCs in the agent. at the end of this step you should see this list containing all the necessary credentials:_
+```shell
+┌───────────────────────────────────────┬─────────────────────────┬─────────────────────────┬──────────────────────────┬───────────────────────────────┐
+│                                 types │                  issuer │                subject  │           issuance-date  │                           id  │
+├───────────────────────────────────────┼─────────────────────────┼─────────────────────────┼──────────────────────────┼───────────────────────────────┤
+│                  VerifiableCredential │ did:web:participant_url │ did:web:participant_url │ 2023-03-02T09:55:49.789Z │ <participant sd id>           │
+│                 ParticipantCredential │ did:web:compliance url  │ did:web:participant_url │ 2023-03-02T09:55:51.753Z │ <participant compliance id>   │
+│                  VerifiableCredential │ did:web:participant_url │ did:web:participant_url │ 2023-03-02T09:57:16.484Z │ <so sd id>                    │
+│ ServiceOfferingCredentialExperimental │ did:web:compliance url  │ did:web:participant_url │ 2023-03-02T09:57:18.527Z │ <so compliance id>            │
+└───────────────────────────────────────┴─────────────────────────┴─────────────────────────┴──────────────────────────┴───────────────────────────────┘
+```
+
 ## List service-offering self-description credentials
 
 You can list service-offering self-descriptions known to the agent.
