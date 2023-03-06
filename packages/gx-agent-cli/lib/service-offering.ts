@@ -10,7 +10,7 @@ import {
   exampleServiceOfferingSD2210,
   getAgent,
   IVerifySelfDescribedCredential,
-  ServiceOfferingType
+  ServiceOfferingType,
 } from '@sphereon/gx-agent'
 import { CredentialPayload, VerifiableCredential } from '@veramo/core'
 
@@ -44,7 +44,7 @@ sd.command('submit')
     }
     if (cmd.labelIds) {
       for (const id in cmd.labelIds) {
-        labelVCs.push((await agent.dataStoreGetVerifiableCredential({ hash: id })))
+        labelVCs.push(await agent.dataStoreGetVerifiableCredential({ hash: id }))
       }
     }
 
@@ -56,7 +56,7 @@ sd.command('submit')
           credential,
           keyRef: cmd.keyIdentifier,
           domain: did,
-          persist: true
+          persist: true,
         })
         soVcId = vc.hash
         printTable([
@@ -66,8 +66,8 @@ sd.command('submit')
             subject: vc.verifiableCredential.credentialSubject.id,
             'issuance-date': vc.verifiableCredential.issuanceDate,
             id: vc.hash,
-            persisted: true
-          }
+            persisted: true,
+          },
         ])
       }
       const vc = await agent.createAndSubmitServiceOffering({
@@ -76,7 +76,7 @@ sd.command('submit')
         complianceId: cmd.complianceId,
         labelVCs,
         persist: cmd.persist,
-        show: cmd.show
+        show: cmd.show,
       })
       printTable([
         {
@@ -85,8 +85,8 @@ sd.command('submit')
           subject: vc.verifiableCredential.credentialSubject.id,
           'issuance-date': vc.verifiableCredential.issuanceDate,
           id: vc.hash,
-          persisted: cmd.persist
-        }
+          persisted: cmd.persist,
+        },
       ])
     } catch (error: any) {
       console.error(error.message)
@@ -138,7 +138,7 @@ sd.command('example-input')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option(
     '-v, --version <string>',
-    'Version of SelfDescription object you want to create: \'v2206\', or \'v2210\', if no version provided, it will default to `v2210`'
+    "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
   )
   .requiredOption(
     '-t, --type <string>',
@@ -158,12 +158,12 @@ sd.command('example-input')
     if (cmd.version && cmd.version === 'v2206') {
       credential = exampleServiceOfferingSD({
         did,
-        url
+        url,
       })
     } else if ((!cmd.version && !cmd.type) || (cmd.version === 'latest' && !cmd.type)) {
       console.error('for v2210 version, you should provide type.')
     } else if ((!cmd.version || cmd.version === 'latest') && cmd.type) {
-      console.log('IMPORTANT: the values specified with \'*\' should be populated by you.')
+      console.log("IMPORTANT: the values specified with '*' should be populated by you.")
       // @ts-ignore
       credential = exampleServiceOfferingSD2210({ url, did, type: ServiceOfferingType[cmd.type] })
     }
@@ -187,7 +187,7 @@ export async function exportServiceOffering(cmd: any) {
     type: typeStr,
     includeVCs: true,
     includeVPs: true,
-    exportPath: cmd.path
+    exportPath: cmd.path,
   })
   return exportResult
 }
@@ -224,7 +224,7 @@ sd.command('list')
             issuer: sd.verifiableCredential.issuer,
             subject: sd.verifiableCredential.id,
             'issuance-data': sd.verifiableCredential.issuanceDate,
-            id: sd.hash
+            id: sd.hash,
           }
         })
       )
@@ -254,8 +254,8 @@ sd.command('show')
             issuer: vc.issuer,
             subject: vc.id,
             'issuance-data': vc.issuanceDate,
-            id: vc.hash
-          }
+            id: vc.hash,
+          },
         ])
         console.log(`id: ${id}\n${JSON.stringify(vc, null, 2)}`)
       }
@@ -300,7 +300,7 @@ sd.command('create')
       }
       const selfDescription = await agent.issueVerifiableCredential({
         ...sd,
-        persist: true
+        persist: true,
       })
       printTable([{ ...selfDescription }])
       if (cmd.show) {

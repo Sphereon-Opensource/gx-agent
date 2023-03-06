@@ -196,7 +196,7 @@ export class GXComplianceClient implements IAgentPlugin {
         challenge: GXComplianceClient.getDateChallenge(),
         keyRef: signInfo.keyRef,
         // purpose: args.purpose,
-        verifiableCredentials: [serviceOfferingVC, complianceVC, participantVC, ...(labelVCs ? labelVCs: [])],
+        verifiableCredentials: [serviceOfferingVC, complianceVC, participantVC, ...(labelVCs ? labelVCs : [])],
         domain: did,
         persist: args.persist,
       },
@@ -415,7 +415,7 @@ export class GXComplianceClient implements IAgentPlugin {
     args: { vp: VerifiablePresentation; apiType: string; baseUrl?: string },
     _context: GXRequiredContext
   ) {
-    const URL = `${this.getApiVersionedUrl(args.baseUrl)}/${args.apiType}/onboard?store=false`
+    const URL = `${this.getApiVersionedUrl(args.baseUrl)}/${args.apiType}/verify/raw?store=false`
 
     try {
       return (await postRequest(URL, JSON.stringify(args.vp))) as VerifiableCredential
@@ -451,10 +451,17 @@ export class GXComplianceClient implements IAgentPlugin {
     if (args.show) {
       console.log(`serviceOffering VC: ${JSON.stringify(serviceOfferingVC, null, 2)}`)
     }
+    const labelVCs = args.labelVCs
     const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
       {
         keyRef: signInfo.keyRef,
-        verifiableCredentials: [serviceOfferingVC.verifiableCredential, ecosystemComplianceVC, complianceVC, selfDescribedVC],
+        verifiableCredentials: [
+          serviceOfferingVC.verifiableCredential,
+          ecosystemComplianceVC,
+          complianceVC,
+          selfDescribedVC,
+          ...(labelVCs ? labelVCs : []),
+        ],
         challenge: GXComplianceClient.getDateChallenge(),
         domain: signInfo.participantDomain,
         persist: args.persist ? args.persist : false,
