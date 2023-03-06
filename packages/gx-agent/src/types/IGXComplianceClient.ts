@@ -216,7 +216,6 @@ export interface IAddServiceOfferingUnsignedArgs {
   serviceOfferingId: string
   participantId: string
   complianceId: string
-
   labelVCs?: VerifiableCredential[]
   persist?: boolean
   show?: boolean
