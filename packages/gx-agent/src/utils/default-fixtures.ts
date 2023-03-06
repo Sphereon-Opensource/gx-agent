@@ -200,8 +200,12 @@ export function exampleServiceOfferingSD({ url, did }: { url: string; did?: stri
 export function exampleServiceOfferingSD2210({ url, did, type }: { url: string; did?: string; type: ServiceOfferingType; version?: string }) {
   let credentialSubject
   switch (type) {
-    case ServiceOfferingType.DcatDataSet:
-      credentialSubject = createDcatDataSetSubject(url, did)
+    case ServiceOfferingType.DcatDataset:
+      credentialSubject = createDcatDatasetSubject(url, did)
+      break
+    case ServiceOfferingType.DcatDataService:
+      //fixme: we might wanna generate something different from createDcatDatasetSubject here.
+      credentialSubject = createDcatDatasetSubject(url, did)
       break
     case ServiceOfferingType.AutoscaledVirtualMachine:
       credentialSubject = createAutoscaledVirtualMachineSubject(url, did)
@@ -1025,7 +1029,7 @@ function dctDescriptionFixture() {
   }
 }
 
-function createDcatDataSetSubject(url: string, did?: string) {
+function createDcatDatasetSubject(url: string, did?: string) {
   return {
     '@context': {
       cc: 'http://creativecommons.org/ns#',

@@ -319,7 +319,8 @@ export interface JWK extends JsonWebKey {
 }
 
 export enum ServiceOfferingType {
-  DcatDataSet = 'dcat:Dataset',
+  DcatDataService = 'dcat:DataService',
+  DcatDataset = 'dcat:Dataset',
   AutoscaledVirtualMachine = 'AutoscaledVirtualMachine',
   ComputeFunction = 'ComputeFunction',
   IdentityAccessManagementOffering = 'IdentityAccessManagementOffering',

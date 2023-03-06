@@ -547,7 +547,7 @@ id: dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d14
     "gax-trust-framework:legalAddress": {
       "@type": "vcard:Address",
       "vcard:country-name": {
-        "@value": "NL",
+        "@value": "NL-UT",
         "@type": "xsd:string"
       },
       "vcard:gps": {
@@ -570,7 +570,7 @@ id: dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d14
     "gax-trust-framework:headquarterAddress": {
       "@type": "vcard:Address",
       "vcard:country-name": {
-        "@value": "NL",
+        "@value": "NL-UT",
         "@type": "xsd:string"
       },
       "vcard:gps": {
@@ -706,6 +706,10 @@ We currently support creation of two different version of this entity. If you wa
 ```shell
 ┌────────────────────────────────┬
 │             type               │
+├────────────────────────────────┤
+│ DcatDataService                │
+├────────────────────────────────┤
+│ DcatDataset                    │
 ├────────────────────────────────┤
 │ AutoscaledVirtualMachine       │
 ├────────────────────────────────┤
