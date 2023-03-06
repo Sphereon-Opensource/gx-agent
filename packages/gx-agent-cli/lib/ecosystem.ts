@@ -158,12 +158,12 @@ so.command('submit')
     }
     let labelVCs: VerifiableCredential[] = []
     if (cmd.labelFiles) {
-      for (const path in cmd.labelFiles) {
+      for (const path of cmd.labelFiles) {
         labelVCs.push(JSON.parse(fs.readFileSync(path, 'utf-8')) as VerifiableCredential)
       }
     }
     if (cmd.labelIds) {
-      for (const id in cmd.labelIds) {
+      for (const id of cmd.labelIds) {
         labelVCs.push(await agent.dataStoreGetVerifiableCredential({ hash: id }))
       }
     }
