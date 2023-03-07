@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/Sphereon/gx-agent/compare/v0.5.0...v0.6.0) (2023-03-07)
+
+
+### Bug Fixes
+
+* changed the bug in for ([a87e8f9](https://github.com/Sphereon/gx-agent/commit/a87e8f9d3095f0f8408e07bfc2aa4dda30ce85ae))
+* Move remove shorthand from --show command, as it might interfere in PS with other commands starting with a 's''! ([1318c70](https://github.com/Sphereon/gx-agent/commit/1318c70da3b2bcf211ff516176c9fa47865b9d62))
+* some bug fixes in the ecosystem flow, plus changed the shpe from gx registry to sphereon's registry ([0baf8fb](https://github.com/Sphereon/gx-agent/commit/0baf8fbff6d1de89b97e6b40f0da575cf7e121de))
+
+
+### Features
+
+* added label to ecosystem so onboarding ([27308ee](https://github.com/Sphereon/gx-agent/commit/27308ee6d51241aac71bdca829db0cd8a3b88fa8))
+* updated readme and fixtures to support all listed gx types ([ce366c6](https://github.com/Sphereon/gx-agent/commit/ce366c66fdd5d80f94835d169c63ead2519238f4))
+
+
+
+
+
 # [0.5.0](https://github.com/Sphereon/gx-agent/compare/v0.4.4...v0.5.0) (2023-03-05)
 
 
