@@ -25,7 +25,8 @@ export function createSDCredentialFromPayload({ did, payload }: { payload: unkno
 
 export function exampleParticipantSD({ did }: { did?: string; version?: string }) {
   return {
-    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.gaia-x.eu/v2206/api/shape'],
+    //fixme: discuss this subject later, gaia-x shpaes is not available anymore
+    '@context': ['https://www.w3.org/2018/credentials/v1', 'http://20.76.5.229/v2206/api/shape'],
     issuer: `${did ? did : 'your DID here'}`,
     id: `urn:uuid:${uuidv4()}`,
     credentialSubject: {
@@ -165,7 +166,8 @@ export function exampleParticipantSD2210({ did }: { did?: string; version?: stri
 
 export function exampleServiceOfferingSD({ url, did }: { url: string; did?: string; version?: string }) {
   return {
-    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.gaia-x.eu/v2206/api/shape'],
+    //fixme: discuss this subject later, gaia-x shpaes is not available anymore
+    '@context': ['https://www.w3.org/2018/credentials/v1', 'http://20.76.5.229/v2206/api/shape'],
     issuer: `${did ? did : 'your DID here'}`,
     id: `urn:uuid:${uuidv4()}`,
     credentialSubject: {

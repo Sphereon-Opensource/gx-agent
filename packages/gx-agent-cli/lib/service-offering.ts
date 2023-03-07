@@ -140,7 +140,7 @@ sd.command('example-input')
     '-v, --version <string>',
     "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
   )
-  .requiredOption(
+  .option(
     '-t, --type <string>',
     `ServiceOffering type is mandatory of you select latest version. Type can be chosen from this list: ${Object.keys(ServiceOfferingType).map(
       (key) => ' ' + key

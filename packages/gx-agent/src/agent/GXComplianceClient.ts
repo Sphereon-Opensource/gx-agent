@@ -452,7 +452,7 @@ export class GXComplianceClient implements IAgentPlugin {
       console.log(`serviceOffering VC: ${JSON.stringify(serviceOfferingVC, null, 2)}`)
     }
     const labelVCs = args.labelVCs
-    const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
+    const uniqueVpCompliance = await this.credentialHandler.issueVerifiablePresentation(
       {
         keyRef: signInfo.keyRef,
         verifiableCredentials: [
@@ -469,11 +469,38 @@ export class GXComplianceClient implements IAgentPlugin {
       context
     )
     if (args.show) {
-      console.log(`serviceOffering VP: ${JSON.stringify(uniqueVP, null, 2)}`)
+      console.log(`serviceOffering VP: ${JSON.stringify(uniqueVpCompliance, null, 2)}`)
+    }
+    const vcSoComplianceResponse = await this.acquireComplianceCredential(
+      { show: args.show, verifiablePresentation: uniqueVpCompliance.verifiablePresentation },
+      context
+    )
+    if (args.show) {
+      console.log(`VerifiableCredential ServiceOffering Compliance response: ${JSON.stringify(vcSoComplianceResponse, null, 2)}`)
+    }
+    const uniqueVpOnboard = await this.credentialHandler.issueVerifiablePresentation(
+      {
+        keyRef: signInfo.keyRef,
+        verifiableCredentials: [
+          serviceOfferingVC.verifiableCredential,
+          ecosystemComplianceVC,
+          complianceVC,
+          selfDescribedVC,
+          vcSoComplianceResponse.verifiableCredential,
+          ...(labelVCs ? labelVCs : []),
+        ],
+        challenge: GXComplianceClient.getDateChallenge(),
+        domain: signInfo.participantDomain,
+        persist: args.persist ? args.persist : false,
+      },
+      context
+    )
+    if (args.show) {
+      console.log(`serviceOffering VP (with compliance): ${JSON.stringify(uniqueVpOnboard, null, 2)}`)
     }
     return await this.submitServiceOffering(
       {
-        serviceOfferingVP: uniqueVP.verifiablePresentation,
+        serviceOfferingVP: uniqueVpOnboard.verifiablePresentation,
         baseUrl: args.ecosystemUrl,
       },
       context
