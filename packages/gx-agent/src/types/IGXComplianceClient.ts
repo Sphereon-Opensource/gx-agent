@@ -14,7 +14,7 @@ import {
   UniqueVerifiableCredential,
   UniqueVerifiablePresentation,
   VerifiableCredential,
-  VerifiablePresentation
+  VerifiablePresentation,
 } from '@veramo/core'
 import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 
@@ -192,6 +192,8 @@ export interface IOnboardServiceOfferingOnEcosystemArgs {
   complianceId: string
   ecosystemComplianceId: string
   serviceOffering: CredentialPayload
+
+  labelVCs?: VerifiableCredential[]
   persist?: boolean
   show?: boolean
 }
@@ -316,7 +318,8 @@ export interface JWK extends JsonWebKey {
 }
 
 export enum ServiceOfferingType {
-  DcatDataSet = 'dcat:Dataset',
+  DcatDataService = 'dcat:DataService',
+  DcatDataset = 'dcat:Dataset',
   AutoscaledVirtualMachine = 'AutoscaledVirtualMachine',
   ComputeFunction = 'ComputeFunction',
   IdentityAccessManagementOffering = 'IdentityAccessManagementOffering',

@@ -196,7 +196,7 @@ export class GXComplianceClient implements IAgentPlugin {
         challenge: GXComplianceClient.getDateChallenge(),
         keyRef: signInfo.keyRef,
         // purpose: args.purpose,
-        verifiableCredentials: [serviceOfferingVC, complianceVC, participantVC, ...(labelVCs ? labelVCs: [])],
+        verifiableCredentials: [serviceOfferingVC, complianceVC, participantVC, ...(labelVCs ? labelVCs : [])],
         domain: did,
         persist: args.persist,
       },
@@ -415,7 +415,7 @@ export class GXComplianceClient implements IAgentPlugin {
     args: { vp: VerifiablePresentation; apiType: string; baseUrl?: string },
     _context: GXRequiredContext
   ) {
-    const URL = `${this.getApiVersionedUrl(args.baseUrl)}/${args.apiType}/onboard?store=false`
+    const URL = `${this.getApiVersionedUrl(args.baseUrl)}/${args.apiType}/verify/raw?store=false`
 
     try {
       return (await postRequest(URL, JSON.stringify(args.vp))) as VerifiableCredential
@@ -451,10 +451,17 @@ export class GXComplianceClient implements IAgentPlugin {
     if (args.show) {
       console.log(`serviceOffering VC: ${JSON.stringify(serviceOfferingVC, null, 2)}`)
     }
-    const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
+    const labelVCs = args.labelVCs
+    const uniqueVpCompliance = await this.credentialHandler.issueVerifiablePresentation(
       {
         keyRef: signInfo.keyRef,
-        verifiableCredentials: [serviceOfferingVC.verifiableCredential, ecosystemComplianceVC, complianceVC, selfDescribedVC],
+        verifiableCredentials: [
+          serviceOfferingVC.verifiableCredential,
+          ecosystemComplianceVC,
+          complianceVC,
+          selfDescribedVC,
+          ...(labelVCs ? labelVCs : []),
+        ],
         challenge: GXComplianceClient.getDateChallenge(),
         domain: signInfo.participantDomain,
         persist: args.persist ? args.persist : false,
@@ -462,11 +469,38 @@ export class GXComplianceClient implements IAgentPlugin {
       context
     )
     if (args.show) {
-      console.log(`serviceOffering VP: ${JSON.stringify(uniqueVP, null, 2)}`)
+      console.log(`serviceOffering VP: ${JSON.stringify(uniqueVpCompliance, null, 2)}`)
+    }
+    const vcSoComplianceResponse = await this.acquireComplianceCredential(
+      { show: args.show, verifiablePresentation: uniqueVpCompliance.verifiablePresentation },
+      context
+    )
+    if (args.show) {
+      console.log(`VerifiableCredential ServiceOffering Compliance response: ${JSON.stringify(vcSoComplianceResponse, null, 2)}`)
+    }
+    const uniqueVpOnboard = await this.credentialHandler.issueVerifiablePresentation(
+      {
+        keyRef: signInfo.keyRef,
+        verifiableCredentials: [
+          serviceOfferingVC.verifiableCredential,
+          ecosystemComplianceVC,
+          complianceVC,
+          selfDescribedVC,
+          vcSoComplianceResponse.verifiableCredential,
+          ...(labelVCs ? labelVCs : []),
+        ],
+        challenge: GXComplianceClient.getDateChallenge(),
+        domain: signInfo.participantDomain,
+        persist: args.persist ? args.persist : false,
+      },
+      context
+    )
+    if (args.show) {
+      console.log(`serviceOffering VP (with compliance): ${JSON.stringify(uniqueVpOnboard, null, 2)}`)
     }
     return await this.submitServiceOffering(
       {
-        serviceOfferingVP: uniqueVP.verifiablePresentation,
+        serviceOfferingVP: uniqueVpOnboard.verifiablePresentation,
         baseUrl: args.ecosystemUrl,
       },
       context
