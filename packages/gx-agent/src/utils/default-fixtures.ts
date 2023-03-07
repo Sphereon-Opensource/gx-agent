@@ -25,7 +25,8 @@ export function createSDCredentialFromPayload({ did, payload }: { payload: unkno
 
 export function exampleParticipantSD({ did }: { did?: string; version?: string }) {
   return {
-    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.gaia-x.eu/v2206/api/shape'],
+    //fixme: discuss this subject later, gaia-x shpaes is not available anymore
+    '@context': ['https://www.w3.org/2018/credentials/v1', 'http://20.76.5.229/v2206/api/shape'],
     issuer: `${did ? did : 'your DID here'}`,
     id: `urn:uuid:${uuidv4()}`,
     credentialSubject: {
@@ -165,7 +166,8 @@ export function exampleParticipantSD2210({ did }: { did?: string; version?: stri
 
 export function exampleServiceOfferingSD({ url, did }: { url: string; did?: string; version?: string }) {
   return {
-    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://registry.gaia-x.eu/v2206/api/shape'],
+    //fixme: discuss this subject later, gaia-x shpaes is not available anymore
+    '@context': ['https://www.w3.org/2018/credentials/v1', 'http://20.76.5.229/v2206/api/shape'],
     issuer: `${did ? did : 'your DID here'}`,
     id: `urn:uuid:${uuidv4()}`,
     credentialSubject: {
@@ -200,8 +202,12 @@ export function exampleServiceOfferingSD({ url, did }: { url: string; did?: stri
 export function exampleServiceOfferingSD2210({ url, did, type }: { url: string; did?: string; type: ServiceOfferingType; version?: string }) {
   let credentialSubject
   switch (type) {
-    case ServiceOfferingType.DcatDataSet:
-      credentialSubject = createDcatDataSetSubject(url, did)
+    case ServiceOfferingType.DcatDataset:
+      credentialSubject = createDcatDatasetSubject(url, did)
+      break
+    case ServiceOfferingType.DcatDataService:
+      //fixme: we might wanna generate something different from createDcatDatasetSubject here.
+      credentialSubject = createDcatDatasetSubject(url, did)
       break
     case ServiceOfferingType.AutoscaledVirtualMachine:
       credentialSubject = createAutoscaledVirtualMachineSubject(url, did)
@@ -369,7 +375,7 @@ function createAutoscaledVirtualMachineSubject(url: string, did?: string) {
 function createComputeFunctionSubject(url: string, did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
-    '@id': 'did:web:registry.gaia-x.eu:ComputeFunction:0EhGVCJEBe9p2AxKPydcK6O3F3Wememi4sui',
+    // '@id': 'did:web:registry.gaia-x.eu:ComputeFunction:0EhGVCJEBe9p2AxKPydcK6O3F3Wememi4sui',
     '@type': 'gax-trust-framework:ComputeFunction',
     ...serviceOfferingNameFixture(),
     ...offeredByFixture(),
@@ -1025,7 +1031,7 @@ function dctDescriptionFixture() {
   }
 }
 
-function createDcatDataSetSubject(url: string, did?: string) {
+function createDcatDatasetSubject(url: string, did?: string) {
   return {
     '@context': {
       cc: 'http://creativecommons.org/ns#',

@@ -23,7 +23,7 @@ sd.command('submit')
   .option('-sif, --sd-input-file <string>', 'Unsigned self-description input file location')
   .option('-sid, --sd-id <string>', 'id of a signed self-description stored in the agent')
   // .option('-p, --persist', 'Persist the credential. If not provided the VerifiablePresentation will not be stored in the agent')
-  .option('-s, --show', 'Show self descriptions')
+  .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     try {
       if (!cmd.sdInputFile && !cmd.sdId) {
@@ -73,7 +73,7 @@ sd.command('submit')
 sd.command('verify')
   .description('verifies a self-description')
   .requiredOption('-sid, --sd-id <string>', 'id of your self-description')
-  .option('-s, --show', 'Show self descriptions')
+  .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()
@@ -94,7 +94,7 @@ sd.command('example-input')
     '-v, --version <string>',
     "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
   )
-  .option('-s, --show', 'Show self descriptions')
+  .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
     const typeStr = 'participant'
@@ -158,7 +158,7 @@ sd.command('export')
 sd.command('list')
   .description('List participant self-description(s)')
   .option('-d, --did <string>', 'the domain which will be used')
-  .option('-s, --show', 'Show self descriptions')
+  .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()

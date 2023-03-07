@@ -18,7 +18,7 @@ did
     '-kid, --key-identifier <string>',
     'An optional key identifier name for the certificate and key. Will be stored in the DID Document. A default will be used if not supplied'
   )
-  .option('-s, --show', 'Show resulting did')
+  .option('--show', 'Show resulting did')
   .action(async (cmd) => {
     const agent = await getAgent()
     const privateKeyPEM = fs.readFileSync(cmd.privateKeyFile, 'utf-8')

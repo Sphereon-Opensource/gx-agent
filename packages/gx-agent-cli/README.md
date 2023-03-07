@@ -547,7 +547,7 @@ id: dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d14
     "gax-trust-framework:legalAddress": {
       "@type": "vcard:Address",
       "vcard:country-name": {
-        "@value": "NL",
+        "@value": "NL-UT",
         "@type": "xsd:string"
       },
       "vcard:gps": {
@@ -570,7 +570,7 @@ id: dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d14
     "gax-trust-framework:headquarterAddress": {
       "@type": "vcard:Address",
       "vcard:country-name": {
-        "@value": "NL",
+        "@value": "NL-UT",
         "@type": "xsd:string"
       },
       "vcard:gps": {
@@ -706,6 +706,10 @@ We currently support creation of two different version of this entity. If you wa
 ```shell
 ┌────────────────────────────────┬
 │             type               │
+├────────────────────────────────┤
+│ DcatDataService                │
+├────────────────────────────────┤
+│ DcatDataset                    │
 ├────────────────────────────────┤
 │ AutoscaledVirtualMachine       │
 ├────────────────────────────────┤
@@ -871,6 +875,18 @@ Ouput:
 
 Notice that you now have a ServiceOffering Credential, which is issued by the compliance server
 
+_NOTE: you can run gx-agent vc list in any step and see your VCs in the agent. at the end of this step you should see this list containing all the necessary credentials:_
+```shell
+┌───────────────────────────────────────┬─────────────────────────┬─────────────────────────┬──────────────────────────┬───────────────────────────────┐
+│                                 types │                  issuer │                subject  │           issuance-date  │                           id  │
+├───────────────────────────────────────┼─────────────────────────┼─────────────────────────┼──────────────────────────┼───────────────────────────────┤
+│                  VerifiableCredential │ did:web:participant_url │ did:web:participant_url │ 2023-03-02T09:55:49.789Z │ <participant sd id>           │
+│                 ParticipantCredential │ did:web:compliance url  │ did:web:participant_url │ 2023-03-02T09:55:51.753Z │ <participant compliance id>   │
+│                  VerifiableCredential │ did:web:participant_url │ did:web:participant_url │ 2023-03-02T09:57:16.484Z │ <so sd id>                    │
+│ ServiceOfferingCredentialExperimental │ did:web:compliance url  │ did:web:participant_url │ 2023-03-02T09:57:18.527Z │ <so compliance id>            │
+└───────────────────────────────────────┴─────────────────────────┴─────────────────────────┴──────────────────────────┴───────────────────────────────┘
+```
+
 ## List service-offering self-description credentials
 
 You can list service-offering self-descriptions known to the agent.
@@ -968,6 +984,24 @@ Agent validation of the self-description. Valid: true
 ├──────────┤
 │     true │
 └──────────┘
+```
+
+# Labels
+Using this agent, you can also create all kinds of Labels as well. You can then include these labels in your Service Offerings to show a certain credential. Here is an example for a ISO VerifiableCredential:
+First, you need to create a VerifiableCredential (or ask a third party to generate a VerifiableCredential for you). In order to do this with this agent, you can simply call the following command on an _unsigned credential_
+```shell
+gx-agent vc issue -f ./iso.json -p
+```
+After acquiring a Label Verifiable Credential, you can include this label into you Service Offering VerifiablePresentations. You can use this for both onboarding a Service Offering into gx-compliance and also your selected ecosystem:
+For onboarding the service in the **ecosystem**:
+```shell
+gx-agent ecosystem so submit FMA -sid <you self-description participant vc id> -cid <your gx compliance credential id> -eid <your ecosystem compliance id> -sof ./service-offering-input-credential.json -lai <your label id(s)>
+# you can also call pass the labels via the file using laf (`--label-files`) instead of `lai` parameter  
+```
+For onboarding the service in the **gx compliance**:
+```shell
+gx-agent so sd submit -sof ./service-offering-input-credential.json -sid <ID of your participant self-description vc> -cid <ID of your compliance VC from Gaia-X compliance> -lai <your label id(s)>
+# you can also call pass the labels via the file using laf (`--label-files`) instead of `lai` parameter  
 ```
 
 # Developers

@@ -1,7 +1,7 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import { getAgent, EcosystemConfig } from '@sphereon/gx-agent'
-import { CredentialPayload } from '@veramo/core'
+import { CredentialPayload, VerifiableCredential } from '@veramo/core'
 import {
   addEcosystemConfigObject,
   assertValidEcosystemConfigObject,
@@ -101,8 +101,7 @@ ecosystem
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
   .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential')
   .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
-  .option('-s, --show', 'Show self descriptions')
-  .option('-s, --show', 'Print the Verifiable Presentation to console')
+  .option('--show', 'Show self descriptions')
   .action(async (name, cmd) => {
     const agent = await getAgent()
     try {
@@ -138,8 +137,10 @@ so.command('submit')
   .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential from Gaia-X compliance')
   .requiredOption('-eid, --ecosystem-compliance-id <string>', 'ID of your compliance credential from ecosystem')
   .requiredOption('-sof, --so-input-file <string>', 'Unsigned service-offering input file location')
+  .option('-lai, --label-ids <string...>', 'ID(s) of any label Verifiable Credential you want to include with the service offering')
+  .option('-laf, --label-files <string...>', 'Path(s) any label Verifiable Credential you want to include with the service offering')
   .option('-p, --persist', 'Persists VPs created in the intermediate steps')
-  .option('-s, --show', 'Show self descriptions')
+  .option('--show', 'Show self descriptions')
   .action(async (name, cmd) => {
     const agent = await getAgent()
     if (!cmd.sdId) {
@@ -153,6 +154,17 @@ so.command('submit')
     }
     if (!cmd.soInputFile) {
       throw Error('Unsigned service-offering input file location need to be selected. Please check parameters')
+    }
+    let labelVCs: VerifiableCredential[] = []
+    if (cmd.labelFiles) {
+      for (const path of cmd.labelFiles) {
+        labelVCs.push(JSON.parse(fs.readFileSync(path, 'utf-8')) as VerifiableCredential)
+      }
+    }
+    if (cmd.labelIds) {
+      for (const id of cmd.labelIds) {
+        labelVCs.push(await agent.dataStoreGetVerifiableCredential({ hash: id }))
+      }
     }
     try {
       const agentPath = getAgentConfigPath()
@@ -168,6 +180,7 @@ so.command('submit')
         complianceId: cmd.complianceId,
         ecosystemComplianceId: cmd.ecosystemComplianceId,
         serviceOffering,
+        labelVCs,
         persist: cmd.persist,
         show: cmd.show,
       })

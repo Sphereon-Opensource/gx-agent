@@ -42,7 +42,7 @@ vp.command('verify')
   .description('Verify a Verifiable Presentation from file or agent id')
   .option('-f, --input-file <string>', 'File containing a Verifiable Presentation')
   .option('-id, --vc-id <string>', 'Use a persisted VP in the agent as input for verification')
-  .option('-s, --show', 'Print the Verifiable Presentation to console')
+  .option('--show', 'Print the Verifiable Presentation to console')
   .action(async (cmd) => {
     const agent = await getAgent()
     try {
@@ -104,7 +104,7 @@ vp.command('issue')
   .option('-c, --challenge <string>', 'Use a challenge')
   .option('-t, --target-domain <string>', 'Target domain, used to protect against replay attacks')
   .option('-p, --persist', 'Persist the presentation. If not provided the presentation will not be stored in the agent')
-  .option('-s, --show', 'Print the Verifiable Presentation to console')
+  .option('--show', 'Print the Verifiable Presentation to console')
 
   .action(async (cmd) => {
     const agent = await getAgent()
