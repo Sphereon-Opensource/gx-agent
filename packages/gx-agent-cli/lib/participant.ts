@@ -22,7 +22,7 @@ sd.command('submit')
   )
   .option('-sif, --sd-input-file <string>', 'Unsigned self-description input file location')
   .option('-sid, --sd-id <string>', 'id of a signed self-description stored in the agent')
-  // .option('-p, --persist', 'Persist the credential. If not provided the VerifiablePresentation will not be stored in the agent')
+  .option('-p, --persist', 'Persist the credential. If not provided the VerifiablePresentation will not be stored in the agent')
   .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     try {
@@ -47,7 +47,7 @@ sd.command('submit')
         }
         selfDescription = await agent.acquireComplianceCredentialFromUnsignedParticipant({
           credential: sd,
-          persist: true,
+          persist: cmd.persist,
           show: cmd.show,
         })
       }

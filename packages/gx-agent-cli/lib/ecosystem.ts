@@ -1,6 +1,6 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
-import {getAgent, EcosystemConfig, asDID} from '@sphereon/gx-agent'
+import { getAgent, EcosystemConfig, asDID } from '@sphereon/gx-agent'
 import { CredentialPayload, VerifiableCredential } from '@veramo/core'
 import {
   addEcosystemConfigObject,

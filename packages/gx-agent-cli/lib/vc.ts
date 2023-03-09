@@ -2,7 +2,7 @@ import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import { CredentialPayload, IIdentifier, VerifiableCredential } from '@veramo/core'
-import {asDID, convertDidWebToHost, exportToDIDDocument, getAgent, ServiceOfferingType} from '@sphereon/gx-agent'
+import { asDID, convertDidWebToHost, exportToDIDDocument, getAgent, getVcType } from '@sphereon/gx-agent'
 import nock from 'nock'
 
 const vc = program.command('vc').description('Generic Verifiable Credential commands')
@@ -67,45 +67,6 @@ vc.command('issue')
     }
   })
 
-function getVcTypeFromCredentialSubject(verifiableCredential: VerifiableCredential) {
-  const sdTypes = verifiableCredential.type as string[]
-  const subjectType = verifiableCredential.credentialSubject['type']
-      ? verifiableCredential.credentialSubject['type']
-      : verifiableCredential.credentialSubject['@type']
-  const json = JSON.stringify(verifiableCredential)
-  if (!subjectType && (json.includes(ServiceOfferingType.DcatDataset.valueOf()) || json.includes(ServiceOfferingType.DcatDataService.valueOf()))) {
-    return 'ServiceOffering'
-  } else if (sdTypes.length === 1 && sdTypes[0] === 'VerifiableCredential' && subjectType) {
-    for (const type of Object.values(ServiceOfferingType)) {
-      if (containsType(subjectType, type)) {
-        return 'ServiceOffering'
-      }
-    }
-    if (containsType(subjectType, 'LegalPerson')) {
-      return 'LegalPerson'
-    }
-    throw new Error(`Expecting ServiceOffering type in credentialSubject.type. Received: ${subjectType}`)
-  }
-  //todo: we might wanna limit this to prevent unknown types. Why not simply throw the exception once we reacht this point?
-  const type = sdTypes.find(t => t !== 'VerifiableCredential')
-  if (!type) {
-    throw new Error('Provided type for VerifiableCredential is not supported')
-  }
-  return type
-}
-
-function containsType(arrayOrString: any, searchValue: string) {
-  if (!arrayOrString) {
-    return false
-  } else if (typeof arrayOrString === 'string') {
-    return arrayOrString.includes(searchValue)
-  } else if (Array.isArray(arrayOrString)) {
-    return arrayOrString.find(elt => elt.includes(searchValue))
-  } else {
-    arrayOrString.toString().includes(searchValue)
-  }
-}
-
 vc.command('list')
   .description('Lists al persisted Verifiable Credentials')
   .action(async (cmd) => {
@@ -122,7 +83,7 @@ vc.command('list')
       printTable(
         uniqueCredentials.map((vc) => {
           return {
-            types: vc.verifiableCredential.type && vc.verifiableCredential.type.length === 1 && vc.verifiableCredential.type[0] === 'VerifiableCredential'? getVcTypeFromCredentialSubject(vc.verifiableCredential): vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
+            types: getVcType(vc.verifiableCredential),
             issuer: vc.verifiableCredential.issuer,
             subject: vc.verifiableCredential.credentialSubject.id,
             'issuance-date': vc.verifiableCredential.issuanceDate,

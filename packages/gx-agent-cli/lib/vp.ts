@@ -1,8 +1,8 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
-import { IIdentifier, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
-import { asDID, convertDidWebToHost, exportToDIDDocument, getAgent } from '@sphereon/gx-agent'
+import { IIdentifier, UniqueVerifiablePresentation, VerifiableCredential, VerifiablePresentation } from '@veramo/core'
+import { asDID, convertDidWebToHost, exportToDIDDocument, getAgent, getVcType } from '@sphereon/gx-agent'
 import nock from 'nock'
 
 const vp = program.command('vp').description('Generic Verifiable Presentation commands')
@@ -21,11 +21,9 @@ vp.command('list')
         ],
       })
       printTable(
-        uniqueVPs.map((vp) => {
+        uniqueVPs.map((vp: UniqueVerifiablePresentation) => {
           return {
-            types: vp.verifiablePresentation
-              .verifiableCredential!.map((vc) => (vc as VerifiableCredential).type!.toString().replace('VerifiableCredential,', ''))
-              .toString(),
+            types: vp.verifiablePresentation.verifiableCredential!.map((vc) => getVcType(vc as VerifiableCredential)).toString(),
             issuer: vp.verifiablePresentation.proof.verificationMethod,
             holder: vp.verifiablePresentation.holder,
             'issuance-date': vp.verifiablePresentation.proof.created,
@@ -167,4 +165,23 @@ vp.command('issue')
     } finally {
       nock.cleanAll()
     }
+  })
+
+vp.command('export')
+  .description('Exports a Verifiable Presentation to disk')
+  .argument('<id>', 'The id of the VerifiablePresentation that you want to export')
+  .option('-d, --did <string>', 'the DID or domain which will be used')
+  .option('-p, --path <string>', 'A base path to export the files to. Defaults to "exported"')
+  .option('--show', 'Print the Verifiable Presentation to console')
+  .action(async (id, cmd) => {
+    const agent = await getAgent()
+    const exportResult = await agent.exportVCsToPath({
+      domain: cmd.did,
+      hash: id,
+      includeVPs: true,
+      includeVCs: false,
+      exportPath: cmd.path,
+    })
+    printTable(exportResult)
+    console.log(`Verifiable Presentation file has been written to the above path`)
   })

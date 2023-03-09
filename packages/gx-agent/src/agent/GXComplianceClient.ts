@@ -91,7 +91,10 @@ export class GXComplianceClient implements IAgentPlugin {
       console.log(JSON.stringify(args.selfDescriptionVP, null, 2))
     }
     try {
-      return (await postRequest(this.getApiVersionedUrl(args.baseUrl) + '/compliance', JSON.stringify(args.selfDescriptionVP))) as VerifiableCredential
+      return (await postRequest(
+        this.getApiVersionedUrl(args.baseUrl) + '/compliance',
+        JSON.stringify(args.selfDescriptionVP)
+      )) as VerifiableCredential
     } catch (e) {
       throw new Error('Error on fetching complianceVC: ' + e)
     }
@@ -448,13 +451,7 @@ export class GXComplianceClient implements IAgentPlugin {
     const uniqueVpCompliance = await this.credentialHandler.issueVerifiablePresentation(
       {
         keyRef: signInfo.keyRef,
-        verifiableCredentials: [
-          args.serviceOffering,
-          ecosystemComplianceVC,
-          complianceVC,
-          selfDescribedVC,
-          ...(labelVCs ? labelVCs : []),
-        ],
+        verifiableCredentials: [args.serviceOffering, ecosystemComplianceVC, complianceVC, selfDescribedVC, ...(labelVCs ? labelVCs : [])],
         challenge: GXComplianceClient.getDateChallenge(),
         domain: signInfo.participantDomain,
         persist: args.persist ? args.persist : false,
