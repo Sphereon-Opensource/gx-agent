@@ -206,8 +206,7 @@ export function exampleServiceOfferingSD2210({ url, did, type }: { url: string; 
       credentialSubject = createDcatDatasetSubject(url, did)
       break
     case ServiceOfferingType.DcatDataService:
-      //fixme: we might wanna generate something different from createDcatDatasetSubject here.
-      credentialSubject = createDcatDatasetSubject(url, did)
+      credentialSubject = createDcatDataServiceSubject(url, did)
       break
     case ServiceOfferingType.AutoscaledVirtualMachine:
       credentialSubject = createAutoscaledVirtualMachineSubject(url, did)
@@ -1062,6 +1061,37 @@ function createDcatDatasetSubject(url: string, did?: string) {
   }
 }
 
+function createDcatDataServiceSubject(url: string, did?: string) {
+  return {
+    '@context': {
+      cc: 'http://creativecommons.org/ns#',
+      schema: 'http://schema.org/',
+      cred: 'https://www.w3.org/2018/credentials#',
+      void: 'http://rdfs.org/ns/void#',
+      owl: 'http://www.w3.org/2002/07/owl#',
+      xsd: 'http://www.w3.org/2001/XMLSchema#',
+      'gax-validation': 'http://w3id.org/gaia-x/validation#',
+      skos: 'http://www.w3.org/2004/02/skos/core#',
+      voaf: 'http://purl.org/vocommons/voaf#',
+      rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
+      vcard: 'http://www.w3.org/2006/vcard/ns#',
+      'gax-core': 'http://w3id.org/gaia-x/core#',
+      dct: 'http://purl.org/dc/terms/',
+      sh: 'http://www.w3.org/ns/shacl#',
+      'gax-trust-framework': 'http://w3id.org/gaia-x/gax-trust-framework#',
+      rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+      ids: 'https://w3id.org/idsa/core/',
+      dcat: 'http://www.w3.org/ns/dcat#',
+      vann: 'http://purl.org/vocab/vann/',
+      foaf: 'http://xmlns.com/foaf/0.1/',
+      did: 'https://www.w3.org/TR/did-core/#',
+      adms: 'http://www.w3.org/ns/adms#',
+    },
+    ...dcatDataServiceFixture(url, did),
+    id: `${did ? did : 'your DID here'}`,
+  }
+}
+
 function dcatDataSetFixture(url: string, did?: string) {
   return {
     '@graph': [
@@ -1172,6 +1202,100 @@ function dcatDataSetFixture(url: string, did?: string) {
         '@id': 'http://sws.geonames.org/2673730',
         '@type': 'dct:Location',
         'rdfs:label': 'Stockholm',
+      },
+    ],
+  }
+}
+
+function dcatDataServiceFixture(url: string, did?: string) {
+  return {
+    '@graph': [
+      {
+        '@context': ['http://www.w3.org/ns/dcat#', 'http://purl.org/dc/terms/'],
+        '@type': 'DataService',
+        '@id': `${url}/dataservice`,
+        'dct:title': 'Example Data Service',
+        'dct:description':
+          'The endpoint description gives specific details of the actual endpoint instances, while dct:conformsTo is used to indicate the general standard or specification that the endpoints implement.\n',
+        'dct:keyword': ['example', 'data', 'service'],
+        'dct:theme': [
+          {
+            '@id': `${url}/themes/theme1`,
+            title: 'Theme 1',
+          },
+          {
+            '@id': `${url}/themes/theme2`,
+            title: 'Theme 2',
+          },
+        ],
+        'dct:homepage': `${url}/dataservice`,
+        'dct:publisher': {
+          '@type': 'Organization',
+          name: 'Example Organization',
+          url: `${url}/organization`,
+        },
+        'dct:contactPoint': {
+          '@type': 'ContactPoint',
+          name: 'Example Contact',
+          email: 'contact@example.com',
+          url: `${url}/contact`,
+        },
+        'dct:endpointURL': `${url}/dataservice/api`,
+        'dct:endpointDescription': {
+          '@type': 'EndpointDescription',
+          '@id': `${url}/dataservice/api`,
+          title: 'Example Data Service API',
+          description: 'The root location or primary endpoint of the service (a Web-resolvable IRI).\n',
+          conformsTo: {
+            '@id': 'http://www.opengis.net/spec/ogcapi-features-1/1.0/conf/core',
+          },
+          documentation: `${url}/dataservice/api/docs`,
+          usesVocabulary: [
+            {
+              '@id': 'http://www.w3.org/ns/csvw',
+            },
+          ],
+        },
+        'dcat:servesDataset': [dcatDataSetFixture(url, did)],
+        'dct:serviceType': [`${url}/service-types/type1`, `${url}/service-types/type2`],
+        'dct:serviceStatus': 'http://purl.org/adms/status/Released',
+        'dct:accessRights': {
+          '@id': `${url}/access-rights/public`,
+          title: 'Public Access',
+        },
+        'dct:license': {
+          '@id': 'https://creativecommons.org/licenses/by/4.0/',
+          title: 'Creative Commons Attribution 4.0 International',
+        },
+        'dct:hasPolicy': {
+          '@type': 'Policy',
+          '@id': `${url}/dataservice/policy`,
+          title: 'Example Data Service Policy',
+          description: 'This is the policy for the Example Data Service.',
+          issued: '2022-01-01T00:00:00Z',
+          language: 'en',
+          rights: 'http://creativecommons.org/licenses/by/4.0/',
+          accessRights: {
+            '@id': `${url}/access-rights/public`,
+            title: 'Public Access',
+          },
+          conformsTo: [
+            {
+              '@id': 'https://www.iso.org/standard/71670.html',
+            },
+          ],
+        },
+        'dct:provenance': [
+          {
+            '@type': 'ProvenanceStatement',
+            description: 'The data in this service was generated by Example Organization.',
+            generatedBy: {
+              '@type': 'Organization',
+              name: 'Example Organization',
+              url: `${url}/organization`,
+            },
+          },
+        ],
       },
     ],
   }
