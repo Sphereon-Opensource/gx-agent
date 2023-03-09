@@ -69,10 +69,12 @@ vc.command('issue')
 
 vc.command('list')
   .description('Lists al persisted Verifiable Credentials')
+  .option('-iss, --issuer <string>', 'domain or did of the issuer')
+  .option('-t, --type <string>', 'Type of the VerifiableCredential you want to see. You can select from "LegalPerson", "ServiceOffering", "ParticipantCredential", "ServiceOfferingCredentialExperimental" or any other type that you\'ve saved via this agent')
   .action(async (cmd) => {
     const agent = await getAgent()
     try {
-      const uniqueCredentials = await agent.dataStoreORMGetVerifiableCredentials({
+      let uniqueCredentials = await agent.dataStoreORMGetVerifiableCredentials({
         order: [
           {
             column: 'issuanceDate',
@@ -80,6 +82,13 @@ vc.command('list')
           },
         ],
       })
+      if (cmd.issuer) {
+        const issuer = await asDID(cmd.issuer)
+        uniqueCredentials = uniqueCredentials.filter((uvc) => uvc.verifiableCredential.issuer === issuer)
+      }
+      if (cmd.type) {
+        uniqueCredentials = uniqueCredentials.filter((uvc) => getVcType(uvc.verifiableCredential).trim() === (cmd.type as string).trim())
+      }
       printTable(
         uniqueCredentials.map((vc) => {
           return {

@@ -37,7 +37,7 @@ export function isString(value: unknown): boolean {
   return typeof value === 'string' || Object.prototype.toString.call(value) === '[object String]'
 }
 
-export function getVcType(verifiableCredential: VerifiableCredential) {
+export function getVcType(verifiableCredential: VerifiableCredential): string {
   const sdTypes = verifiableCredential.type as string[]
   const subjectType = verifiableCredential.credentialSubject['type']
     ? verifiableCredential.credentialSubject['type']
@@ -58,10 +58,10 @@ export function getVcType(verifiableCredential: VerifiableCredential) {
   }
   //todo: we might wanna limit this to prevent unknown types. Why not simply throw the exception once we reacht this point?
   const type = sdTypes.find((t) => t !== 'VerifiableCredential')
-  if (!type) {
+  if (!type && !subjectType) {
     throw new Error('Provided type for VerifiableCredential is not supported')
   }
-  return type
+  return type? type: subjectType
 }
 
 function containsType(arrayOrString: any, searchValue: string) {
