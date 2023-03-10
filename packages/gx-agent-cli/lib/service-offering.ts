@@ -9,6 +9,7 @@ import {
   exampleServiceOfferingSD,
   exampleServiceOfferingSD2210,
   getAgent,
+  getVcType,
   IVerifySelfDescribedCredential,
   ServiceOfferingType,
 } from '@sphereon/gx-agent'
@@ -202,6 +203,7 @@ sd.command('export')
     printTable(exportResult)
     console.log(`Service Offering self-description file has been written to the above paths`)
   })
+
 sd.command('list')
   .description('List service-offering self-description(s)')
   .option('-d, --did <string>', 'the DID or domain which will be used')
@@ -211,13 +213,7 @@ sd.command('list')
       const agent = await getAgent()
       const vcs = await agent.dataStoreORMGetVerifiableCredentials()
       const did = cmd.did ? await asDID(cmd.did) : undefined
-      const sds = vcs.filter(
-        (vc) =>
-          (vc.verifiableCredential.type!.includes('ServiceOffering') ||
-            (vc.verifiableCredential.credentialSubject['@type'] &&
-              vc.verifiableCredential.credentialSubject['@type'] !== 'gax-trust-framework:LegalPerson')) &&
-          (!did || vc.verifiableCredential.issuer === did)
-      )
+      const sds = vcs.filter((vc) => getVcType(vc.verifiableCredential) === 'ServiceOffering' && (!did || vc.verifiableCredential.issuer === did))
       printTable(
         sds.map((sd) => {
           return {

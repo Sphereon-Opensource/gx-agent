@@ -149,6 +149,7 @@ export interface ICheckVerifiableCredentialArgs {
 
 export interface IAcquireComplianceCredentialArgs {
   selfDescriptionVP: VerifiablePresentation
+  baseUrl: string
   show?: boolean
 }
 
@@ -163,7 +164,7 @@ export interface IOnboardParticipantOnEcosystem {
   complianceVC: VerifiableCredential
   domain?: string
   challenge?: string
-  ecosystemUrl?: string
+  ecosystemUrl: string
   keyRef?: string
   persist?: boolean
   show?: boolean
@@ -191,19 +192,9 @@ export interface IOnboardServiceOfferingOnEcosystemArgs {
   sdId: string
   complianceId: string
   ecosystemComplianceId: string
-  serviceOffering: CredentialPayload
+  serviceOffering: VerifiableCredential
 
   labelVCs?: VerifiableCredential[]
-  persist?: boolean
-  show?: boolean
-}
-
-export interface IOnboardServiceOfferingOnEcosystemArgs {
-  ecosystemUrl: string
-  sdId: string
-  complianceId: string
-  ecosystemComplianceId: string
-  serviceOffering: CredentialPayload
   persist?: boolean
   show?: boolean
 }
