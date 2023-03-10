@@ -37,8 +37,19 @@ export function isString(value: unknown): boolean {
   return typeof value === 'string' || Object.prototype.toString.call(value) === '[object String]'
 }
 
+function getAsStringArray(arrayOrString: string[] | string | undefined): string[] {
+  if (!arrayOrString) {
+    return []
+  } else if (typeof arrayOrString === 'string') {
+    return [arrayOrString]
+  } else if (Array.isArray(arrayOrString)) {
+    return arrayOrString
+  }
+  return []
+}
+
 export function getVcType(verifiableCredential: VerifiableCredential): string {
-  const sdTypes = verifiableCredential.type as string[]
+  const sdTypes = getAsStringArray(verifiableCredential.type)
   const subjectType = verifiableCredential.credentialSubject['type']
     ? verifiableCredential.credentialSubject['type']
     : verifiableCredential.credentialSubject['@type']
