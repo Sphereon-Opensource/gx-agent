@@ -9,7 +9,7 @@ import {
 } from '../types/index.js'
 import { v4 as uuidv4 } from 'uuid'
 import { UniqueVerifiableCredential, UniqueVerifiablePresentation, VerifiableCredential } from '@veramo/core'
-import { asDID, convertDidWebToHost, extractSignInfo, extractSubjectDIDFromVCs } from '../utils/index.js'
+import { asDID, convertDidWebToHost, extractSignInfo, extractSubjectDIDFromVCs, getVcType } from '../utils/index.js'
 import fs from 'fs'
 import { dirname } from 'path'
 import { AuthenticationProofPurpose } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types.js'
@@ -127,12 +127,7 @@ export class CredentialHandler {
     fs.mkdirSync(dirname(basePath), { recursive: true })
 
     function typeFilter(verifiableCredential: VerifiableCredential) {
-      return (
-        !type ||
-        (verifiableCredential.type &&
-          (typeof verifiableCredential.type === 'string' ? verifiableCredential.type === type : verifiableCredential.type!.includes(type))) ||
-        verifiableCredential.credentialSubject['@type']?.includes(type)
-      )
+      return getVcType(verifiableCredential) === type
     }
 
     if (includeVCs) {

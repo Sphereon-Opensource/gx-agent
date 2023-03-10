@@ -70,7 +70,10 @@ vc.command('issue')
 vc.command('list')
   .description('Lists al persisted Verifiable Credentials')
   .option('-iss, --issuer <string>', 'domain or did of the issuer')
-  .option('-t, --type <string>', 'Type of the VerifiableCredential you want to see. You can select from "LegalPerson", "ServiceOffering", "ParticipantCredential", "ServiceOfferingCredentialExperimental" or any other type that you\'ve saved via this agent')
+  .option(
+    '-t, --type <string>',
+    'Type of the VerifiableCredential you want to see. You can select from "LegalPerson", "ServiceOffering", "ParticipantCredential", "ServiceOfferingCredentialExperimental" or any other type that you\'ve saved via this agent'
+  )
   .action(async (cmd) => {
     const agent = await getAgent()
     try {

@@ -61,7 +61,7 @@ export function getVcType(verifiableCredential: VerifiableCredential): string {
   if (!type && !subjectType) {
     throw new Error('Provided type for VerifiableCredential is not supported')
   }
-  return type? type: subjectType
+  return type ? type : subjectType
 }
 
 function containsType(arrayOrString: any, searchValue: string) {
