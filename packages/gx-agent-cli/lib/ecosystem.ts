@@ -1,6 +1,6 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
-import { getAgent, EcosystemConfig } from '@sphereon/gx-agent'
+import { getAgent, EcosystemConfig, asDID } from '@sphereon/gx-agent'
 import { CredentialPayload, VerifiableCredential } from '@veramo/core'
 import {
   addEcosystemConfigObject,
@@ -136,7 +136,8 @@ so.command('submit')
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
   .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential from Gaia-X compliance')
   .requiredOption('-eid, --ecosystem-compliance-id <string>', 'ID of your compliance credential from ecosystem')
-  .requiredOption('-sof, --so-input-file <string>', 'Unsigned service-offering input file location')
+  .option('-sof, --so-input-file <string>', 'Unsigned service-offering input file location')
+  .option('-soid, --so-id <string>', 'ID of your self-description service-offering verifiable credential')
   .option('-lai, --label-ids <string...>', 'ID(s) of any label Verifiable Credential you want to include with the service offering')
   .option('-laf, --label-files <string...>', 'Path(s) any label Verifiable Credential you want to include with the service offering')
   .option('-p, --persist', 'Persists VPs created in the intermediate steps')
@@ -152,8 +153,32 @@ so.command('submit')
     if (!cmd.ecosystemComplianceId) {
       throw Error('Verifiable Credential ID for your compliance credential from ecosystem need to be selected. Please check parameters')
     }
-    if (!cmd.soInputFile) {
-      throw Error('Unsigned service-offering input file location need to be selected. Please check parameters')
+    if (!cmd.soInputFile && !cmd.soId) {
+      throw Error('You have to provide either unsigned service-offering credential or an id for a service-offering vc. Please check parameters')
+    }
+    let soVC
+    if (cmd.soId) {
+      soVC = await agent.dataStoreGetVerifiableCredential({ hash: cmd.soId })
+    } else {
+      const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.soInputFile, 'utf-8')) as CredentialPayload
+      const did = typeof credential.issuer === 'string' ? credential.issuer : credential.issuer ? credential.issuer.id : await asDID()
+      const uniqueSoVC = await agent.issueVerifiableCredential({
+        credential,
+        keyRef: cmd.keyIdentifier,
+        domain: did,
+        persist: true,
+      })
+      soVC = uniqueSoVC.verifiableCredential
+      printTable([
+        {
+          types: soVC.type!.toString().replace('VerifiableCredential,', ''),
+          issuer: soVC.issuer,
+          subject: soVC.credentialSubject.id,
+          'issuance-date': soVC.issuanceDate,
+          id: uniqueSoVC.hash,
+          persisted: true,
+        },
+      ])
     }
     let labelVCs: VerifiableCredential[] = []
     if (cmd.labelFiles) {
@@ -173,13 +198,12 @@ so.command('submit')
         console.error(`Couldn't find the ecosystem: ${name}`)
         return
       }
-      const serviceOffering = JSON.parse(fs.readFileSync(cmd.soInputFile, 'utf-8')) as CredentialPayload
       const onboardingResult = await agent.onboardServiceOfferingOnEcosystem({
         ecosystemUrl: ecosystemConfig.url,
         sdId: cmd.sdId,
         complianceId: cmd.complianceId,
         ecosystemComplianceId: cmd.ecosystemComplianceId,
-        serviceOffering,
+        serviceOffering: soVC,
         labelVCs,
         persist: cmd.persist,
         show: cmd.show,

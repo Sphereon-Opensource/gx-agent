@@ -1,6 +1,6 @@
 import { ICredentialSubject } from '@sphereon/ssi-types'
 import { CredentialPayload, VerifiableCredential } from '@veramo/core'
-import { IGaiaxCredentialType } from '../types/index.js'
+import { IGaiaxCredentialType, ServiceOfferingType } from '../types/index.js'
 
 export function extractSubjectDIDFromVCs(verifiableCredentials: VerifiableCredential[] | CredentialPayload) {
   const credentialSubject = Array.isArray(verifiableCredentials)
@@ -35,4 +35,54 @@ export function getIssuerString(vc: VerifiableCredential): string {
 
 export function isString(value: unknown): boolean {
   return typeof value === 'string' || Object.prototype.toString.call(value) === '[object String]'
+}
+
+function getAsStringArray(arrayOrString: string[] | string | undefined): string[] {
+  if (!arrayOrString) {
+    return []
+  } else if (typeof arrayOrString === 'string') {
+    return [arrayOrString]
+  } else if (Array.isArray(arrayOrString)) {
+    return arrayOrString
+  }
+  return []
+}
+
+export function getVcType(verifiableCredential: VerifiableCredential): string {
+  const sdTypes = getAsStringArray(verifiableCredential.type)
+  const subjectType = verifiableCredential.credentialSubject['type']
+    ? verifiableCredential.credentialSubject['type']
+    : verifiableCredential.credentialSubject['@type']
+  const json = JSON.stringify(verifiableCredential)
+  if (!subjectType && (json.includes(ServiceOfferingType.DcatDataset.valueOf()) || json.includes(ServiceOfferingType.DcatDataService.valueOf()))) {
+    return 'ServiceOffering'
+  } else if (sdTypes.length === 1 && sdTypes[0] === 'VerifiableCredential' && subjectType) {
+    for (const type of Object.values(ServiceOfferingType)) {
+      if (containsType(subjectType, type)) {
+        return 'ServiceOffering'
+      }
+    }
+    if (containsType(subjectType, 'LegalPerson')) {
+      return 'LegalPerson'
+    }
+    throw new Error(`Expecting ServiceOffering type in credentialSubject.type. Received: ${subjectType}`)
+  }
+  //todo: we might wanna limit this to prevent unknown types. Why not simply throw the exception once we reacht this point?
+  const type = sdTypes.find((t) => t !== 'VerifiableCredential')
+  if (!type && !subjectType) {
+    throw new Error('Provided type for VerifiableCredential is not supported')
+  }
+  return type ? type : subjectType
+}
+
+function containsType(arrayOrString: any, searchValue: string) {
+  if (!arrayOrString) {
+    return false
+  } else if (typeof arrayOrString === 'string') {
+    return arrayOrString.includes(searchValue)
+  } else if (Array.isArray(arrayOrString)) {
+    return arrayOrString.find((elt) => elt.includes(searchValue))
+  } else {
+    arrayOrString.toString().includes(searchValue)
+  }
 }

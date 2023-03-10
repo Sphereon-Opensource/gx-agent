@@ -91,7 +91,10 @@ export class GXComplianceClient implements IAgentPlugin {
       console.log(JSON.stringify(args.selfDescriptionVP, null, 2))
     }
     try {
-      return (await postRequest(this.getApiVersionedUrl() + '/compliance', JSON.stringify(args.selfDescriptionVP))) as VerifiableCredential
+      return (await postRequest(
+        this.getApiVersionedUrl(args.baseUrl) + '/compliance',
+        JSON.stringify(args.selfDescriptionVP)
+      )) as VerifiableCredential
     } catch (e) {
       throw new Error('Error on fetching complianceVC: ' + e)
     }
@@ -121,6 +124,7 @@ export class GXComplianceClient implements IAgentPlugin {
     return this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
+        baseUrl: this._config.complianceServiceUrl,
         show: args.show,
       },
       context
@@ -167,6 +171,7 @@ export class GXComplianceClient implements IAgentPlugin {
     const verifiableCredentialResponse = (await this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
+        baseUrl: this._config.complianceServiceUrl,
         show: args.show,
       },
       context
@@ -205,6 +210,7 @@ export class GXComplianceClient implements IAgentPlugin {
     return await this.acquireComplianceCredential(
       {
         verifiablePresentation: serviceOfferingVP.verifiablePresentation,
+        baseUrl: this._config.complianceServiceUrl,
         show: args.show,
       },
       context
@@ -299,6 +305,7 @@ export class GXComplianceClient implements IAgentPlugin {
   private async acquireComplianceCredential(
     args: {
       show?: boolean
+      baseUrl: string
       verifiablePresentation: VerifiablePresentation
     },
     context: GXRequiredContext
@@ -306,6 +313,7 @@ export class GXComplianceClient implements IAgentPlugin {
     const complianceCredential = await this.submitComplianceCredential(
       {
         selfDescriptionVP: args.verifiablePresentation,
+        baseUrl: args.baseUrl,
         show: args.show,
       },
       context
@@ -341,6 +349,7 @@ export class GXComplianceClient implements IAgentPlugin {
     const verifiableCredentialResponse = (await this.acquireComplianceCredential(
       {
         verifiablePresentation: uniqueVP.verifiablePresentation,
+        baseUrl: args.ecosystemUrl,
         show: args.show,
       },
       context
@@ -438,30 +447,11 @@ export class GXComplianceClient implements IAgentPlugin {
       hash: args.ecosystemComplianceId,
     })
     const signInfo: ISignInfo = await extractSignInfo({ did: getIssuerString(selfDescribedVC), section: 'authentication' }, context)
-    const serviceOfferingVC = await this.credentialHandler.issueVerifiableCredential(
-      {
-        domain: getIssuerString(selfDescribedVC),
-        keyRef: signInfo.keyRef,
-        credential: args.serviceOffering,
-        // fixme: we might wanna revisit our policy about saving VCs
-        persist: args.persist ? args.persist : false,
-      },
-      context
-    )
-    if (args.show) {
-      console.log(`serviceOffering VC: ${JSON.stringify(serviceOfferingVC, null, 2)}`)
-    }
     const labelVCs = args.labelVCs
     const uniqueVpCompliance = await this.credentialHandler.issueVerifiablePresentation(
       {
         keyRef: signInfo.keyRef,
-        verifiableCredentials: [
-          serviceOfferingVC.verifiableCredential,
-          ecosystemComplianceVC,
-          complianceVC,
-          selfDescribedVC,
-          ...(labelVCs ? labelVCs : []),
-        ],
+        verifiableCredentials: [args.serviceOffering, ecosystemComplianceVC, complianceVC, selfDescribedVC, ...(labelVCs ? labelVCs : [])],
         challenge: GXComplianceClient.getDateChallenge(),
         domain: signInfo.participantDomain,
         persist: args.persist ? args.persist : false,
@@ -472,7 +462,7 @@ export class GXComplianceClient implements IAgentPlugin {
       console.log(`serviceOffering VP: ${JSON.stringify(uniqueVpCompliance, null, 2)}`)
     }
     const vcSoComplianceResponse = await this.acquireComplianceCredential(
-      { show: args.show, verifiablePresentation: uniqueVpCompliance.verifiablePresentation },
+      { show: args.show, baseUrl: args.ecosystemUrl, verifiablePresentation: uniqueVpCompliance.verifiablePresentation },
       context
     )
     if (args.show) {
@@ -482,7 +472,7 @@ export class GXComplianceClient implements IAgentPlugin {
       {
         keyRef: signInfo.keyRef,
         verifiableCredentials: [
-          serviceOfferingVC.verifiableCredential,
+          args.serviceOffering,
           ecosystemComplianceVC,
           complianceVC,
           selfDescribedVC,
