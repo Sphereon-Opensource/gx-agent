@@ -22,6 +22,13 @@ export function extractSubjectDIDFromVCs(verifiableCredentials: VerifiableCreden
   return participantDID
 }
 
+export function extractIssuerDIDFromVCs(verifiableCredentials: VerifiableCredential[] | CredentialPayload): string {
+  const issuerString = Array.isArray(verifiableCredentials)
+    ? getIssuerString(verifiableCredentials[0])
+    : getIssuerString(verifiableCredentials as CredentialPayload as VerifiableCredential)
+  return issuerString
+}
+
 export function extractApiTypeFromVC(vc: VerifiableCredential): string {
   const types = Array.isArray(vc.type) ? vc.type : [vc.type]
   // todo: This is too naive as you can have more than 2 types on a VC. Should simply search for the specific type in the array and if found return it
