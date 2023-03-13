@@ -82,8 +82,6 @@ export class CredentialHandler {
       },
       // purpose: args.purpose, // todo: Make dynamic based on signInfo and arg
       keyRef: signInfo.keyRef,
-      challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
-      domain: args.targetUrl ?? this.config().complianceServiceUrl,
     })
     let hash = '' //todo: determine id, without saving
     if (args.persist) {

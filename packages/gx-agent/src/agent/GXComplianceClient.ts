@@ -115,7 +115,6 @@ export class GXComplianceClient implements IAgentPlugin {
       {
         keyRef: signInfo.keyRef,
         verifiableCredentials: [selfDescribedVC],
-        challenge: GXComplianceClient.getDateChallenge(),
         domain: signInfo.participantDomain,
         persist: args.persist,
       },
@@ -160,7 +159,6 @@ export class GXComplianceClient implements IAgentPlugin {
     )
     const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
       {
-        challenge: GXComplianceClient.getDateChallenge(),
         keyRef: signInfo.keyRef,
         verifiableCredentials: [selfDescription.verifiableCredential],
         domain: signInfo.participantDomain,
@@ -198,7 +196,6 @@ export class GXComplianceClient implements IAgentPlugin {
     const signInfo: ISignInfo = await extractSignInfo({ did, section: 'authentication' }, context)
     const serviceOfferingVP = await this.credentialHandler.issueVerifiablePresentation(
       {
-        challenge: GXComplianceClient.getDateChallenge(),
         keyRef: signInfo.keyRef,
         // purpose: args.purpose,
         verifiableCredentials: [serviceOfferingVC, complianceVC, participantVC, ...(labelVCs ? labelVCs : [])],
@@ -327,10 +324,6 @@ export class GXComplianceClient implements IAgentPlugin {
     }
   }
 
-  public static getDateChallenge(): string {
-    return new Date().toISOString().substring(0, 10)
-  }
-
   private async onboardParticipantOnEcosystem(
     args: IOnboardParticipantOnEcosystem,
     context: GXRequiredContext
@@ -338,7 +331,7 @@ export class GXComplianceClient implements IAgentPlugin {
     const participantDid = getIssuerString(args.selfDescriptionVC)
     const uniqueVP = await this.credentialHandler.issueVerifiablePresentation(
       {
-        challenge: GXComplianceClient.getDateChallenge(),
+        challenge: args.challenge,
         keyRef: args.keyRef,
         verifiableCredentials: [args.selfDescriptionVC, args.complianceVC],
         domain: convertDidWebToHost(participantDid),
@@ -358,7 +351,7 @@ export class GXComplianceClient implements IAgentPlugin {
       {
         keyRef: args.keyRef,
         verifiableCredentials: [verifiableCredentialResponse.verifiableCredential, args.complianceVC, args.selfDescriptionVC],
-        challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
+        challenge: args.challenge,
         domain: participantDid,
         persist: args.persist,
       },
@@ -381,7 +374,7 @@ export class GXComplianceClient implements IAgentPlugin {
       {
         keyRef: args.keyRef,
         verifiableCredentials: [args.complianceVC, args.selfDescriptionVC],
-        challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
+        challenge: args.challenge,
         domain: did ?? extractSubjectDIDFromVCs([args.selfDescriptionVC]),
         persist: args.persist,
       },
@@ -413,7 +406,6 @@ export class GXComplianceClient implements IAgentPlugin {
         selfDescriptionVC: selfDescriptionVC,
         keyRef: signInfo.keyRef,
         domain: signInfo.participantDomain,
-        challenge: GXComplianceClient.getDateChallenge(),
         persist: args.persist,
       },
       context
@@ -452,7 +444,6 @@ export class GXComplianceClient implements IAgentPlugin {
       {
         keyRef: signInfo.keyRef,
         verifiableCredentials: [args.serviceOffering, ecosystemComplianceVC, complianceVC, selfDescribedVC, ...(labelVCs ? labelVCs : [])],
-        challenge: GXComplianceClient.getDateChallenge(),
         domain: signInfo.participantDomain,
         persist: args.persist ? args.persist : false,
       },
@@ -479,7 +470,6 @@ export class GXComplianceClient implements IAgentPlugin {
           vcSoComplianceResponse.verifiableCredential,
           ...(labelVCs ? labelVCs : []),
         ],
-        challenge: GXComplianceClient.getDateChallenge(),
         domain: signInfo.participantDomain,
         persist: args.persist ? args.persist : false,
       },
