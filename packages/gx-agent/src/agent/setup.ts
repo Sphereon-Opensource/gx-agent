@@ -1,5 +1,5 @@
 import { GXComplianceClient } from './GXComplianceClient.js'
-import { BlsKeyManagementSystem } from '@sphereon/ssi-sdk-bls-kms-local'
+import { BlsKeyManagementSystem } from '@sphereon/bls-kms-local'
 import { CredentialHandlerLDLocal, LdDefaultContexts, MethodNames } from '@sphereon/ssi-sdk-vc-handler-ld-local'
 import { CredentialPlugin } from '@veramo/credential-w3c'
 import { KeyManager } from '@veramo/key-manager'
