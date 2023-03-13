@@ -9,7 +9,7 @@ import {
 } from '../types/index.js'
 import { v4 as uuidv4 } from 'uuid'
 import { UniqueVerifiableCredential, UniqueVerifiablePresentation, VerifiableCredential } from '@veramo/core'
-import { asDID, convertDidWebToHost, extractSignInfo, extractSubjectDIDFromVCs, getVcType } from '../utils/index.js'
+import { asDID, convertDidWebToHost, extractIssuerDIDFromVCs, extractSignInfo, getVcType } from '../utils/index.js'
 import fs from 'fs'
 import { dirname } from 'path'
 import { AuthenticationProofPurpose } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types.js'
@@ -40,7 +40,7 @@ export class CredentialHandler {
       }
       credential.credentialSubject.id = await asDID(args.domain)
     }
-    const did = extractSubjectDIDFromVCs(credential)
+    const did = extractIssuerDIDFromVCs(credential)
     const signInfo = await extractSignInfo({ did, section: 'assertionMethod', keyRef: args.keyRef }, context)
 
     const verifiableCredential = await context.agent.createVerifiableCredentialLDLocal({
