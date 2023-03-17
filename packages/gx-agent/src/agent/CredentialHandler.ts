@@ -12,7 +12,7 @@ import { UniqueVerifiableCredential, UniqueVerifiablePresentation, VerifiableCre
 import { asDID, convertDidWebToHost, extractIssuerDIDFromVCs, extractSignInfo, getVcType } from '../utils/index.js'
 import fs from 'fs'
 import { dirname } from 'path'
-import { AuthenticationProofPurpose } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types.js'
+import { AuthenticationProofPurpose, ICreateVerifiablePresentationLDArgs } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types.js'
 
 export class CredentialHandler {
   public readonly _client: GXComplianceClient
@@ -70,8 +70,7 @@ export class CredentialHandler {
   ): Promise<UniqueVerifiablePresentation> {
     const did = await asDID(args.domain!)
     const signInfo = await extractSignInfo({ did, section: 'authentication', keyRef: args.keyRef }, context)
-
-    const verifiablePresentation = await context.agent.createVerifiablePresentationLDLocal({
+    const verifiablePresentationArgs: ICreateVerifiablePresentationLDArgs = {
       presentation: {
         id: `urn:uuid:${uuidv4()}`,
         issuanceDate: new Date(),
@@ -82,8 +81,11 @@ export class CredentialHandler {
       },
       // purpose: args.purpose, // todo: Make dynamic based on signInfo and arg
       keyRef: signInfo.keyRef,
-    })
-    let hash = '' //todo: determine id, without saving
+    }
+    if (args.domain) verifiablePresentationArgs.domain = args.domain
+    if (args.challenge) verifiablePresentationArgs.challenge = args.challenge
+    const verifiablePresentation = await context.agent.createVerifiablePresentationLDLocal(verifiablePresentationArgs)
+    let hash = ''
     if (args.persist) {
       hash = await context.agent.dataStoreSaveVerifiablePresentation({ verifiablePresentation })
     }
