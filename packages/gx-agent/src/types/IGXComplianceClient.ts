@@ -127,9 +127,9 @@ export interface IIssueVerifiableCredentialArgs {
 }
 
 export interface IIssueVerifiablePresentationArgs {
-  domain: string
   verifiableCredentials: VerifiableCredential[]
   challenge?: string
+  domain?: string
 
   targetUrl?: string
   keyRef?: string
