@@ -61,7 +61,7 @@
     "@sphereon/ssi-types": "0.9.1-next.17",
     "@sphereon/bls-key-manager": "0.10.2-next.2",
     "@sphereon/bls-kms-local": "0.10.2-next.2",
-    "@sphereon/did-uni-client": "^0.5.1-unstable.1",
+    "@sphereon/did-uni-client": "^0.6.0",
     "@sphereon/ssi-sdk-did-utils": "0.9.1-next.17",
     "@sphereon/ssi-sdk-vc-handler-ld-local": "0.9.1-next.17",
     "@digitalcredentials/ed25519-verification-key-2020": "3.2.2",
