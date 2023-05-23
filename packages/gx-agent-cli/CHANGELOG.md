@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/Sphereon/gx-agent/compare/v0.7.0...v0.8.0) (2023-05-23)
+
+
+### Features
+
+* removed the challenge from VP creation, plus updated the dependencies ([5f68908](https://github.com/Sphereon/gx-agent/commit/5f68908974d2d99282ffa2a05f564185e9003719))
+
+
+
+
+
 # [0.7.0](https://github.com/Sphereon/gx-agent/compare/v0.6.0...v0.7.0) (2023-03-10)
 
 
