@@ -9,10 +9,10 @@ import {
 } from '../types/index.js'
 import { v4 as uuidv4 } from 'uuid'
 import { UniqueVerifiableCredential, UniqueVerifiablePresentation, VerifiableCredential } from '@veramo/core'
-import { asDID, convertDidWebToHost, extractSignInfo, extractSubjectDIDFromVCs, getVcType } from '../utils/index.js'
+import { asDID, convertDidWebToHost, extractIssuerDIDFromVCs, extractSignInfo, getVcType } from '../utils/index.js'
 import fs from 'fs'
 import { dirname } from 'path'
-import { AuthenticationProofPurpose } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types.js'
+import { AuthenticationProofPurpose, ICreateVerifiablePresentationLDArgs } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types.js'
 
 export class CredentialHandler {
   public readonly _client: GXComplianceClient
@@ -40,7 +40,7 @@ export class CredentialHandler {
       }
       credential.credentialSubject.id = await asDID(args.domain)
     }
-    const did = extractSubjectDIDFromVCs(credential)
+    const did = extractIssuerDIDFromVCs(credential)
     const signInfo = await extractSignInfo({ did, section: 'assertionMethod', keyRef: args.keyRef }, context)
 
     const verifiableCredential = await context.agent.createVerifiableCredentialLDLocal({
@@ -70,8 +70,7 @@ export class CredentialHandler {
   ): Promise<UniqueVerifiablePresentation> {
     const did = await asDID(args.domain!)
     const signInfo = await extractSignInfo({ did, section: 'authentication', keyRef: args.keyRef }, context)
-
-    const verifiablePresentation = await context.agent.createVerifiablePresentationLDLocal({
+    const verifiablePresentationArgs: ICreateVerifiablePresentationLDArgs = {
       presentation: {
         id: `urn:uuid:${uuidv4()}`,
         issuanceDate: new Date(),
@@ -82,10 +81,11 @@ export class CredentialHandler {
       },
       // purpose: args.purpose, // todo: Make dynamic based on signInfo and arg
       keyRef: signInfo.keyRef,
-      challenge: args.challenge ? args.challenge : GXComplianceClient.getDateChallenge(),
-      domain: args.targetUrl ?? this.config().complianceServiceUrl,
-    })
-    let hash = '' //todo: determine id, without saving
+    }
+    if (args.domain) verifiablePresentationArgs.domain = args.domain
+    if (args.challenge) verifiablePresentationArgs.challenge = args.challenge
+    const verifiablePresentation = await context.agent.createVerifiablePresentationLDLocal(verifiablePresentationArgs)
+    let hash = ''
     if (args.persist) {
       hash = await context.agent.dataStoreSaveVerifiablePresentation({ verifiablePresentation })
     }

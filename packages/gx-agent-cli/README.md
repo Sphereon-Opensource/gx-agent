@@ -876,6 +876,7 @@ Ouput:
 Notice that you now have a ServiceOffering Credential, which is issued by the compliance server
 
 _NOTE: you can run gx-agent vc list in any step and see your VCs in the agent. at the end of this step you should see this list containing all the necessary credentials:_
+
 ```shell
 ┌───────────────────────────────────────┬─────────────────────────┬─────────────────────────┬──────────────────────────┬───────────────────────────────┐
 │                                 types │                  issuer │                subject  │           issuance-date  │                           id  │
@@ -987,21 +988,27 @@ Agent validation of the self-description. Valid: true
 ```
 
 # Labels
+
 Using this agent, you can also create all kinds of Labels as well. You can then include these labels in your Service Offerings to show a certain credential. Here is an example for a ISO VerifiableCredential:
 First, you need to create a VerifiableCredential (or ask a third party to generate a VerifiableCredential for you). In order to do this with this agent, you can simply call the following command on an _unsigned credential_
+
 ```shell
 gx-agent vc issue -f ./iso.json -p
 ```
+
 After acquiring a Label Verifiable Credential, you can include this label into you Service Offering VerifiablePresentations. You can use this for both onboarding a Service Offering into gx-compliance and also your selected ecosystem:
 For onboarding the service in the **ecosystem**:
+
 ```shell
 gx-agent ecosystem so submit FMA -sid <you self-description participant vc id> -cid <your gx compliance credential id> -eid <your ecosystem compliance id> -sof ./service-offering-input-credential.json -lai <your label id(s)>
-# you can also call pass the labels via the file using laf (`--label-files`) instead of `lai` parameter  
+# you can also call pass the labels via the file using laf (`--label-files`) instead of `lai` parameter
 ```
+
 For onboarding the service in the **gx compliance**:
+
 ```shell
 gx-agent so sd submit -sof ./service-offering-input-credential.json -sid <ID of your participant self-description vc> -cid <ID of your compliance VC from Gaia-X compliance> -lai <your label id(s)>
-# you can also call pass the labels via the file using laf (`--label-files`) instead of `lai` parameter  
+# you can also call pass the labels via the file using laf (`--label-files`) instead of `lai` parameter
 ```
 
 # Developers

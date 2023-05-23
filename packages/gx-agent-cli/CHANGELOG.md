@@ -25,70 +25,44 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # [0.6.0](https://github.com/Sphereon/gx-agent/compare/v0.5.0...v0.6.0) (2023-03-07)
 
-
 ### Bug Fixes
 
-* changed the bug in for ([a87e8f9](https://github.com/Sphereon/gx-agent/commit/a87e8f9d3095f0f8408e07bfc2aa4dda30ce85ae))
-* Move remove shorthand from --show command, as it might interfere in PS with other commands starting with a 's''! ([1318c70](https://github.com/Sphereon/gx-agent/commit/1318c70da3b2bcf211ff516176c9fa47865b9d62))
-* some bug fixes in the ecosystem flow, plus changed the shpe from gx registry to sphereon's registry ([0baf8fb](https://github.com/Sphereon/gx-agent/commit/0baf8fbff6d1de89b97e6b40f0da575cf7e121de))
-
+- changed the bug in for ([a87e8f9](https://github.com/Sphereon/gx-agent/commit/a87e8f9d3095f0f8408e07bfc2aa4dda30ce85ae))
+- Move remove shorthand from --show command, as it might interfere in PS with other commands starting with a 's''! ([1318c70](https://github.com/Sphereon/gx-agent/commit/1318c70da3b2bcf211ff516176c9fa47865b9d62))
+- some bug fixes in the ecosystem flow, plus changed the shpe from gx registry to sphereon's registry ([0baf8fb](https://github.com/Sphereon/gx-agent/commit/0baf8fbff6d1de89b97e6b40f0da575cf7e121de))
 
 ### Features
 
-* added label to ecosystem so onboarding ([27308ee](https://github.com/Sphereon/gx-agent/commit/27308ee6d51241aac71bdca829db0cd8a3b88fa8))
-* updated readme and fixtures to support all listed gx types ([ce366c6](https://github.com/Sphereon/gx-agent/commit/ce366c66fdd5d80f94835d169c63ead2519238f4))
-
-
-
-
+- added label to ecosystem so onboarding ([27308ee](https://github.com/Sphereon/gx-agent/commit/27308ee6d51241aac71bdca829db0cd8a3b88fa8))
+- updated readme and fixtures to support all listed gx types ([ce366c6](https://github.com/Sphereon/gx-agent/commit/ce366c66fdd5d80f94835d169c63ead2519238f4))
 
 # [0.5.0](https://github.com/Sphereon/gx-agent/compare/v0.4.4...v0.5.0) (2023-03-05)
 
-
 ### Features
 
-* Add label VCs to submit method ([3a54f22](https://github.com/Sphereon/gx-agent/commit/3a54f2256e265a957f0be94b8ce7b60718cf3f60))
-
-
-
-
+- Add label VCs to submit method ([3a54f22](https://github.com/Sphereon/gx-agent/commit/3a54f2256e265a957f0be94b8ce7b60718cf3f60))
 
 ## [0.4.4](https://github.com/Sphereon/gx-agent/compare/v0.4.3...v0.4.4) (2023-03-05)
 
-
 ### Bug Fixes
 
-* changed the readme section about submitting SOs ([38bbc1a](https://github.com/Sphereon/gx-agent/commit/38bbc1a22500e417daa2b3e5290ce1c176214012))
-* fix dependencies ([fe0af2f](https://github.com/Sphereon/gx-agent/commit/fe0af2fd3c5cf1bd843e22c10546dc4265571dc0))
-
-
-
-
+- changed the readme section about submitting SOs ([38bbc1a](https://github.com/Sphereon/gx-agent/commit/38bbc1a22500e417daa2b3e5290ce1c176214012))
+- fix dependencies ([fe0af2f](https://github.com/Sphereon/gx-agent/commit/fe0af2fd3c5cf1bd843e22c10546dc4265571dc0))
 
 ## [0.4.3](https://github.com/Sphereon/gx-agent/compare/v0.4.2...v0.4.3) (2023-03-02)
 
-
 ### Bug Fixes
 
-* fix dependencies ([6cf211a](https://github.com/Sphereon/gx-agent/commit/6cf211a316c3f8ab046e8467c388cd41fa3a12e7))
-* fix dependencies ([fed2688](https://github.com/Sphereon/gx-agent/commit/fed26881fb45638a6f27da33449fea4c122974e6))
-* fix dependencies ([73b62c2](https://github.com/Sphereon/gx-agent/commit/73b62c2ef31e7f29c265e0ae0b7caf35ad4bb7e2))
-
-
-
-
+- fix dependencies ([6cf211a](https://github.com/Sphereon/gx-agent/commit/6cf211a316c3f8ab046e8467c388cd41fa3a12e7))
+- fix dependencies ([fed2688](https://github.com/Sphereon/gx-agent/commit/fed26881fb45638a6f27da33449fea4c122974e6))
+- fix dependencies ([73b62c2](https://github.com/Sphereon/gx-agent/commit/73b62c2ef31e7f29c265e0ae0b7caf35ad4bb7e2))
 
 ## [0.4.2](https://github.com/Sphereon/gx-agent/compare/v0.4.1...v0.4.2) (2023-03-02)
 
-
 ### Bug Fixes
 
-* fix dependencies ([828c0f8](https://github.com/Sphereon/gx-agent/commit/828c0f8f6d456765e0d6a4c0cf54033a52f823ba))
-* fix dependencies ([d7d44d3](https://github.com/Sphereon/gx-agent/commit/d7d44d35673c3359fd118aaee70d14c2bf12ac51))
-
-
-
-
+- fix dependencies ([828c0f8](https://github.com/Sphereon/gx-agent/commit/828c0f8f6d456765e0d6a4c0cf54033a52f823ba))
+- fix dependencies ([d7d44d3](https://github.com/Sphereon/gx-agent/commit/d7d44d35673c3359fd118aaee70d14c2bf12ac51))
 
 ## [0.4.1](https://github.com/Sphereon/gx-agent/compare/v0.4.0...v0.4.1) (2023-03-02)
 
