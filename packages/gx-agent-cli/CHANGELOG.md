@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.1](https://github.com/Sphereon/gx-agent/compare/v0.8.0...v0.9.1) (2023-05-24)
+
+
+### Bug Fixes
+
+* Make sure we are not getting did-jwt 7.x as that moved to ESM and has an issue with uint8arrays ([3fcbb3d](https://github.com/Sphereon/gx-agent/commit/3fcbb3dde133d4e215b941e1d511fdbec731754f))
+
+
+
+
+
 # [0.8.0](https://github.com/Sphereon/gx-agent/compare/v0.7.0...v0.8.0) (2023-05-23)
 
 
