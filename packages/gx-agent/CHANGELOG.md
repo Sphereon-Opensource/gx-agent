@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.9.4](https://github.com/Sphereon/gx-agent/compare/v0.9.3...v0.9.4) (2023-05-24)
+
+
+### Bug Fixes
+
+* update compliance service to prod ([3e8587a](https://github.com/Sphereon/gx-agent/commit/3e8587ada8f6ca37d69f4ac917b7249370abb58b))
+
+
+
+
+
 ## [0.9.3](https://github.com/Sphereon/gx-agent/compare/v0.9.1...v0.9.3) (2023-05-24)
 
 **Note:** Version bump only for package @sphereon/gx-agent

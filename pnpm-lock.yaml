@@ -284,7 +284,7 @@ importers:
         specifier: ^7.25.2
         version: 7.25.2
       '@sphereon/gx-agent':
-        specifier: ^0.9.3
+        specifier: ^0.9.4
         version: link:../gx-agent
       '@sphereon/ssi-sdk-did-utils':
         specifier: 0.9.1-next.17
