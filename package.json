@@ -1,7 +1,7 @@
 {
   "name": "gx-agent-workspace",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.9.0",
   "description": "Sphereon GAIA-X Typescript SDK (Workspace)",
   "repository": "git@github.com:Sphereon/gx-agent.git",
   "author": "Sphereon <dev@sphereon.com>",
