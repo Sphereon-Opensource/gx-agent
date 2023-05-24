@@ -1,6 +1,6 @@
 {
   "name": "@sphereon/gx-agent",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "exports": {
@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@sphereon/bls-key-manager": "0.10.2-next.2",
-    "@sphereon/did-uni-client": "^0.6.0",
     "@sphereon/bls-kms-local": "0.10.2-next.2",
+    "@sphereon/did-uni-client": "^0.6.0",
     "@sphereon/ssi-sdk-core": "0.9.1-next.17",
     "@sphereon/ssi-sdk-did-utils": "0.9.1-next.17",
     "@sphereon/ssi-sdk-vc-handler-ld-local": "0.9.1-next.17",

@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/Sphereon/gx-agent/compare/v0.7.0...v0.8.0) (2023-05-23)
+
+
+### Bug Fixes
+
+* brought bach the challenge and domain to our credentialHnadler issue VP method removed populating it from GXComplianceClient ([f18b803](https://github.com/Sphereon/gx-agent/commit/f18b80390f9e9eadefa8009d9a110a072ca617b8))
+* changed the way we're retrieving our sign info when we're signing the vc from credentialSubject id to credential.issuer ([dee0130](https://github.com/Sphereon/gx-agent/commit/dee0130ac8a81bf105efbc8fc66ecab82df11b7a))
+
+
+### Features
+
+* removed the challenge from VP creation, plus updated the dependencies ([5f68908](https://github.com/Sphereon/gx-agent/commit/5f68908974d2d99282ffa2a05f564185e9003719))
+
+
+
+
+
 # [0.7.0](https://github.com/Sphereon/gx-agent/compare/v0.6.0...v0.7.0) (2023-03-10)
 
 
