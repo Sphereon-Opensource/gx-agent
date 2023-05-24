@@ -1,12 +1,12 @@
 version: 3.0
 # GAIA-X configuration options. These are the options you can change
 gx:
-  complianceServiceUrl: https://cs.gx.test.sphereon.com
+  complianceServiceUrl: https://compliance.future-mobility-alliance.org
   complianceServiceVersion: v2210
   dbFile: ./db/gx.db.sqlite
   ecosystems:
     - name: FMA
-      url: https://cs.fma.test.sphereon.com
+      url: https://compliance.future-mobility-alliance.org
       description: Future Mobility Alliance
 
   # The Key Management System name. Normally shouldn't be changed. Currently only 1 KMS is supported
