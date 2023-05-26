@@ -22,6 +22,36 @@ export function createSDCredentialFromPayload({ did, payload }: { payload: unkno
     credentialSubject,
   }
 }
+export function exampleParticipantSD1_2_8({ did }: { did?: string; version?: string }) {
+  return {
+    "@context": [
+      "https://www.w3.org/2018/credentials/v1",
+      "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+    ],
+    "type": [
+      "VerifiableCredential"
+    ],
+    id: `urn:uuid:${uuidv4()}`,
+    issuer: `${did ? did : 'your DID here'}`,
+    issuanceDate: new Date().toISOString(),
+    //todo: fix this
+    credentialSubject: {
+      id: `${did ? did : 'your DID here'}`,
+      type: "gx:LegalParticipant",
+      "gx:legalName": "Gaia-X European Association for Data and Cloud AISBL",
+      "gx:legalRegistrationNumber": {
+        "gx:vatID": "BE0762747721"
+      },
+      "gx:headquarterAddress": {
+        "gx:countrySubdivisionCode": "BE-BRU"
+      },
+      "gx:legalAddress": {
+        "gx:countrySubdivisionCode": "BE-BRU"
+      },
+      "gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+    }
+  }
+}
 
 export function exampleParticipantSD({ did }: { did?: string; version?: string }) {
   return {

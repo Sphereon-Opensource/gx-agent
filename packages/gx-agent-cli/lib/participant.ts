@@ -5,7 +5,7 @@ import fs from 'fs'
 import {
   asDID,
   createSDCredentialFromPayload,
-  exampleParticipantSD,
+  exampleParticipantSD, exampleParticipantSD1_2_8,
   exampleParticipantSD2210,
   ExportFileResult,
   getAgent,
@@ -92,14 +92,14 @@ sd.command('example-input')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option(
     '-v, --version <string>',
-    "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
+    "Version of SelfDescription object you want to create: 'v2206', 'v2210' or 'v1.2.8' if no version provided, it will default to `v1.2.8`"
   )
   .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
     const typeStr = 'participant'
     const fileName = `${typeStr}-input-credential.json`
-    const credential = cmd.version && cmd.version === 'v2206' ? exampleParticipantSD({ did }) : exampleParticipantSD2210({ did })
+    const credential = (!cmd.version || (cmd.version && cmd.version === 'v1.2.8'))? exampleParticipantSD1_2_8({did}): cmd.version === 'v2206' ? exampleParticipantSD({ did }) : exampleParticipantSD2210({ did })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
     console.log(`Example self-description file has been written to ${fileName}. Please adjust the contents and use one of the onboarding methods`)
