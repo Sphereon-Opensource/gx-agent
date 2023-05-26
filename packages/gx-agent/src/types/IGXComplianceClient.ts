@@ -1,3 +1,4 @@
+import {IVerifyResult} from "@sphereon/ssi-types";
 import {
   CredentialPayload,
   DIDDocument,
@@ -16,7 +17,7 @@ import {
   VerifiableCredential,
   VerifiablePresentation,
 } from '@veramo/core'
-import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
+import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk.vc-handler-ld-local'
 
 import { _ExtendedIKey } from '@veramo/utils'
 
@@ -62,9 +63,9 @@ export interface IGXComplianceClient extends IPluginMethodMap {
 
   issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<UniqueVerifiablePresentation>
 
-  checkVerifiableCredential(args: ICheckVerifiableCredentialArgs, context: GXRequiredContext): Promise<boolean>
+  checkVerifiableCredential(args: ICheckVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifyResult>
 
-  checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<boolean>
+  checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifyResult>
 
   onboardParticipantOnEcosystem(args: IOnboardParticipantOnEcosystem, context: GXRequiredContext): Promise<UniqueVerifiablePresentation>
 

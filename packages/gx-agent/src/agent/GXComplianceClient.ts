@@ -33,7 +33,7 @@ import {
   IGaiaxComplianceConfig,
   IGaiaxOnboardingResult,
 } from '../types/index.js'
-import { ICredentialSubject } from '@sphereon/ssi-types'
+import {ICredentialSubject, IVerifyResult} from '@sphereon/ssi-types'
 import { DID } from './DID.js'
 import { CredentialHandler } from './CredentialHandler.js'
 import { extractApiTypeFromVC } from '../utils/index.js'
@@ -246,7 +246,7 @@ export class GXComplianceClient implements IAgentPlugin {
       throw new Error('You should provide either vc id or vc itself')
     }
 
-    let valid = false
+    let valid: IVerifyResult = {verified: false}
     const vc = args.verifiableCredential
       ? args.verifiableCredential
       : await context.agent.dataStoreGetVerifiableCredential({
@@ -264,7 +264,7 @@ export class GXComplianceClient implements IAgentPlugin {
     } catch (e: any) {
       console.error(e.message)
     }
-    console.log('Agent validation of the self-description. Valid: ' + valid)
+    console.log('Agent validation of the self-description. Valid: ' + valid.verified)
 
     let url = this.getApiVersionedUrl()
     if (vc.type!.includes('LegalPerson') || vc.type!.includes('NaturalPerson')) {

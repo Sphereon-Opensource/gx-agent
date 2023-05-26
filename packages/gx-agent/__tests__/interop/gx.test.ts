@@ -10,7 +10,7 @@ import { Resolver } from 'did-resolver'
 // @ts-ignore
 import nock from 'nock'
 import { getResolver } from 'web-did-resolver'
-import { CredentialHandlerLDLocal, ICredentialHandlerLDLocal, LdDefaultContexts, MethodNames } from '@sphereon/ssi-sdk-vc-handler-ld-local'
+import { CredentialHandlerLDLocal, ICredentialHandlerLDLocal, LdDefaultContexts, MethodNames } from '@sphereon/ssi-sdk.vc-handler-ld-local'
 import { GXJsonWebSignature2020 } from '../../src'
 
 import { GX_COMPLIANCE_VC } from '../fixtures/gx'
@@ -69,6 +69,26 @@ describe('Gaia-X issued VC', () => {
       fetchRemoteContexts: true,
     })
 
-    expect(verifiedCredential).toEqual(true)
+    expect(verifiedCredential).toMatchObject({
+      "verified": true,
+      "log": [
+        {
+          "id": "expiration",
+          "valid": true
+        },
+        {
+          "id": "valid_signature",
+          "valid": true
+        },
+        {
+          "id": "issuer_did_resolves",
+          "valid": true
+        },
+        {
+          "id": "revocation_status",
+          "valid": true
+        }
+      ],
+    })
   })
 })
