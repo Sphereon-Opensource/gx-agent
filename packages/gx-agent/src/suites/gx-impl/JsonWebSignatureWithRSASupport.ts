@@ -2,11 +2,11 @@
 import jsonld from 'jsonld'
 
 import { subtle } from '@transmute/web-crypto-key-pair'
-import { JsonWebKey } from './JsonWebKeyWithRSASupport.js'
 import * as u8a from 'uint8arrays'
 import { Verifier } from '@transmute/jose-ld'
 
 import sec from '@transmute/security-context'
+import { JsonWebKey } from './JsonWebKeyWithRSASupport.js'
 /**
  * WARNING:
  *
@@ -64,11 +64,11 @@ export class JsonWebSignature {
   async sign({ verifyData, proof }: any) {
     try {
       const signer: any = await this.key?.signer()
-      const detachedJws = await signer.sign({ data: verifyData })
+      const detachedJws = await signer.sign({ data: verifyData, saltLength: 32 })
       proof.jws = detachedJws
       return proof
     } catch (e) {
-      console.warn('Failed to sign.')
+      console.warn('Failed to sign.' + e)
       throw e
     }
   }
@@ -211,7 +211,8 @@ export class JsonWebSignature {
       const messageBuffer = u8a.concat([u8a.fromString(`${headerString}.`, 'utf-8'), dataBuffer])
       return await subtle.verify(
         {
-          name: key.algorithm?.name ? key.algorithm.name : 'RSASSA-PKCS1-V1_5',
+          saltLength: 32,
+          name: key.algorithm?.name ? key.algorithm.name : 'RSA-PSS',
           hash: 'SHA-256',
         },
         key,
@@ -253,7 +254,8 @@ export class JsonWebSignature {
         expansionMap,
       })
       if (!verified) {
-        throw new Error('Invalid signature.')
+        return { verified }
+        // throw new Error('Invalid signature.')
       }
 
       // ensure proof was performed for a valid purpose

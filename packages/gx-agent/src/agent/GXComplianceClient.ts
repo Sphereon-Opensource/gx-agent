@@ -22,7 +22,6 @@ import {
   IOnboardServiceOfferingOnEcosystemArgs,
   ISignInfo,
   IVerifySelfDescribedCredential,
-  schema,
   VerifiableCredentialResponse,
 } from '../index.js'
 
@@ -47,7 +46,7 @@ import { extractSignInfo } from '../utils/index.js'
 export class GXComplianceClient implements IAgentPlugin {
   public readonly _config: IGaiaxComplianceConfig
   private readonly credentialHandler: CredentialHandler = new CredentialHandler(this)
-  readonly schema = schema.IGaiaxComplianceClient
+  // readonly schema = schema.IGaiaxComplianceClient
 
   constructor(config: IGaiaxComplianceConfig) {
     this._config = config

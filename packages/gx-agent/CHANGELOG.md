@@ -7,57 +7,36 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @sphereon/gx-agent
 
-
-
-
-
 ## [0.9.1](https://github.com/Sphereon/gx-agent/compare/v0.8.0...v0.9.1) (2023-05-24)
-
 
 ### Bug Fixes
 
-* Make sure we are not getting did-jwt 7.x as that moved to ESM and has an issue with uint8arrays ([3fcbb3d](https://github.com/Sphereon/gx-agent/commit/3fcbb3dde133d4e215b941e1d511fdbec731754f))
-
-
-
-
+- Make sure we are not getting did-jwt 7.x as that moved to ESM and has an issue with uint8arrays ([3fcbb3d](https://github.com/Sphereon/gx-agent/commit/3fcbb3dde133d4e215b941e1d511fdbec731754f))
 
 # [0.8.0](https://github.com/Sphereon/gx-agent/compare/v0.7.0...v0.8.0) (2023-05-23)
 
-
 ### Bug Fixes
 
-* brought bach the challenge and domain to our credentialHnadler issue VP method removed populating it from GXComplianceClient ([f18b803](https://github.com/Sphereon/gx-agent/commit/f18b80390f9e9eadefa8009d9a110a072ca617b8))
-* changed the way we're retrieving our sign info when we're signing the vc from credentialSubject id to credential.issuer ([dee0130](https://github.com/Sphereon/gx-agent/commit/dee0130ac8a81bf105efbc8fc66ecab82df11b7a))
-
+- brought bach the challenge and domain to our credentialHnadler issue VP method removed populating it from GXComplianceClient ([f18b803](https://github.com/Sphereon/gx-agent/commit/f18b80390f9e9eadefa8009d9a110a072ca617b8))
+- changed the way we're retrieving our sign info when we're signing the vc from credentialSubject id to credential.issuer ([dee0130](https://github.com/Sphereon/gx-agent/commit/dee0130ac8a81bf105efbc8fc66ecab82df11b7a))
 
 ### Features
 
-* removed the challenge from VP creation, plus updated the dependencies ([5f68908](https://github.com/Sphereon/gx-agent/commit/5f68908974d2d99282ffa2a05f564185e9003719))
-
-
-
-
+- removed the challenge from VP creation, plus updated the dependencies ([5f68908](https://github.com/Sphereon/gx-agent/commit/5f68908974d2d99282ffa2a05f564185e9003719))
 
 # [0.7.0](https://github.com/Sphereon/gx-agent/compare/v0.6.0...v0.7.0) (2023-03-10)
 
-
 ### Bug Fixes
 
-* fixed the issue with compliance credentials from ecosystem and so not saving for ecosystems ([77ee419](https://github.com/Sphereon/gx-agent/commit/77ee4197247c478a6054aa80640f119900b07add))
-* getting type of VC is inline with our general approach ([e2097b9](https://github.com/Sphereon/gx-agent/commit/e2097b975a73a0b537cd390164b44437197f3199))
-
+- fixed the issue with compliance credentials from ecosystem and so not saving for ecosystems ([77ee419](https://github.com/Sphereon/gx-agent/commit/77ee4197247c478a6054aa80640f119900b07add))
+- getting type of VC is inline with our general approach ([e2097b9](https://github.com/Sphereon/gx-agent/commit/e2097b975a73a0b537cd390164b44437197f3199))
 
 ### Features
 
-* added vc type check to support the type both in case of string and string array ([2aba002](https://github.com/Sphereon/gx-agent/commit/2aba002a1e87d22dceb0057aff0d5df61e1db3c2))
-* added vp extraction functionality ([d7f8a95](https://github.com/Sphereon/gx-agent/commit/d7f8a95a78b9d7fbca12c1f21f3667162b5980e4))
-* created a fixture for dcat:dataService ([5ba9862](https://github.com/Sphereon/gx-agent/commit/5ba98625ad4a27463884fa00685fa2d39b9d5af9))
-* vc list now can filter base on type and issuer ([04668f2](https://github.com/Sphereon/gx-agent/commit/04668f2c9cd57f1c6b051ca9f994ca438436e500))
-
-
-
-
+- added vc type check to support the type both in case of string and string array ([2aba002](https://github.com/Sphereon/gx-agent/commit/2aba002a1e87d22dceb0057aff0d5df61e1db3c2))
+- added vp extraction functionality ([d7f8a95](https://github.com/Sphereon/gx-agent/commit/d7f8a95a78b9d7fbca12c1f21f3667162b5980e4))
+- created a fixture for dcat:dataService ([5ba9862](https://github.com/Sphereon/gx-agent/commit/5ba98625ad4a27463884fa00685fa2d39b9d5af9))
+- vc list now can filter base on type and issuer ([04668f2](https://github.com/Sphereon/gx-agent/commit/04668f2c9cd57f1c6b051ca9f994ca438436e500))
 
 # [0.6.0](https://github.com/Sphereon/gx-agent/compare/v0.5.0...v0.6.0) (2023-03-07)
 
