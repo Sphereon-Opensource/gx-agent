@@ -160,7 +160,7 @@ vc.command('verify')
             issuer: verifiableCredential.issuer,
             subject: verifiableCredential.credentialSubject.id,
             'issuance-date': verifiableCredential.issuanceDate,
-            valid: result,
+            valid: JSON.stringify(result).toString(),
           },
         ])
       } catch (e: any) {

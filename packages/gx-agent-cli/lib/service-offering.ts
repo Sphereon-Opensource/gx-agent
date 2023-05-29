@@ -94,6 +94,80 @@ sd.command('submit')
     }
   })
 
+sd.command('experimental-submit')
+  .alias('exsub')
+  .description(
+    'submits a service offering self-description file to the compliance service. This can either be an input file (unsigned credential) from the filesystem, or a signed self-description stored in the agent'
+  )
+  .option('-sof, --so-input-file <string>', 'Unsigned ServiceOffering self-description input file location')
+  .option('-soi, --so-id <string>', 'id of a signed ServiceOffering self-description stored in the agent')
+  .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
+  .option('-lai, --label-ids <string...>', 'ID(s) of any label Verifiable Credential you want to include with the service offering')
+  .option('-laf, --label-files <string...>', 'Path(s) any label Verifiable Credential you want to include with the service offering')
+  .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
+  .option('--show', 'Show service offering')
+  .action(async (cmd) => {
+    const agent = await getAgent()
+    if (!cmd.soInputFile && !cmd.soId) {
+      throw Error('Verifiable Credential ID or file for self-description need to be selected. Please check parameters')
+    }
+    let soVcId = cmd.soId
+    let labelVCs: VerifiableCredential[] = []
+    if (cmd.labelFiles) {
+      for (const path of cmd.labelFiles) {
+        labelVCs.push(JSON.parse(fs.readFileSync(path, 'utf-8')) as VerifiableCredential)
+      }
+    }
+    if (cmd.labelIds) {
+      for (const id of cmd.labelIds) {
+        labelVCs.push(await agent.dataStoreGetVerifiableCredential({ hash: id }))
+      }
+    }
+
+    try {
+      if (cmd.soInputFile) {
+        const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.soInputFile, 'utf-8')) as CredentialPayload
+        const did = typeof credential.issuer === 'string' ? credential.issuer : credential.issuer ? credential.issuer.id : await asDID()
+        const vc = await agent.issueVerifiableCredential({
+          credential,
+          keyRef: cmd.keyIdentifier,
+          domain: did,
+          persist: true,
+        })
+        soVcId = vc.hash
+        printTable([
+          {
+            types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
+            issuer: vc.verifiableCredential.issuer,
+            subject: vc.verifiableCredential.credentialSubject.id,
+            'issuance-date': vc.verifiableCredential.issuanceDate,
+            id: vc.hash,
+            persisted: true,
+          },
+        ])
+      }
+      const vc = await agent.createAndSubmitServiceOffering({
+        serviceOfferingId: soVcId,
+        participantId: cmd.sdId,
+        labelVCs,
+        persist: cmd.persist,
+        show: cmd.show,
+      })
+      printTable([
+        {
+          types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
+          issuer: vc.verifiableCredential.issuer,
+          subject: vc.verifiableCredential.credentialSubject.id,
+          'issuance-date': vc.verifiableCredential.issuanceDate,
+          id: vc.hash,
+          persisted: cmd.persist,
+        },
+      ])
+    } catch (error: any) {
+      console.error(error.message)
+    }
+  })
+
 sd.command('verify')
   .description('verifies a service-offering self-description')
   .option('-id, --sd-id <string>', 'id of your self-description')

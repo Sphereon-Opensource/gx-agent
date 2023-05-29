@@ -1,10 +1,10 @@
-import { SphereonLdSignature } from '@sphereon/ssi-sdk.vc-handler-ld-local/dist/ld-suites'
 import { CredentialPayload, DIDDocument, IAgentContext, IKey, PresentationPayload, TKeyType, VerifiableCredential } from '@veramo/core'
 import { RequiredAgentMethods } from '@sphereon/ssi-sdk.vc-handler-ld-local'
 import * as u8a from 'uint8arrays'
 import { encodeJoseBlob } from '@veramo/utils'
 import { JsonWebKey } from './gx-impl/JsonWebKeyWithRSASupport.js'
 import { JsonWebSignature } from './gx-impl/JsonWebSignatureWithRSASupport.js'
+import { SphereonLdSignature }  from './ld-suites.js';
 
 /**
  * WARNING:

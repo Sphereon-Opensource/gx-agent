@@ -51,7 +51,7 @@ export async function exportToDIDDocument(identifier: IIdentifier, opts?: { serv
   } as Record<TKeyType, string>
 
   if ((!identifier.keys || identifier.keys.length === 0) && !identifier.controllerKeyId) {
-    throw Error(`No keys found for identifier: ${identifier}`)
+    throw Error(`No keys found for identifier: ${JSON.stringify(identifier, null, 2)}`)
   }
 
   const allKeys = identifier.keys.map((key) => ({
