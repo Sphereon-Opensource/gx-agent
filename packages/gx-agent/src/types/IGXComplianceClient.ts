@@ -1,4 +1,4 @@
-import {IVerifyResult} from "@sphereon/ssi-types";
+import { IVerifyResult } from '@sphereon/ssi-types'
 import {
   CredentialPayload,
   DIDDocument,
@@ -22,7 +22,7 @@ import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk.vc-handler-ld-local
 import { _ExtendedIKey } from '@veramo/utils'
 
 export interface IGXComplianceClient extends IPluginMethodMap {
-  submitComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
+  fetchComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
 
   acquireComplianceCredentialFromExistingParticipant(
     args: IAcquireComplianceCredentialFromExistingParticipantArgs,

@@ -4,7 +4,7 @@ import * as u8a from 'uint8arrays'
 import { encodeJoseBlob } from '@veramo/utils'
 import { JsonWebKey } from './gx-impl/JsonWebKeyWithRSASupport.js'
 import { JsonWebSignature } from './gx-impl/JsonWebSignatureWithRSASupport.js'
-import { SphereonLdSignature }  from './ld-suites.js';
+import { SphereonLdSignature } from './ld-suites.js'
 
 /**
  * WARNING:

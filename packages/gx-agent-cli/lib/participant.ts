@@ -6,6 +6,7 @@ import {
   asDID,
   createSDCredentialFromPayload,
   exampleParticipantSD,
+  exampleParticipantSD1_2_8,
   exampleParticipantSD2210,
   ExportFileResult,
   getAgent,
@@ -99,7 +100,12 @@ sd.command('example-input')
     const did = await asDID(cmd.did)
     const typeStr = 'participant'
     const fileName = `${typeStr}-input-credential.json`
-    const credential = cmd.version && cmd.version === 'v2206' ? exampleParticipantSD({ did }) : exampleParticipantSD2210({ did })
+    const credential =
+      !cmd.version || (cmd.version && cmd.version === 'v1.2.8')
+        ? exampleParticipantSD1_2_8({ did })
+        : cmd.version === 'v2206'
+        ? exampleParticipantSD({ did })
+        : exampleParticipantSD2210({ did })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
     console.log(`Example self-description file has been written to ${fileName}. Please adjust the contents and use one of the onboarding methods`)

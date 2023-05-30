@@ -70,24 +70,24 @@ describe('Gaia-X issued VC', () => {
     })
 
     expect(verifiedCredential).toMatchObject({
-      "verified": true,
-      "log": [
+      verified: true,
+      log: [
         {
-          "id": "expiration",
-          "valid": true
+          id: 'expiration',
+          valid: true,
         },
         {
-          "id": "valid_signature",
-          "valid": true
+          id: 'valid_signature',
+          valid: true,
         },
         {
-          "id": "issuer_did_resolves",
-          "valid": true
+          id: 'issuer_did_resolves',
+          valid: true,
         },
         {
-          "id": "revocation_status",
-          "valid": true
-        }
+          id: 'revocation_status',
+          valid: true,
+        },
       ],
     })
   })

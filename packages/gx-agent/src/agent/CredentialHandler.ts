@@ -1,4 +1,4 @@
-import {IVerifyResult} from "@sphereon/ssi-types";
+import { IVerifyResult } from '@sphereon/ssi-types'
 import { GXComplianceClient } from './GXComplianceClient.js'
 import {
   ExportFileResult,

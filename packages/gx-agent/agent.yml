@@ -2,13 +2,13 @@ version: 3.0
 
 constants:
   complianceServiceUrl: compliance
-  complianceServiceVersion: v2206
+  complianceServiceVersion: v1.2.8
   participantDid: did:web:participant
   participantUrl: participant
   methods:
     - issueVerifiableCredential
       issueVerifiablePresentation
-      submitComplianceCredential
+      fetchComplianceCredential
       getComplianceCredentialFromUnsignedParticipant
       createAndSubmitServiceOffering
       submitServiceOffering

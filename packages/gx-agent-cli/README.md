@@ -20,10 +20,10 @@ are supported.
 
 # Prerequisites and installation
 
-## NodeJS version 16
+## NodeJS version 18
 
-Please download NodeJS version 16. You can find NodeJS for your computer on the following
-page: https://nodejs.org/en/blog/release/v16.16.0/
+Please download NodeJS version 18. You can find NodeJS for your computer on the following
+page: https://nodejs.org/en/blog/release/v18.16.0/
 Follow the installation instructions on the nodejs website
 
 ## Install the Gaia-X agent CLI tool
@@ -54,14 +54,15 @@ Options:
   -h, --help      display help for command
 
 Commands:
-  config          Agent configuration
-  did             Decentralized Identifiers (DID) commands
-  vc              Generic Verifiable Credential commands
-  vp              Generic Verifiable Presentation commands
-  ecosystem       gx-participant ecosystem
-  participant     Participant commands
-  so|service      Service Offering commands
-  help [command]  display help for command
+  config            Agent configuration
+  did               Decentralized Identifiers (DID) commands
+  vc                Generic Verifiable Credential commands
+  vp                Generic Verifiable Presentation commands
+  ecosystem         Ecosystem specific commands
+  participant       Participant commands
+  so|service        Service Offering commands
+  export [options]  Exports all agent data so it can be hosted or backed-up
+  help [command]    display help for command
 ```
 
 If you see an output similar like the above, the Gaia-X Agent CLI is properly installed.
@@ -104,10 +105,23 @@ multiple domains from a single agent, you would need to provide the domain or DI
 manages multiple domains/DIDs. Having separate configuration files in separate directories then means, you do not have
 to provide the DID/domain values, as the agent will notice you are only managing a single domain/DID.
 
+## Gaia-X Versions
+
+There are a couple of gaia-x versions that you can interact with using this library:
+
+- 2206
+
+  _this version is the first version that this tool created to support._
+
+- 2210
+  _this version is supported with a twist. We have changed the CS to accept VerifiablePresentation instead of 2 VerifiableCredentials._
+- 1.2.8 (latest)
+  _this version is the first version that supports VerifiablePresentation by design._
+
 ## Verify configuration
 
 Verifies a Gaia-X `agent.yml` file at a specific file location. If the `-f/--filename` option is omitted the default
-home-dir location will be used in stead. The `-s/--show` option, will display the entire configuration file.
+home-dir location will be used in stead. The `--show` option, will display the entire configuration file.
 
 For technical people or developers. You can also test whether low level agent methods are properly configured and
 available by providing the `-m/--method` option. For example to test the DID resolution method, you could
@@ -121,7 +135,7 @@ output:
 version: 3
 gx:
   complianceServiceUrl: https://nk-gx-compliance.eu.ngrok.io
-  complianceServiceVersion: v2206
+  complianceServiceVersion: v1.2.8
   dbEncryptionKey: 13455271cbd1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa7201
   dbFile: ./db/gx.db.sqlite
   kmsName: local
@@ -329,95 +343,37 @@ output:
 Example self-description file has been written to participant-input-credential.json. Please adjust the contents and use one of the onboarding methods
 {
   "@context": [
-    "https://www.w3.org/2018/credentials/v1"
+    "https://www.w3.org/2018/credentials/v1",
+    "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
   ],
-  "issuer": "did:web:b7fd-2001-1c04-2b10-ee00-c85d-ad93-ccd9-1b0d.eu.ngrok.io",
-  "id": "814c51d6-b559-4f7f-9481-b58a4c3bccb0",
-  "credentialSubject": {
-    "@context": {
-      "cc": "http://creativecommons.org/ns#",
-      "schema": "http://schema.org/",
-      "cred": "https://www.w3.org/2018/credentials#",
-      "void": "http://rdfs.org/ns/void#",
-      "owl": "http://www.w3.org/2002/07/owl#",
-      "xsd": "http://www.w3.org/2001/XMLSchema#",
-      "gax-validation": "http://w3id.org/gaia-x/validation#",
-      "skos": "http://www.w3.org/2004/02/skos/core#",
-      "voaf": "http://purl.org/vocommons/voaf#",
-      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-      "vcard": "http://www.w3.org/2006/vcard/ns#",
-      "gax-core": "http://w3id.org/gaia-x/core#",
-      "dct": "http://purl.org/dc/terms/",
-      "sh": "http://www.w3.org/ns/shacl#",
-      "gax-trust-framework": "http://w3id.org/gaia-x/gax-trust-framework#",
-      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-      "ids": "https://w3id.org/idsa/core/",
-      "dcat": "http://www.w3.org/ns/dcat#",
-      "vann": "http://purl.org/vocab/vann/",
-      "foaf": "http://xmlns.com/foaf/0.1/",
-      "did": "https://www.w3.org/TR/did-core/#"
-    },
-    "@id": "did:web:b7fd-2001-1c04-2b10-ee00-c85d-ad93-ccd9-1b0d.eu.ngrok.io",
-    "@type": "gax-trust-framework:LegalPerson",
-    "gax-trust-framework:legalName": {
-      "@value": "your legalName here",
-      "@type": "xsd:string"
-    },
-    "gax-trust-framework:legalForm": "your legalForm here (LLC, LP, Corporation, Nonprofit corporation, JSCo, ...) ",
-    "gax-trust-framework:registrationNumber": {
-      "@value": "your registrationNumber here",
-      "@type": "xsd:string"
-    },
-    "gax-trust-framework:legalAddress": {
-      "@type": "vcard:Address",
-      "vcard:country-name": {
-        "@value": "your Country name here",
-        "@type": "xsd:string"
-      },
-      "vcard:gps": {
-        "@value": "your gps coordinates here",
-        "@type": "xsd:string"
-      },
-      "vcard:street-address": {
-        "@value": "your street address here",
-        "@type": "xsd:string"
-      },
-      "vcard:postal-code": {
-        "@value": "your postal code here",
-        "@type": "xsd:string"
-      },
-      "vcard:locality": {
-        "@value": "your city here",
-        "@type": "xsd:string"
-      }
-    },
-    "gax-trust-framework:headquarterAddress": {
-      "@type": "vcard:Address",
-      "vcard:country-name": {
-        "@value": "your country name here",
-        "@type": "xsd:string"
-      },
-      "vcard:gps": {
-        "@value": "your gps coordinates here",
-        "@type": "xsd:string"
-      },
-      "vcard:street-address": {
-        "@value": "your street address here",
-        "@type": "xsd:string"
-      },
-      "vcard:postal-code": {
-        "@value": "your postal code here",
-        "@type": "xsd:string"
-      },
-      "vcard:locality": {
-        "@value": "your city here",
-        "@type": "xsd:string"
-      }
-    }
-  },
   "type": [
     "VerifiableCredential"
-  ]
+  ],
+  "id": "urn:uuid:554db947-e001-431c-ae55-22a781e1f928",
+  "issuer": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app",
+  "issuanceDate": "2023-05-29T18:03:00.887Z",
+  "credentialSubject": {
+    "id": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app",
+    "type": "gx:LegalParticipant",
+    "gx:legalName": "Gaia-X European Association for Data and Cloud AISBL",
+    "gx:legalRegistrationNumber": {
+      "gx:vatID": "BE0762747721"
+    },
+    "gx:headquarterAddress": {
+      "gx:countrySubdivisionCode": "BE-BRU"
+    },
+    "gx:legalAddress": {
+      "gx:countrySubdivisionCode": "BE-BRU"
+    },
+    "gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+  },
+  "proof": {
+    "type": "JsonWebSignature2020",
+    "created": "2023-05-29T16:05:10Z",
+    "verificationMethod": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app#JWK2020-RSA",
+    "proofPurpose": "assertionMethod",
+    "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..fqGrFQqR2LrwQ3j2IC5QPZAHsTNIcfDDe8AjgGOzvY5yOKCj4VDE0rSpb70dQIwoGKJEDEQFUQnEXXlKDZSD79EmSDdJJTpTJJ4xlAS8kXHc6jEgq0gYKkKY7eTUQUhuHrCGFEJ-I-KTJLut3czcdzsRsBITqDbazrEoFOvgKv_C6XzOYIMWxxcczRtGFkKm8c-lIHayABnfHV9ES6PsfwNBuGC5HcsCY0lUZ9h4PMMYC60p-sspCxKLzpILfpcGLV-D73JGrvLycdW7zYNW_M5IQ0gOhaebw_oNSfSdaX08QZ9fAQhXLg3QzX4qIvLzsQVVmn1XFbXdiye574x89w"
+  }
 }
 
 ```
@@ -426,6 +382,7 @@ You now should open the file, and adjust the values with your participant inform
 the values. Do not add new keys or remove any properties/keys, except for the some of the registration numbers:
 If you do not have a certain registration number, remove the part between the `{ }` brackets. For instance If you do not
 have LEI code, you should remove the next part altogether:
+(specific to versions below v1.2.8)
 
 ```json
 {
@@ -452,7 +409,7 @@ you can provide the ID value of the self-description credential in the agent.
 You can use the `-s/--show` option, to show all the credentials used in the exchange.
 
 ```shell
-gx-agent participant sd submit -if ./participant-input-credential.json
+gx-agent participant sd submit -sif ./participant-input-credential.json
 ```
 
 or from an existing agent self-description credential:
@@ -505,104 +462,38 @@ output:
 id: dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef511143
 {
   "@context": [
-    "https://www.w3.org/2018/credentials/v1"
+    "https://www.w3.org/2018/credentials/v1",
+    "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
   ],
-  "issuer": "did:web:nk-gx-agent.eu.ngrok.io",
-  "id": "814c51d6-b559-4f7f-9481-b58a4c3bccb0",
-  "credentialSubject": {
-    "@context": {
-      "cc": "http://creativecommons.org/ns#",
-      "schema": "http://schema.org/",
-      "cred": "https://www.w3.org/2018/credentials#",
-      "void": "http://rdfs.org/ns/void#",
-      "owl": "http://www.w3.org/2002/07/owl#",
-      "xsd": "http://www.w3.org/2001/XMLSchema#",
-      "gax-validation": "http://w3id.org/gaia-x/validation#",
-      "skos": "http://www.w3.org/2004/02/skos/core#",
-      "voaf": "http://purl.org/vocommons/voaf#",
-      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-      "vcard": "http://www.w3.org/2006/vcard/ns#",
-      "gax-core": "http://w3id.org/gaia-x/core#",
-      "dct": "http://purl.org/dc/terms/",
-      "sh": "http://www.w3.org/ns/shacl#",
-      "gax-trust-framework": "http://w3id.org/gaia-x/gax-trust-framework#",
-      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-      "ids": "https://w3id.org/idsa/core/",
-      "dcat": "http://www.w3.org/ns/dcat#",
-      "vann": "http://purl.org/vocab/vann/",
-      "foaf": "http://xmlns.com/foaf/0.1/",
-      "did": "https://www.w3.org/TR/did-core/#"
-    },
-    "id": "did:web:nk-gx-agent.eu.ngrok.io",
-    "@type": "gax-trust-framework:LegalPerson",
-    "gax-trust-framework:legalName": {
-      "@value": "Sphereon BV",
-      "@type": "xsd:string"
-    },
-    "gax-trust-framework:legalForm": "LLC",
-    "gax-trust-framework:registrationNumber": {
-      "@value": "3232323",
-      "@type": "xsd:string"
-    },
-    "gax-trust-framework:legalAddress": {
-      "@type": "vcard:Address",
-      "vcard:country-name": {
-        "@value": "NL-UT",
-        "@type": "xsd:string"
-      },
-      "vcard:gps": {
-        "@value": "52.1352365,5.0280565",
-        "@type": "xsd:string"
-      },
-      "vcard:street-address": {
-        "@value": "Bisonspoor",
-        "@type": "xsd:string"
-      },
-      "vcard:postal-code": {
-        "@value": "3605LB",
-        "@type": "xsd:string"
-      },
-      "vcard:locality": {
-        "@value": "Maarssen",
-        "@type": "xsd:string"
-      }
-    },
-    "gax-trust-framework:headquarterAddress": {
-      "@type": "vcard:Address",
-      "vcard:country-name": {
-        "@value": "NL-UT",
-        "@type": "xsd:string"
-      },
-      "vcard:gps": {
-        "@value": "52.1352365,5.0280565",
-        "@type": "xsd:string"
-      },
-      "vcard:street-address": {
-        "@value": "Bisonspoor",
-        "@type": "xsd:string"
-      },
-      "vcard:postal-code": {
-        "@value": "3605LB",
-        "@type": "xsd:string"
-      },
-      "vcard:locality": {
-        "@value": "Maarssen",
-        "@type": "xsd:string"
-      }
-    }
-  },
   "type": [
     "VerifiableCredential"
   ],
-  "issuanceDate": "2023-02-09T14:55:32.251Z",
+  "id": "urn:uuid:554db947-e001-431c-ae55-22a781e1f928",
+  "issuer": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app",
+  "issuanceDate": "2023-05-29T18:03:00.887Z",
+  "credentialSubject": {
+    "id": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app",
+    "type": "gx:LegalParticipant",
+    "gx:legalName": "Gaia-X European Association for Data and Cloud AISBL",
+    "gx:legalRegistrationNumber": {
+      "gx:vatID": "BE0762747721"
+    },
+    "gx:headquarterAddress": {
+      "gx:countrySubdivisionCode": "BE-BRU"
+    },
+    "gx:legalAddress": {
+      "gx:countrySubdivisionCode": "BE-BRU"
+    },
+    "gx-terms-and-conditions:gaiaxTermsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700"
+  },
   "proof": {
     "type": "JsonWebSignature2020",
-    "created": "2023-02-09T14:55:32Z",
-    "verificationMethod": "did:web:nk-gx-agent.eu.ngrok.io#JWK2020-RSA",
+    "created": "2023-05-29T16:05:10Z",
+    "verificationMethod": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app#JWK2020-RSA",
     "proofPurpose": "assertionMethod",
-    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..tYNSjLxt-d8oRF6T0-d0TTKcPqi3hvq9Bbnt1q_svqkCanQAdHEneRIUr4re3aCkwW1slwLrnF_gopcOJKqm9PO0nmQA3p5R9o4V2k9u381DhXzEDVqwS28uwx-fKU9-_7tH0s2KMjmVLs8xz_r9Oju-vFM_lsngfZ4gxsVIG3968MB2LixExVKkfgGWUqTGMx-epLxA2oX0LkT5gKaZHB14n60tT4wXJG-UYDsngJK67iDZgnBT0g-be3GS9gQf1cG1me0Gd9W8rHfACR5RO0d4xkzuwTvIo_kDtnsvvC2VheKZZd4c8B0ONuGE45Wfe-K68Qx3VelDw1Xns5v6nw"
+    "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..fqGrFQqR2LrwQ3j2IC5QPZAHsTNIcfDDe8AjgGOzvY5yOKCj4VDE0rSpb70dQIwoGKJEDEQFUQnEXXlKDZSD79EmSDdJJTpTJJ4xlAS8kXHc6jEgq0gYKkKY7eTUQUhuHrCGFEJ-I-KTJLut3czcdzsRsBITqDbazrEoFOvgKv_C6XzOYIMWxxcczRtGFkKm8c-lIHayABnfHV9ES6PsfwNBuGC5HcsCY0lUZ9h4PMMYC60p-sspCxKLzpILfpcGLV-D73JGrvLycdW7zYNW_M5IQ0gOhaebw_oNSfSdaX08QZ9fAQhXLg3QzX4qIvLzsQVVmn1XFbXdiye574x89w"
   }
-}
+
 ```
 
 ## Verify a participant self-description

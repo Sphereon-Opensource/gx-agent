@@ -95,7 +95,7 @@ ecosystem
   })
 
 ecosystem
-  .command('submit')
+  .command('legacy-submit')
   .description('Onboards the participant to the new ecosystem')
   .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
@@ -130,7 +130,7 @@ ecosystem
     }
   })
 
-so.command('submit')
+so.command('legacy-submit')
   .description('Submits as service offering in the ecosystem')
   .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
@@ -214,8 +214,7 @@ so.command('submit')
     }
   })
 
-so.command('experimental-submit')
-  .alias('exsub')
+so.command('submit')
   .description('Submits as service offering in the ecosystem')
   .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')

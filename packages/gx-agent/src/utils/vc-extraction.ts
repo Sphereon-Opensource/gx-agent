@@ -60,12 +60,12 @@ export function getVcType(verifiableCredential: VerifiableCredential): string {
   let subjectType
   if (Array.isArray(verifiableCredential.credentialSubject)) {
     for (const subject of verifiableCredential.credentialSubject) {
-      subjectType = subjectType? subjectType: subject['type']? subject['type']: subject['@type']?subject['@type']: undefined
+      subjectType = subjectType ? subjectType : subject['type'] ? subject['type'] : subject['@type'] ? subject['@type'] : undefined
     }
   } else {
     subjectType = verifiableCredential.credentialSubject['type']
-        ? verifiableCredential.credentialSubject['type']
-        : verifiableCredential.credentialSubject['@type']
+      ? verifiableCredential.credentialSubject['type']
+      : verifiableCredential.credentialSubject['@type']
   }
   const json = JSON.stringify(verifiableCredential)
   if (!subjectType && (json.includes(ServiceOfferingType.DcatDataset.valueOf()) || json.includes(ServiceOfferingType.DcatDataService.valueOf()))) {
@@ -76,7 +76,7 @@ export function getVcType(verifiableCredential: VerifiableCredential): string {
         return 'ServiceOffering'
       }
     }
-    if (containsType(subjectType, 'LegalPerson') || containsType(subjectType, 'LegalParticipant') ) {
+    if (containsType(subjectType, 'LegalPerson') || containsType(subjectType, 'LegalParticipant')) {
       return 'LegalParticipant'
     } else if (containsType(subjectType, 'compliance')) {
       return 'Compliance'
