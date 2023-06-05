@@ -16,7 +16,7 @@
     "@digitalcredentials/ed25519-verification-key-2020": "3.2.2",
     "@microsoft/api-extractor": "^7.33.6",
     "@microsoft/api-extractor-model": "^7.25.2",
-    "@sphereon/gx-agent": "^0.9.3",
+    "@sphereon/gx-agent": "workspace:*",
     "@sphereon/ssi-sdk-ext.did-utils": "0.12.1-next.2",
     "@types/blessed": "^0.1.19",
     "@types/swagger-ui-express": "^4.1.3",
