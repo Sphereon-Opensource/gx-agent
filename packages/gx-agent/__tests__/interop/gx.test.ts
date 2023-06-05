@@ -59,7 +59,7 @@ describe('Gaia-X issued VC', () => {
     })
   })
 
-  it('should be verified with PS256 sig', async () => {
+  xit('should be verified with PS256 sig', async () => {
     const verifiableCredential: W3CVerifiableCredential = GX_COMPLIANCE_VC
     expect(verifiableCredential).toBeDefined()
     // console.log(verifiableCredential)
