@@ -2,7 +2,7 @@ version: 3.0
 # GAIA-X configuration options. These are the options you can change
 gx:
   complianceServiceUrl: https://compliance.future-mobility-alliance.org
-  complianceServiceVersion: v2210
+  complianceServiceVersion: v1.2.8
   dbFile: ./db/gx.db.sqlite
   ecosystems:
     - name: FMA

@@ -5,9 +5,7 @@ import fs from 'fs'
 import {
   asDID,
   createSDCredentialFromPayload,
-  exampleParticipantSD,
   exampleParticipantSD1_2_8,
-  exampleParticipantSD2210,
   ExportFileResult,
   getAgent,
   IVerifySelfDescribedCredential,
@@ -91,46 +89,16 @@ sd.command('example-input')
   .alias('example')
   .description('Creates an example participant self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
-  .option(
-    '-v, --version <string>',
-    "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
-  )
+  .option('-v, --version <string>', 'In this version we only support `v1.2.8`')
   .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
     const typeStr = 'participant'
     const fileName = `${typeStr}-input-credential.json`
-    const credential =
-      !cmd.version || (cmd.version && cmd.version === 'v1.2.8')
-        ? exampleParticipantSD1_2_8({ did })
-        : cmd.version === 'v2206'
-        ? exampleParticipantSD({ did })
-        : exampleParticipantSD2210({ did })
+    const credential = exampleParticipantSD1_2_8({ did })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
     console.log(`Example self-description file has been written to ${fileName}. Please adjust the contents and use one of the onboarding methods`)
-    if (cmd.show) {
-      console.log(JSON.stringify(credential, null, 2))
-    }
-  })
-
-sd.command('wizard-credential')
-  .description(
-    'Takes data from the SD Creation Wizard and creates a SD Credential out of it. Link to the wizard: https://sd-creation-wizard.gxfs.dev/'
-  )
-  .option('-d, --did <string>', 'the DID or domain which will be used')
-  .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of the SD Wizard file you downloaded)')
-  .option('--show', 'Show the resulting self-description Verifiable Credential')
-  .action(async (cmd) => {
-    const did = await asDID(cmd.did)
-    const payload = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
-    const credential = createSDCredentialFromPayload({ did, payload })
-    const fileName = `${cmd.sdInputFile.replace('.json', '')}-sd-credential.json`
-    fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
-    printTable([{ 'credential file': fileName, did }])
-    console.log(
-      `SD Wizard file has been converted to a self-description credential file and written to ${fileName}. Please check and adjust the contents and use one of the onboarding methods`
-    )
     if (cmd.show) {
       console.log(JSON.stringify(credential, null, 2))
     }
@@ -171,10 +139,7 @@ sd.command('list')
       const vcs = await agent.dataStoreORMGetVerifiableCredentials()
       const did = cmd.did ? await asDID(cmd.did) : undefined
       const sds = vcs.filter(
-        (vc) =>
-          (vc.verifiableCredential.type!.includes('LegalPerson') ||
-            vc.verifiableCredential.credentialSubject['@type'] === 'gax-trust-framework:LegalPerson') &&
-          (!did || vc.verifiableCredential.issuer === did)
+        (vc) => vc.verifiableCredential.credentialSubject['type'] === 'gx:LegalParticipant' && (!did || vc.verifiableCredential.issuer === did)
       )
       printTable(
         sds.map((sd) => {
@@ -251,9 +216,9 @@ sd.command('create')
         const did = await asDID()
         sd = createSDCredentialFromPayload({ did, payload: sd })
       }
-      if (!sd.type.includes('LegalPerson') && sd.credentialSubject['@type'] !== 'gax-trust-framework:LegalPerson') {
+      if (!sd.credentialSubject.type.includes('LegalParticipant')) {
         throw new Error(
-          'Self-description input file is not of the correct type. Please use `participant sd export-example-sd` or `participant sd sd-wizard-credential` commands and update the content to create a correct input file'
+          'Self-description input file is not of the correct type. Please use `participant sd export-example-sd` command and update the content to create a correct input file'
         )
       }
       const selfDescription = await agent.issueVerifiableCredential({

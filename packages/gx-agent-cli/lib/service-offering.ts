@@ -6,8 +6,7 @@ import {
   asDID,
   convertDidWebToHost,
   createSDCredentialFromPayload,
-  exampleServiceOfferingSD,
-  exampleServiceOfferingSD2210,
+  exampleServiceOfferingSDv1_2_8,
   getAgent,
   getVcType,
   IVerifySelfDescribedCredential,
@@ -20,82 +19,6 @@ const so = program.command('so').alias('service').alias('service-offering').desc
 const sd = so.command('sd').alias('self-description').description('Service offering self-description commands')
 
 sd.command('submit')
-  .description(
-    'submits a service offering self-description file to the compliance service. This can either be an input file (unsigned credential) from the filesystem, or a signed self-description stored in the agent'
-  )
-  .option('-sof, --so-input-file <string>', 'Unsigned ServiceOffering self-description input file location')
-  .option('-soi, --so-id <string>', 'id of a signed ServiceOffering self-description stored in the agent')
-  .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
-  .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential from Gaia-X compliance')
-  .option('-lai, --label-ids <string...>', 'ID(s) of any label Verifiable Credential you want to include with the service offering')
-  .option('-laf, --label-files <string...>', 'Path(s) any label Verifiable Credential you want to include with the service offering')
-  .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
-  .option('--show', 'Show service offering')
-  .action(async (cmd) => {
-    const agent = await getAgent()
-    if (!cmd.soInputFile && !cmd.soId) {
-      throw Error('Verifiable Credential ID or file for self-description need to be selected. Please check parameters')
-    }
-    let soVcId = cmd.soId
-    let labelVCs: VerifiableCredential[] = []
-    if (cmd.labelFiles) {
-      for (const path of cmd.labelFiles) {
-        labelVCs.push(JSON.parse(fs.readFileSync(path, 'utf-8')) as VerifiableCredential)
-      }
-    }
-    if (cmd.labelIds) {
-      for (const id of cmd.labelIds) {
-        labelVCs.push(await agent.dataStoreGetVerifiableCredential({ hash: id }))
-      }
-    }
-
-    try {
-      if (cmd.soInputFile) {
-        const credential: CredentialPayload = JSON.parse(fs.readFileSync(cmd.soInputFile, 'utf-8')) as CredentialPayload
-        const did = typeof credential.issuer === 'string' ? credential.issuer : credential.issuer ? credential.issuer.id : await asDID()
-        const vc = await agent.issueVerifiableCredential({
-          credential,
-          keyRef: cmd.keyIdentifier,
-          domain: did,
-          persist: true,
-        })
-        soVcId = vc.hash
-        printTable([
-          {
-            types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
-            issuer: vc.verifiableCredential.issuer,
-            subject: vc.verifiableCredential.credentialSubject.id,
-            'issuance-date': vc.verifiableCredential.issuanceDate,
-            id: vc.hash,
-            persisted: true,
-          },
-        ])
-      }
-      const vc = await agent.createAndSubmitServiceOffering({
-        serviceOfferingId: soVcId,
-        participantId: cmd.sdId,
-        complianceId: cmd.complianceId,
-        labelVCs,
-        persist: cmd.persist,
-        show: cmd.show,
-      })
-      printTable([
-        {
-          types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
-          issuer: vc.verifiableCredential.issuer,
-          subject: vc.verifiableCredential.credentialSubject.id,
-          'issuance-date': vc.verifiableCredential.issuanceDate,
-          id: vc.hash,
-          persisted: cmd.persist,
-        },
-      ])
-    } catch (error: any) {
-      console.error(error.message)
-    }
-  })
-
-sd.command('experimental-submit')
-  .alias('exsub')
   .description(
     'submits a service offering self-description file to the compliance service. This can either be an input file (unsigned credential) from the filesystem, or a signed self-description stored in the agent'
   )
@@ -185,36 +108,11 @@ sd.command('verify')
     }
   })
 
-sd.command('wizard-credential')
-  .description(
-    'Takes data from the SD Creation Wizard and creates a SD Credential out of it. Link to the wizard: https://sd-creation-wizard.gxfs.dev/'
-  )
-  .option('-d, --did <string>', 'the DID or domain which will be used')
-  .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of the SD Wizard file you downloaded)')
-  .option('--show', 'Show the resulting self-description Verifiable Credential')
-  .action(async (cmd) => {
-    const did = await asDID(cmd.did)
-    const payload = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
-    const credential = createSDCredentialFromPayload({ did, payload })
-    const fileName = `${cmd.sdInputFile.replace('.json', '')}-sd-credential.json`
-    fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
-    printTable([{ 'credential file': fileName, did }])
-    console.log(
-      `SD Wizard file has been converted to a self-description credential file and written to ${fileName}. Please check and adjust the contents and use one of the onboarding methods`
-    )
-    if (cmd.show) {
-      console.log(JSON.stringify(credential, null, 2))
-    }
-  })
-
 sd.command('example-input')
   .alias('example')
   .description('Creates an example service-offering self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
-  .option(
-    '-v, --version <string>',
-    "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
-  )
+  .option('-v, --version <string>', 'We only support version v1.2.8 right now')
   .option(
     '-t, --type <string>',
     `ServiceOffering type is mandatory of you select latest version. Type can be chosen from this list: ${Object.keys(ServiceOfferingType).map(
@@ -226,22 +124,9 @@ sd.command('example-input')
     const did = await asDID(cmd.did)
     const typeStr = 'service-offering'
     const fileName = `service-offering-input-credential.json`
-    let credential
-    // @ts-ignore
-    // console.log(ServiceOfferingType[cmd.type])
     const url = `https://${convertDidWebToHost(did)}`
-    if (cmd.version && cmd.version === 'v2206') {
-      credential = exampleServiceOfferingSD({
-        did,
-        url,
-      })
-    } else if ((!cmd.version && !cmd.type) || (cmd.version === 'latest' && !cmd.type)) {
-      console.error('for v2210 version, you should provide type.')
-    } else if ((!cmd.version || cmd.version === 'latest') && cmd.type) {
-      console.log("IMPORTANT: the values specified with '*' should be populated by you.")
-      // @ts-ignore
-      credential = exampleServiceOfferingSD2210({ url, did, type: ServiceOfferingType[cmd.type] })
-    }
+    // @ts-ignore
+    const credential = exampleServiceOfferingSDv1_2_8({ url, did, type: ServiceOfferingType[cmd.type] })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
     console.log(
@@ -254,7 +139,7 @@ sd.command('example-input')
 
 export async function exportServiceOffering(cmd: any) {
   const did = await asDID(cmd.did)
-  const typeStr = 'ServiceOffering'
+  const typeStr = 'gx:ServiceOffering'
   const agent = await getAgent()
   const exportResult = await agent.exportVCsToPath({
     domain: did,
@@ -363,7 +248,7 @@ sd.command('create')
         const did = await asDID()
         sd = createSDCredentialFromPayload({ did, payload: sd })
       }
-      if (!sd.type.includes('ServiceOffering') || (!sd.type.includes['VerifiableCredential'] && !sd.credentialSubject['@type'])) {
+      if (!sd.credentialSubject.type.includes('ServiceOffering') || !sd.type.includes['VerifiableCredential']) {
         throw new Error(
           'Self-description input file is not of the correct type. Please use `gx-agent so export-example` command and update the content to create a correct input file'
         )
