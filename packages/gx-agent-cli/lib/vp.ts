@@ -153,7 +153,7 @@ vp.command('issue')
           types: vp.type?.toString(),
           holder: vp.holder,
           'issuance-date': vp.proof.created,
-          id: vp.hash,
+          id: uniqueVP.hash,
           persisted: cmd.persist === true,
         },
       ])
