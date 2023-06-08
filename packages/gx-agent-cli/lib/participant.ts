@@ -79,7 +79,7 @@ sd.command('verify')
       const args: IVerifySelfDescribedCredential = { show: cmd.show === true, id: cmd.sdId }
 
       const result = await agent.verifySelfDescription(args)
-      printTable([{ conforms: result.conforms }])
+      printTable([{ verified: result.verified }])
     } catch (e: unknown) {
       console.error(e)
     }

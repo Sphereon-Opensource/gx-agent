@@ -79,6 +79,7 @@ export class GXComplianceClient implements IAgentPlugin {
     onboardParticipantWithCredentialIds: this.onboardParticipantWithCredentialIds.bind(this),
     onboardServiceOfferingOnEcosystem: this.onboardServiceOfferingOnEcosystem.bind(this),
     verifySelfDescription: this.verifySelfDescription.bind(this),
+    verifySelfDescriptionEcoSystem: this.verifySelfDescriptionEcosystem.bind(this),
   }
 
   /** {@inheritDoc IGXComplianceClient.fetchComplianceCredential} */
@@ -211,10 +212,7 @@ export class GXComplianceClient implements IAgentPlugin {
 
   /** {@inheritDoc IGXComplianceClient.submitServiceOffering} */
   private async submitServiceOffering(args: IAddServiceOfferingArgs, _context: GXRequiredContext): Promise<IGaiaxOnboardingResult> {
-    const url =
-      this.getApiVersion() !== 'v1.2.8'
-        ? this.getApiVersionedUrl(args.baseUrl) + '/service-offering/verify/raw'
-        : this.getApiVersionedUrl(args.baseUrl) + '/eco/verify'
+    const url = this.getApiVersionedUrl(args.baseUrl) + '/eco/verify'
     try {
       return (await postRequest(url, JSON.stringify(args.serviceOfferingVP))) as IGaiaxOnboardingResult
     } catch (e) {
@@ -244,8 +242,29 @@ export class GXComplianceClient implements IAgentPlugin {
     return DID.exportToPath({ domain, path, services }, context)
   }
 
-  /** {@inheritDoc IGXComplianceClient.verifyUnsignedSelfDescribedCredential} */
-  private async verifySelfDescription(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult> {
+  /** {@inheritDoc IGXComplianceClient.verifySelfDescription} */
+  private async verifySelfDescriptionEcosystem(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult> {
+    const vc = args.verifiableCredential
+        ? args.verifiableCredential
+        : await context.agent.dataStoreGetVerifiableCredential({
+          hash: args.id as string,
+        })
+    this.verifySelfDescription({ verifiableCredential: vc}, context)
+    let url = this.getApiVersionedUrl(args.baseUrl) + '/eco/verify-vc'
+    if (args.show) {
+      console.log(JSON.stringify(vc, null, 2))
+    }
+
+    try {
+      return (await postRequest(url, JSON.stringify(vc))) as CredentialValidationResult
+    } catch (e: any) {
+      console.error('Error on fetching complianceCredential: ' + e.message)
+      process.exit(1)
+    }
+  }
+
+  /** {@inheritDoc IGXComplianceClient.verifySelfDescription} */
+  private async verifySelfDescription(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<IVerifyResult> {
     if (!args.verifiableCredential && !args.id) {
       throw new Error('You should provide either vc id or vc itself')
     }
@@ -270,25 +289,11 @@ export class GXComplianceClient implements IAgentPlugin {
     }
     console.log('Agent validation of the self-description. Valid: ' + valid.verified)
 
-    let url = this.getApiVersionedUrl()
-    if (vc.type!.includes('LegalPerson') || vc.type!.includes('NaturalPerson')) {
-      url = url + '/participant/validate/vc'
-    } else if (vc.credentialSubject['@type']?.includes('LegalPerson')) {
-      url = url + '/participant/validate/vc'
-    } else {
-      url = url + '/service-offering/validate/vc'
-    }
 
     if (args.show) {
       console.log(JSON.stringify(vc, null, 2))
     }
-
-    try {
-      return (await postRequest(url, JSON.stringify(vc))) as CredentialValidationResult
-    } catch (e: any) {
-      console.error('Error on fetching complianceCredential: ' + e.message)
-      process.exit(1)
-    }
+    return valid
   }
 
   /**
@@ -408,7 +413,7 @@ export class GXComplianceClient implements IAgentPlugin {
     args: { vp: VerifiablePresentation; apiType: string; baseUrl?: string },
     _context: GXRequiredContext
   ) {
-    const URL = `${this.getApiVersionedUrl(args.baseUrl)}/${args.apiType}/verify/raw?store=false`
+    const URL = `${this.getApiVersionedUrl(args.baseUrl)} + '/eco/verify'`
 
     try {
       return (await postRequest(URL, JSON.stringify(args.vp))) as VerifiableCredential

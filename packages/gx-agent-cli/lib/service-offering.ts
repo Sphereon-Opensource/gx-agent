@@ -95,14 +95,13 @@ sd.command('verify')
   .description('verifies a service-offering self-description')
   .option('-id, --sd-id <string>', 'id of your self-description')
   .option('--show', 'Show self descriptions')
-  // .option('-sf, --sd-file <string>', 'your sd file')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()
       const args: IVerifySelfDescribedCredential = { show: cmd.show, id: cmd.sdId }
 
       const result = await agent.verifySelfDescription(args)
-      printTable([{ conforms: result.conforms }])
+      printTable([{ verified: result.verified }])
     } catch (e: unknown) {
       console.error(e)
     }

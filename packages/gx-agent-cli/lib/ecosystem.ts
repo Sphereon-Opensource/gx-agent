@@ -1,6 +1,6 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
-import { getAgent, EcosystemConfig, asDID } from '@sphereon/gx-agent'
+import {getAgent, EcosystemConfig, asDID, IVerifySelfDescribedCredential, getVcType} from '@sphereon/gx-agent'
 import { CredentialPayload, VerifiableCredential } from '@veramo/core'
 import {
   addEcosystemConfigObject,
@@ -14,6 +14,8 @@ import fs from 'fs'
 
 const ecosystem = program.command('ecosystem').description('Ecosystem specific commands')
 const so = ecosystem.command('so').alias('service-offering').description('Service offering self-description commands')
+const participant = ecosystem.command('participant').description('Participant self-description commands')
+
 ecosystem
   .command('add')
   .alias('update')
@@ -94,42 +96,6 @@ ecosystem
     }
   })
 
-ecosystem
-  .command('legacy-submit')
-  .description('Onboards the participant to the new ecosystem')
-  .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
-  .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
-  .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential')
-  .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
-  .option('--show', 'Show self descriptions')
-  .action(async (name, cmd) => {
-    const agent = await getAgent()
-    try {
-      const selfDescriptionVC = await agent.dataStoreGetVerifiableCredential({ hash: cmd.sdId })
-      const complianceVC = await agent.dataStoreGetVerifiableCredential({ hash: cmd.complianceId })
-
-      const agentPath = getAgentConfigPath()
-      const ecosystemConfig: EcosystemConfig | undefined = getEcosystemConfigObject(agentPath, name)
-      if (!ecosystemConfig) {
-        console.error(`Couldn't find the ecosystem: ${name}`)
-        return
-      }
-      const selfDescription = await agent.onboardParticipantOnEcosystem({
-        ecosystemUrl: ecosystemConfig.url,
-        selfDescriptionVC,
-        complianceVC,
-        persist: cmd.persist,
-        show: cmd.show,
-      })
-      if (cmd.show) {
-        console.log(JSON.stringify(selfDescription, null, 2))
-      }
-      printTable([{ ...selfDescription }])
-    } catch (e: any) {
-      console.error(e.message)
-    }
-  })
-
 so.command('submit')
   .description('Submits as service offering in the ecosystem')
   .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
@@ -167,7 +133,7 @@ so.command('submit')
       soVC = uniqueSoVC.verifiableCredential
       printTable([
         {
-          types: soVC.type!.toString().replace('VerifiableCredential,', ''),
+          types: getVcType(soVC),
           issuer: soVC.issuer,
           subject: soVC.credentialSubject.id,
           'issuance-date': soVC.issuanceDate,
@@ -208,3 +174,48 @@ so.command('submit')
       console.error(e.message)
     }
   })
+
+so.command('verify')
+  .description('verifies an SO against the selected ecosystem')
+  .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
+  .option('-id, --vc-id <string>', 'ID of your Service Offering verifiable credential')
+  .option('--show', 'Show self descriptions')
+  .action(async (name, cmd) => {
+    const agent = await getAgent()
+    if (!cmd.vcId && !cmd.vcFile) {
+      throw Error('Verifiable Credential ID or file for Service Offering need to be selected. Please check parameters')
+    }
+    const agentPath = getAgentConfigPath()
+    const ecosystemConfig: EcosystemConfig | undefined = getEcosystemConfigObject(agentPath, name)
+    if (!ecosystemConfig) {
+      console.error(`Couldn't find the ecosystem: ${name}`)
+      return
+    }
+    const args: IVerifySelfDescribedCredential = { show: cmd.show, id: cmd.vcId, baseUrl: ecosystemConfig.url }
+
+    const result = await agent.verifySelfDescriptionEcoSystem(args)
+    printTable([{ conforms: result.conforms }])
+  })
+
+participant.command('verify')
+  .description('verifies a Participant against the selected ecosystem')
+  .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
+  .option('-id, --vc-id <string>', 'ID of your Participant verifiable credential')
+  .option('--show', 'Show self descriptions')
+  .action(async (name, cmd) => {
+    const agent = await getAgent()
+    if (!cmd.vcId && !cmd.vcFile) {
+      throw Error('Verifiable Credential ID or file for Participant need to be selected. Please check parameters')
+    }
+    const agentPath = getAgentConfigPath()
+    const ecosystemConfig: EcosystemConfig | undefined = getEcosystemConfigObject(agentPath, name)
+    if (!ecosystemConfig) {
+      console.error(`Couldn't find the ecosystem: ${name}`)
+      return
+    }
+    const args: IVerifySelfDescribedCredential = { show: cmd.show, id: cmd.vcId, baseUrl: ecosystemConfig.url }
+
+    const result = await agent.verifySelfDescriptionEcoSystem(args)
+    printTable([{ conforms: result.conforms }])
+  })
+
