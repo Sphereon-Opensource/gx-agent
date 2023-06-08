@@ -106,7 +106,7 @@ sd.command('example-input')
 
 export async function exportParticipant(cmd: any): Promise<ExportFileResult[]> {
   const did = await asDID(cmd.did)
-  const typeStr = 'LegalPerson'
+  const typeStr = 'gx:LegalParticipant'
   const agent = await getAgent()
   const exportResult = await agent.exportVCsToPath({
     domain: did,

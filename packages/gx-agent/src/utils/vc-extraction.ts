@@ -76,8 +76,8 @@ export function getVcType(verifiableCredential: VerifiableCredential): string {
         return 'ServiceOffering'
       }
     }
-    if (containsType(subjectType, 'LegalPerson') || containsType(subjectType, 'LegalParticipant')) {
-      return 'LegalParticipant'
+    if (containsType(subjectType, 'LegalPerson') || containsType(subjectType, 'gx:LegalParticipant')) {
+      return 'gx:LegalParticipant'
     } else if (containsType(subjectType, 'compliance')) {
       return 'Compliance'
     }
