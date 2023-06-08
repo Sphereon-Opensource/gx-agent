@@ -257,9 +257,6 @@ sd.command('create')
         persist: true,
       })
       printTable([{ ...selfDescription }])
-      if (cmd.show) {
-        console.log(JSON.stringify(cmd.show, null, 2))
-      }
     } catch (e: unknown) {
       console.error(e)
     }
