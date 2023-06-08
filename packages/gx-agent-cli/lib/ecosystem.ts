@@ -1,6 +1,6 @@
 import { program } from 'commander'
 import { printTable } from 'console-table-printer'
-import {getAgent, EcosystemConfig, asDID, IVerifySelfDescribedCredential, getVcType} from '@sphereon/gx-agent'
+import { getAgent, EcosystemConfig, asDID, IVerifySelfDescribedCredential, getVcType, getVcSubjectIdAsString } from '@sphereon/gx-agent'
 import { CredentialPayload, VerifiableCredential } from '@veramo/core'
 import {
   addEcosystemConfigObject,
@@ -135,7 +135,7 @@ so.command('submit')
         {
           types: getVcType(soVC),
           issuer: soVC.issuer,
-          subject: soVC.credentialSubject.id,
+          subject: getVcSubjectIdAsString(soVC.verifiableCredential),
           'issuance-date': soVC.issuanceDate,
           id: uniqueSoVC.hash,
           persisted: true,
@@ -197,7 +197,8 @@ so.command('verify')
     printTable([{ conforms: result.conforms }])
   })
 
-participant.command('verify')
+participant
+  .command('verify')
   .description('verifies a Participant against the selected ecosystem')
   .argument('<name>', 'The ecosystem name (has to be available in your configuration)')
   .option('-id, --vc-id <string>', 'ID of your Participant verifiable credential')
@@ -218,4 +219,3 @@ participant.command('verify')
     const result = await agent.verifySelfDescriptionEcoSystem(args)
     printTable([{ conforms: result.conforms }])
   })
-

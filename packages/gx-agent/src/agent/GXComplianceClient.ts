@@ -243,13 +243,16 @@ export class GXComplianceClient implements IAgentPlugin {
   }
 
   /** {@inheritDoc IGXComplianceClient.verifySelfDescription} */
-  private async verifySelfDescriptionEcosystem(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult> {
+  private async verifySelfDescriptionEcosystem(
+    args: IVerifySelfDescribedCredential,
+    context: GXRequiredContext
+  ): Promise<CredentialValidationResult> {
     const vc = args.verifiableCredential
-        ? args.verifiableCredential
-        : await context.agent.dataStoreGetVerifiableCredential({
+      ? args.verifiableCredential
+      : await context.agent.dataStoreGetVerifiableCredential({
           hash: args.id as string,
         })
-    this.verifySelfDescription({ verifiableCredential: vc}, context)
+    this.verifySelfDescription({ verifiableCredential: vc }, context)
     let url = this.getApiVersionedUrl(args.baseUrl) + '/eco/verify-vc'
     if (args.show) {
       console.log(JSON.stringify(vc, null, 2))
@@ -288,7 +291,6 @@ export class GXComplianceClient implements IAgentPlugin {
       console.error(e.message)
     }
     console.log('Agent validation of the self-description. Valid: ' + valid.verified)
-
 
     if (args.show) {
       console.log(JSON.stringify(vc, null, 2))

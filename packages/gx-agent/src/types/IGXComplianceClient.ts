@@ -315,7 +315,7 @@ export interface JWK extends JsonWebKey {
 export enum ServiceOfferingType {
   gx_ServiceOffering = 'gx:ServiceOffering',
   DcatDataService = 'dcat:DataService',
-  DcatDataset = 'dcat:Dataset'
+  DcatDataset = 'dcat:Dataset',
 }
 
 export interface EcosystemConfig {

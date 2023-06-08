@@ -1,4 +1,4 @@
-import { ICredentialSubject } from '@sphereon/ssi-types'
+import { ICredentialSubject, IVerifiableCredential } from '@sphereon/ssi-types'
 import { CredentialPayload, VerifiableCredential } from '@veramo/core'
 import { IGaiaxCredentialType, ServiceOfferingType } from '../types/index.js'
 
@@ -55,6 +55,18 @@ function getAsStringArray(arrayOrString: string[] | string | undefined): string[
   return []
 }
 
+export function getVcSubjectIdAsString(verifiableCredential: VerifiableCredential): string {
+  let subjectId
+  if (Array.isArray(verifiableCredential.credentialSubject)) {
+    for (const subject of verifiableCredential.credentialSubject) {
+      subjectId = subjectId ? `${subjectId}, ${subject.id}` : subject.id
+    }
+  } else {
+    subjectId = verifiableCredential.credentialSubject.id
+  }
+  return subjectId
+}
+
 export function getVcType(verifiableCredential: VerifiableCredential): string {
   const sdTypes = getAsStringArray(verifiableCredential.type)
   let subjectType
@@ -89,6 +101,16 @@ export function getVcType(verifiableCredential: VerifiableCredential): string {
     throw new Error(`Provided type for VerifiableCredential is not supported: ${subjectType}`)
   }
   return type ? type : subjectType
+}
+
+export function isServiceOfferingVC(vc: IVerifiableCredential): boolean {
+  if (Array.isArray(vc.credentialSubject)) {
+    return false
+  }
+  return (
+    (Array.isArray(vc.credentialSubject.type) && vc.credentialSubject.type.includes('gx:ServiceOffering')) ||
+    (!Array.isArray(vc.credentialSubject.type) && vc.credentialSubject.type === 'gx:ServiceOffering')
+  )
 }
 
 function containsType(arrayOrString: any, searchValue: string) {

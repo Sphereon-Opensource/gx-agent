@@ -8,6 +8,8 @@ import {
   exampleParticipantSD1_2_8,
   ExportFileResult,
   getAgent,
+  getVcSubjectIdAsString,
+  getVcType,
   IVerifySelfDescribedCredential,
   VerifiableCredentialResponse,
 } from '@sphereon/gx-agent'
@@ -53,9 +55,9 @@ sd.command('submit')
 
       printTable([
         {
-          type: selfDescription.verifiableCredential.type!.toString(),
+          type: getVcType(selfDescription.verifiableCredential),
           issuer: selfDescription.verifiableCredential.issuer,
-          subject: selfDescription.verifiableCredential.credentialSubject.id,
+          subject: getVcSubjectIdAsString(selfDescription.verifiableCredential),
           'issuance-date': selfDescription.verifiableCredential.issuanceDate,
           id: selfDescription.hash,
         },
@@ -71,7 +73,7 @@ sd.command('submit')
 
 sd.command('verify')
   .description('verifies a self-description')
-  .requiredOption('-sid, --sd-id <string>', 'id of your self-description')
+  .requiredOption('-id, --sd-id <string>', 'id of your self-description')
   .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     try {
@@ -145,7 +147,7 @@ sd.command('list')
         sds.map((sd) => {
           return {
             issuer: sd.verifiableCredential.issuer,
-            subject: sd.verifiableCredential.credentialSubject.id,
+            subject: getVcSubjectIdAsString(sd.verifiableCredential),
             'issuance-data': sd.verifiableCredential.issuanceDate,
             id: sd.hash,
           }
@@ -207,7 +209,7 @@ sd.command('delete')
 sd.command('create')
   .description('creates a signed self-description based on your self-description input file')
   .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of your self-description input file (a credential that is not signed)')
-  .option('-s --show', 'Show the resulting self-description Verifiable Credential')
+  .option('--show', 'Show the resulting self-description Verifiable Credential')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()

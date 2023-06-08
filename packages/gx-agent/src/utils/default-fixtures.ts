@@ -244,21 +244,21 @@ export function exampleServiceOfferingSDv1_2_8({ url, did, type }: { url: string
       break
     default:
       credentialSubject = {
-        "id": `${url? url: 'Your service url or did'}`,
-        "type": "gx:ServiceOffering",
-        "gx:providedBy": {
-          "id": `${did? did: 'Your did here'}`
+        id: `${url ? url : 'Your service url or did'}`,
+        type: 'gx:ServiceOffering',
+        'gx:providedBy': {
+          id: `${did ? did : 'Your did here'}`,
         },
-        "gx:policy": "",
-        "gx:termsAndConditions": {
-          "gx:URL": "http://termsandconds.com",
-          "gx:hash": "d8402a23de560f5ab34b22d1a142feb9e13b3143"
+        'gx:policy': '',
+        'gx:termsAndConditions': {
+          'gx:URL': 'http://termsandconds.com',
+          'gx:hash': 'd8402a23de560f5ab34b22d1a142feb9e13b3143',
         },
-        "gx:dataAccountExport": {
-          "gx:requestType": "API",
-          "gx:accessType": "digital",
-          "gx:formatType": "application/json"
-        }
+        'gx:dataAccountExport': {
+          'gx:requestType': 'API',
+          'gx:accessType': 'digital',
+          'gx:formatType': 'application/json',
+        },
       }
       break
     //todo: reenable after figuring out the sd-creation wizard new examples

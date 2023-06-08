@@ -18,6 +18,13 @@ The Gaia-X Compliance Agent Command Line interface, allows you to manage the age
 methods, like creating a DID, generating self-descriptions, acquiring Compliance Credentials from the Compliance Service
 are supported.
 
+# Overview
+
+After Prerequisites and installation part, we will discuss how to setup your own X.509 keys and SSL certificate. What follows is a guide for using this cli agent to connect to a gaia-x compatible Compliance Service (gx-compliance for short).
+Below you can see a simple workflow scenario of this CLI tool:
+
+![Flow diagram](https://github.com/Sphereon-Opensource/gx-agent/blob/develop/docs/simple-gx-flow.puml)
+
 # Prerequisites and installation
 
 ## NodeJS version 18
@@ -107,14 +114,9 @@ to provide the DID/domain values, as the agent will notice you are only managing
 
 ## Gaia-X Versions
 
-There are a couple of gaia-x versions that you can interact with using this library:
+There has been a couple of gaia-x versions, since there are major changes between versions, this library intends to only support the latest **v1.2.8**
+_support for versions v2206 and v2210 are removed in this release_
 
-- 2206
-
-  _this version is the first version that this tool created to support._
-
-- 2210
-  _this version is supported with a twist. We have changed the CS to accept VerifiablePresentation instead of 2 VerifiableCredentials._
 - 1.2.8 (latest)
   _this version is the first version that supports VerifiablePresentation by design._
 
@@ -350,10 +352,10 @@ Example self-description file has been written to participant-input-credential.j
     "VerifiableCredential"
   ],
   "id": "urn:uuid:554db947-e001-431c-ae55-22a781e1f928",
-  "issuer": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app",
+  "issuer": "did:web:nk-gx-agent.eu.ngrok.io",
   "issuanceDate": "2023-05-29T18:03:00.887Z",
   "credentialSubject": {
-    "id": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app",
+    "id": "did:web:nk-gx-agent.eu.ngrok.io",
     "type": "gx:LegalParticipant",
     "gx:legalName": "Gaia-X European Association for Data and Cloud AISBL",
     "gx:legalRegistrationNumber": {
@@ -370,7 +372,7 @@ Example self-description file has been written to participant-input-credential.j
   "proof": {
     "type": "JsonWebSignature2020",
     "created": "2023-05-29T16:05:10Z",
-    "verificationMethod": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app#JWK2020-RSA",
+    "verificationMethod": "did:web:nk-gx-agent.eu.ngrok.io#JWK2020-RSA",
     "proofPurpose": "assertionMethod",
     "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..fqGrFQqR2LrwQ3j2IC5QPZAHsTNIcfDDe8AjgGOzvY5yOKCj4VDE0rSpb70dQIwoGKJEDEQFUQnEXXlKDZSD79EmSDdJJTpTJJ4xlAS8kXHc6jEgq0gYKkKY7eTUQUhuHrCGFEJ-I-KTJLut3czcdzsRsBITqDbazrEoFOvgKv_C6XzOYIMWxxcczRtGFkKm8c-lIHayABnfHV9ES6PsfwNBuGC5HcsCY0lUZ9h4PMMYC60p-sspCxKLzpILfpcGLV-D73JGrvLycdW7zYNW_M5IQ0gOhaebw_oNSfSdaX08QZ9fAQhXLg3QzX4qIvLzsQVVmn1XFbXdiye574x89w"
   }
@@ -379,20 +381,16 @@ Example self-description file has been written to participant-input-credential.j
 ```
 
 You now should open the file, and adjust the values with your participant information. Update all
-the values. Do not add new keys or remove any properties/keys, except for the some of the registration numbers:
-If you do not have a certain registration number, remove the part between the `{ }` brackets. For instance If you do not
-have LEI code, you should remove the next part altogether:
-(specific to versions below v1.2.8)
+the values. Do not add new keys or remove any properties/keys, except for the some of the keys that are mentioned in the context file:
 
-```json
-{
-  "gx-participant:registrationNumberType": "leiCode",
-  "gx-participant:registrationNumberNumber": "9695007586GCAKPYJ703"
-},
-```
+- gx:legalRegistrationNumber
+- gx:parentOrganization
+- gx:subOrganization
+- gx:headquarterAddress
+- gx:legalAddress
+  For a better guide on how to populate your requested field you can take a look at the main shape file: https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#
 
-Make sure to save the file afterwards. If you made some mistakes, you can always re-export the example. Be aware that it
-will always overwrite the existing file!
+- Make sure to save the file afterwards. If you made some mistakes, you can always re-export the example. Be aware that it will always overwrite the existing file!
 
 ## Submit the participant self-description
 
@@ -406,7 +404,7 @@ Compliance Verifiable Credential to you. That credential denotes you are now a v
 Next to using the input file, you could also submit a self-description if it was already stored in the agent. This means
 you can provide the ID value of the self-description credential in the agent.
 
-You can use the `-s/--show` option, to show all the credentials used in the exchange.
+You can use the `--show` option, to show all the credentials used in the exchange.
 
 ```shell
 gx-agent participant sd submit -sif ./participant-input-credential.json
@@ -415,13 +413,13 @@ gx-agent participant sd submit -sif ./participant-input-credential.json
 or from an existing agent self-description credential:
 
 ```shell
-gx-agent compliance sd submit -id dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef51114
+gx-agent participant sd submit -id dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef51114
 
 output:
 ┌───────────────────────┬──────────────────────────────────────┬─────────────────────────────────┬──────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                  type │                               issuer │                         subject │            issuance-date │                                                                                                                               id │
 ├───────────────────────┼──────────────────────────────────────┼─────────────────────────────────┼──────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ ParticipantCredential │ did:web:nk-gx-compliance.eu.ngrok.io │ did:web:nk-gx-agent.eu.ngrok.io │ 2023-01-26T03:05:00.166Z │ d7ae24cbb223adb0df025548a691b684e995843fe6b9f549a9c517167ba68bd26545d759bae5dfe192598e86b7a6ef6874fb9a8c3859fd8317ed379ec9c6414b │
+│ Compliance            │ did:web:nk-gx-compliance.eu.ngrok.io │ did:web:nk-gx-agent.eu.ngrok.io │ 2023-06-08T14:21:10.896Z │ 763640a06a6c65f79c79d0ff7e549ba1241e06ff260fb98103e67afbc818fe0b82371c2e63907c63a938b836f7dfe85055e8ece07051226516b2143320e020ce │
 └───────────────────────┴──────────────────────────────────────┴─────────────────────────────────┴──────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -440,7 +438,7 @@ output:
 ┌─────────────────────────────────┬──────────────────────────────────────┬──────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                          issuer │                              subject │            issuance-data │                                                                                                                               id │
 ├─────────────────────────────────┼──────────────────────────────────────┼──────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ did:web:nk-gx-agent.eu.ngrok.io │ 816826d6-8e1f-4cc6-89a6-a77ae4b63771 │ 2023-01-26T03:04:58.179Z │ dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef511143 │
+│ did:web:nk-gx-agent.eu.ngrok.io │ did:web:nk-gx-agent.eu.ngrok.io │ 2023-01-26T03:04:58.179Z │ dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef511143 │
 └─────────────────────────────────┴──────────────────────────────────────┴──────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -457,7 +455,7 @@ output:
 ┌─────────────────────────────────┬──────────────────────────────────────┬──────────────────────────┐
 │                          issuer │                              subject │            issuance-data │
 ├─────────────────────────────────┼──────────────────────────────────────┼──────────────────────────┤
-│ did:web:nk-gx-agent.eu.ngrok.io │ 816826d6-8e1f-4cc6-89a6-a77ae4b63771 │ 2023-01-26T03:04:58.179Z │
+│ did:web:nk-gx-agent.eu.ngrok.io │ did:web:nk-gx-agent.eu.ngrok.io      │ 2023-05-29T18:03:00.887Z │
 └─────────────────────────────────┴──────────────────────────────────────┴──────────────────────────┘
 id: dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef511143
 {
@@ -469,10 +467,10 @@ id: dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d14
     "VerifiableCredential"
   ],
   "id": "urn:uuid:554db947-e001-431c-ae55-22a781e1f928",
-  "issuer": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app",
+  "issuer": "did:web:nk-gx-agent.eu.ngrok.io",
   "issuanceDate": "2023-05-29T18:03:00.887Z",
   "credentialSubject": {
-    "id": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app",
+    "id": "2023-05-29T18:03:00.887Z",
     "type": "gx:LegalParticipant",
     "gx:legalName": "Gaia-X European Association for Data and Cloud AISBL",
     "gx:legalRegistrationNumber": {
@@ -489,7 +487,7 @@ id: dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d14
   "proof": {
     "type": "JsonWebSignature2020",
     "created": "2023-05-29T16:05:10Z",
-    "verificationMethod": "did:web:164e-2001-1c04-2b10-ee00-e375-2d7a-ffc3-9904.ngrok-free.app#JWK2020-RSA",
+    "verificationMethod": "did:web:nk-gx-agent.eu.ngrok.io#JWK2020-RSA",
     "proofPurpose": "assertionMethod",
     "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..fqGrFQqR2LrwQ3j2IC5QPZAHsTNIcfDDe8AjgGOzvY5yOKCj4VDE0rSpb70dQIwoGKJEDEQFUQnEXXlKDZSD79EmSDdJJTpTJJ4xlAS8kXHc6jEgq0gYKkKY7eTUQUhuHrCGFEJ-I-KTJLut3czcdzsRsBITqDbazrEoFOvgKv_C6XzOYIMWxxcczRtGFkKm8c-lIHayABnfHV9ES6PsfwNBuGC5HcsCY0lUZ9h4PMMYC60p-sspCxKLzpILfpcGLV-D73JGrvLycdW7zYNW_M5IQ0gOhaebw_oNSfSdaX08QZ9fAQhXLg3QzX4qIvLzsQVVmn1XFbXdiye574x89w"
   }
@@ -502,7 +500,7 @@ This command verifies a participant self-description credential. It first does a
 Credential, including a check on the signature/proof. After that it contacts the compliance service to check whether the
 compliance service provides a response that the participant self-description is compliant.
 
-The optional `-s/--show` option shows the contents of credential on the console
+The optional `---show` option shows the contents of credential on the console
 
 ```shell
 gx-agent participant sd verify -id dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b74dce5d29f3e8afb0c197698656d5d1466726c6e57b9ed0590befbf650f09e4a5552999a8697ef511143
@@ -510,7 +508,7 @@ gx-agent participant sd verify -id dff1ffbee0abd14c9483946dbe703d443702a7bdbc5b7
 output:
 Agent validation of the self-description. Valid: true
 ┌──────────┐
-│ conforms │
+│ verified │
 ├──────────┤
 │     true │
 └──────────┘
@@ -518,7 +516,7 @@ Agent validation of the self-description. Valid: true
 
 # Ecosystems
 
-Up until now the commands have interacted with the Gaia-X compliance service. The particpant self-description resulted
+Up until now the commands have interacted with the Gaia-X compliance service. The participant self-description resulted
 in a Compliance credential being issued by the Compliance Server. You will find the concept of self-descriptions in
 later chapters. These self-descriptions are being used by participants in specific ecosystems. 'The Future Mobility
 Alliance' is one such ecosystem. The Gaia-X agent supports adding new ecosystems, as long as they are using endpoints
@@ -583,8 +581,7 @@ output:
 # Service Offerings
 
 As soon as you are a Gaia-X compliant participant, you can start to offer services. In order to do so, you first need to
-create a service offering
-self-description. This is a so called Credential. You will need to sign this self-description, using
+create a service offering self-description. This is a so called "Credential". You will need to sign this self-description, using
 your DID, making it a Verifiable Credential. The compliance service will issue an attestation, in the form of a
 ServiceOffering Credential, signed by it’s DID. This allows you to prove to others that you provide certain services.
 
@@ -593,137 +590,63 @@ ServiceOffering Credential, signed by it’s DID. This allows you to prove to ot
 There is a command to export a template/example service-offering self-description to disk. You can then edit this example
 self-description with your information.
 We currently support creation of two different version of this entity. If you want to create the latest version, you have to provide a type argument as well. Accepted type for a service-offering are mentioned below (also you can see them with passing a `-h` to export-example command):
+In the current version you can create an example with calling agent:
+
+_The ServiceOffering and it's example might change in the near future as GAIA-X team are modifying this part_
 
 ```shell
 ┌────────────────────────────────┬
 │             type               │
 ├────────────────────────────────┤
+│ gx_ServiceOffering             │
+├────────────────────────────────┤
 │ DcatDataService                │
 ├────────────────────────────────┤
 │ DcatDataset                    │
-├────────────────────────────────┤
-│ AutoscaledVirtualMachine       │
-├────────────────────────────────┤
-│ ComputeFunction                │
-├────────────────────────────────┤
-│IdentityAccessManagementOffering│
-├────────────────────────────────┤
-│ VirtualMachine                 │
-├────────────────────────────────┤
-│ InstantiatedVirtualResource    │
-├────────────────────────────────┤
-│ VerifiableCredentialWallet     │
-├────────────────────────────────┤
-│ PlatformOffering               │
-├────────────────────────────────┤
-│ Location                       │
-├────────────────────────────────┤
-│ ObjectStorageOffering          │
-├────────────────────────────────┤
-│ BigData                        │
-├────────────────────────────────┤
-│ InfrastructureOffering         │
-├────────────────────────────────┤
-│ Connectivity                   │
-├────────────────────────────────┤
-│ ServiceOffering                │
-├────────────────────────────────┤
-│ Database                       │
-├────────────────────────────────┤
-│ WalletOffering                 │
-├────────────────────────────────┤
-│ ImageRegistryOffering          │
-├────────────────────────────────┤
-│ IdentityFederation             │
-├────────────────────────────────┤
-│ SoftwareOffering               │
-├────────────────────────────────┤
-│ LinkConnectivity               │
-├────────────────────────────────┤
-│ PhysicalConnectivity           │
-├────────────────────────────────┤
-│ Container                      │
-├────────────────────────────────┤
-│ Interconnection                │
-├────────────────────────────────┤
-│ StorageOffering                │
-├────────────────────────────────┤
-│ AutoscaledContainer            │
-├────────────────────────────────┤
-│ Catalogue                      │
-├────────────────────────────────┤
-│ Compute                        │
-├────────────────────────────────┤
-│ NetworkOffering                │
-├────────────────────────────────┤
-│ NetworkConnectivity            │
-├────────────────────────────────┤
-│ LocatedServiceOffering         │
-├────────────────────────────────┤
-│ BareMetal                      │
-├────────────────────────────────┤
-│ FileStorageOffering            │
-├────────────────────────────────┤
-│ IdentityProvider               │
-├────────────────────────────────┤
-│ Orchestration                  │
-├────────────────────────────────┤
-│ BlockStorageOffering           │
-├────────────────────────────────┤
-│ DigitalIdentityWallet          │
 └────────────────────────────────┴
 ```
 
 The `--show` argument, displays the example self-description to your console.
 
 ```shell
-gx-agent so  so sd export-example -t IdentityAccessManagementOffering
+
+gx-agent so sd example -d
 
 output:
 IMPORTANT: the values specified with '*' should be populated by you.
-┌──────────────────┬────────────────────────────────────────┬──────────────────────────────────────────────────────────────────┐
-│             type │                                sd-file │                                                              did │
-├──────────────────┼────────────────────────────────────────┼──────────────────────────────────────────────────────────────────┤
-│ service-offering │ service-offering-input-credential.json │ did:web:b7fd-2001-1c04-2b10-ee00-c85d-ad93-ccd9-1b0d.eu.ngrok.io │
-└──────────────────┴────────────────────────────────────────┴──────────────────────────────────────────────────────────────────┘
+┌──────────────────┬────────────────────────────────────────┬────────────────────────────────────────────────┐
+│             type │                                sd-file │                                            did │
+├──────────────────┼────────────────────────────────────────┼────────────────────────────────────────────────┤
+│ service-offering │ service-offering-input-credential.json │ did:web:nk-gx-agent.eu.ngrok.io                │
+└──────────────────┴────────────────────────────────────────┴────────────────────────────────────────────────┘
 Example service-offering self-description file has been written to service-offering-input-credential.json. Please adjust the contents and use one of the onboarding methods
 {
   "@context": [
-    "https://www.w3.org/2018/credentials/v1"
+    "https://www.w3.org/2018/credentials/v1",
+    "https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
   ],
-  "issuer": "did:web:b7fd-2001-1c04-2b10-ee00-c85d-ad93-ccd9-1b0d.eu.ngrok.io",
-  "id": "381d1f99-173d-4be3-9043-7e53cee0f9ae",
+  "issuer": "did:web:nk-gx-agent.eu.ngrok.io",
+  "id": "urn:uuid:b0aee1c5-a00f-46b4-8142-dbe60903f8b2",
   "credentialSubject": {
-    "@context": {
-      "cc": "http://creativecommons.org/ns#",
-      "schema": "http://schema.org/",
-      "cred": "https://www.w3.org/2018/credentials#",
-      "void": "http://rdfs.org/ns/void#",
-      "owl": "http://www.w3.org/2002/07/owl#",
-      "xsd": "http://www.w3.org/2001/XMLSchema#",
-      "gax-validation": "http://w3id.org/gaia-x/validation#",
-      "skos": "http://www.w3.org/2004/02/skos/core#",
-      "voaf": "http://purl.org/vocommons/voaf#",
-      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-      "vcard": "http://www.w3.org/2006/vcard/ns#",
-      "gax-core": "http://w3id.org/gaia-x/core#",
-      "dct": "http://purl.org/dc/terms/",
-      "sh": "http://www.w3.org/ns/shacl#",
-      "gax-trust-framework": "http://w3id.org/gaia-x/gax-trust-framework#",
-      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-      "ids": "https://w3id.org/idsa/core/",
-      "dcat": "http://www.w3.org/ns/dcat#",
-      "vann": "http://purl.org/vocab/vann/",
-      "foaf": "http://xmlns.com/foaf/0.1/",
-      "did": "https://www.w3.org/TR/did-core/#"
+    "id": "https://nk-gx-agent.eu.ngrok.io",
+    "type": "gx:ServiceOffering",
+    "gx:providedBy": {
+      "id": "did:web:nk-gx-agent.eu.ngrok.io"
     },
-    "id": "did:web:b7fd-2001-1c04-2b10-ee00-c85d-ad93-ccd9-1b0d.eu.ngrok.io",
-    "@type": "gax-trust-framework:IdentityAccessManagementOffering"
+    "gx:policy": "",
+    "gx:termsAndConditions": {
+      "gx:URL": "http://termsandconds.com",
+      "gx:hash": "d8402a23de560f5ab34b22d1a142feb9e13b3143"
+    },
+    "gx:dataAccountExport": {
+      "gx:requestType": "API",
+      "gx:accessType": "digital",
+      "gx:formatType": "application/json"
+    }
   },
-  "type": [
-    "VerifiableCredential"
-  ]
+  "type": "VerifiableCredential"
 }
+
 ```
 
 You now should open the file, and adjust the values with your service-offer information. Update all
@@ -733,50 +656,81 @@ will always overwrite the existing file!
 
 ## Submit the service-offering self-description
 
-The next command creates a self-asserted Verifiable Credential out of the self-description input file. It sends that in
-as a
-Verifiable Presentation to the Compliance service as configured in your agent.yml file. The compliance service then will
-verify the Verifiable Presentation, containing the self-description Verifiable Credential. It also performs some checks
-on the information provided. If everything is okay, it will return a
-Compliance Verifiable Credential to you. That credential denotes you are now a valid Gaia-X participant.
+The next command creates a self-asserted Verifiable Credential out of the ServiceOffering self-description input file. It sends that in
+as a Verifiable Presentation with previously fetched ComplianceCredential and Participant SelfDescription to the Ecosystem Compliance service as configured in your agent.yml file.
 
-Next to using the input file, you could also submit a self-description if it was already stored in the agent. This means
-you can provide the ID value of the self-description credential in the agent.
-
-You can use the `-s/--show` option, to show all the credentials used in the exchange.
-
-```shell
-gx-agent so sd submit -sof ./service-offering-input-credential.json -sid <ID of your participant self-description vc> -cid <ID of your compliance VC from Gaia-X compliance>
-
-
+```json
+{
+  "type": ["VerifiablePresentation"],
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "verifiableCredential": [
+    { // Your LegalParticipant self-description VerifiableCredential },
+    { // Your ServiceOffering self-description  VerifiableCredential },
+    { // Your LegalParticipant Compliance Credential Signed by Gaia-X Compliance service },
+  ],
+  "holder": "did:web:4c30-2001-1c04-2b10-ee00-e7d5-abed-7e72-9d92.ngrok-free.app",
+  "proof": {
+    "type": "JsonWebSignature2020",
+    "created": "2023-06-01T08:47:10Z",
+    "verificationMethod": "did:web:nk-gx-agent.eu.ngrok.io#JWK2020-RSA",
+    "proofPurpose": "assertionMethod",
+    "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..h-rEB7ZPqRCh4Pb9eXK7iX4PEtwF9GdHlrrMR6JSnybVMsxnKcN5tBgqJx33dSIXyPtPSciA2rcp2d7qyQ_tr60oD2dMwu2xnYqgRL67iIkGfg8jIRpunjrZG2PQXPK61ziZvGo4HwuVztY5bwZAqtGTKRs7dWona3U7q2uGsELHojFoHIHfR_j0RPSxLWh8ek_8ZNE13aNVR9QvPwUcxEJ9OGhifhO6XVwwFUDtNtgbGqIU4mwdSC6DU2h6yUsYSK2pu7SRj7qrq4cDbp70OAuLwV8Sywg5IqxuJKKlJZq5YJy_7hgBSvr3RcqeY8BSFr7-H2QGg2n9HuWRIKuwNg"
+  }
+}
 ```
 
-or from an existing agent self-description credential:
+And you Ecosystem Compliance Service will send you another ComplianceCredential in response:
 
-```shell
-gx-agent so sd submit -soi <ID of a signed ServiceOffering self-description stored>  -sid <ID of your participant self-description vc> -cid <ID of your compliance VC from Gaia-X compliance>
-
-Ouput:
-┌──────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ verifiableCredential │                                                                                                                             hash │
-├──────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│      [object Object] │ 5b55d322eb2bda3899c94ba6617aca2376314a02d59700a1c68d5dbee19aa640ba5576a57bdbd03a356dfa71735423e9ae4da09a2e3df05c1d6dd8c6f9a292f0 │
-└──────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```json
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://registry.lab.gaia-x.eu//development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#"
+  ],
+  "type": ["VerifiableCredential"],
+  "id": "https://nk-eco-compliance.eu.ngrok.io/credential-offers/67645d91-6bb5-4661-a6d1-2d36dce30172",
+  "issuer": "did:web:nk-eco-compliance.eu.ngrok.io",
+  "issuanceDate": "2023-05-31T14:10:01.794Z",
+  "expirationDate": "2023-08-29T14:10:01.794Z",
+  "credentialSubject": [
+    {
+      "type": "gx:compliance",
+      "id": "did:web:nk-eco-compliance.eu.ngrok.io",
+      "integrity": "sha256-d03feb54fedcb3ed0411f723bdd8b19e928d742a49f4c7ca109979e08ac83974"
+    },
+    {
+      "type": "gx:compliance",
+      "id": "did:web:nk-eco-compliance.eu.ngrok.io",
+      "integrity": "sha256-198332fad39100e726dcc94bd1c68dfbee2db02befc12c92e35e7648b4399336"
+    },
+    {
+      "type": "gx:compliance",
+      "id": "did:web:nk-eco-compliance.eu.ngrok.io",
+      "integrity": "sha256-11fb3ded1ce29b06c5ad15f2bcc8bf1eac41973e70289bf41600aeb1dffe5356"
+    }
+  ],
+  "proof": {
+    "type": "JsonWebSignature2020",
+    "created": "2023-05-31T14:10:02.314Z",
+    "proofPurpose": "assertionMethod",
+    "jws": "eyJhbGciOiJQUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..AbRrpo2qbgaCS6HAykU6PACi37iFxlviyu2hxrfhhjhvmz7sItIPFMQc_fj-qGyXD6Zr_LoA2aR5kFE2w4zgu0oEP8Mmudf4fTKzl-3vPNY9lfEUf9tLg_LxLzivs24C2Vz4y2--r2BkNeeXTJ7_pnlBWuDoVPNm3gcrfcT69VcLWmZpErOqhbHTmqafoklr4iGOs7ehU9TGxXS7JptGglAZ_caBVfHvIQQi1MP31mQeIJk7U_t7KohW4Y5ZQKjBL36OL2OqPprZhBEcouOGqI82fRKxAdq22AIjFkgarg9QavwLlq1F_F0qxshpR_QGBE55LV9uU6NJ877Is2sa_w",
+    "verificationMethod": "did:web:nk-eco-compliance.eu.ngrok.io#JWK2020-RSA"
+  }
+}
 ```
-
-Notice that you now have a ServiceOffering Credential, which is issued by the compliance server
 
 _NOTE: you can run gx-agent vc list in any step and see your VCs in the agent. at the end of this step you should see this list containing all the necessary credentials:_
 
 ```shell
-┌───────────────────────────────────────┬─────────────────────────┬─────────────────────────┬──────────────────────────┬───────────────────────────────┐
-│                                 types │                  issuer │                subject  │           issuance-date  │                           id  │
-├───────────────────────────────────────┼─────────────────────────┼─────────────────────────┼──────────────────────────┼───────────────────────────────┤
-│                  VerifiableCredential │ did:web:participant_url │ did:web:participant_url │ 2023-03-02T09:55:49.789Z │ <participant sd id>           │
-│                 ParticipantCredential │ did:web:compliance url  │ did:web:participant_url │ 2023-03-02T09:55:51.753Z │ <participant compliance id>   │
-│                  VerifiableCredential │ did:web:participant_url │ did:web:participant_url │ 2023-03-02T09:57:16.484Z │ <so sd id>                    │
-│ ServiceOfferingCredentialExperimental │ did:web:compliance url  │ did:web:participant_url │ 2023-03-02T09:57:18.527Z │ <so compliance id>            │
-└───────────────────────────────────────┴─────────────────────────┴─────────────────────────┴──────────────────────────┴───────────────────────────────┘
+┌─────────────────────┬───────────────────────────────────────┬─────────────────────────────────┬──────────────────────────┬──────────────────────────────────────────────────────────────────┐
+│               types │                                issuer │                         subject │            issuance-date │                                                               id │
+├─────────────────────┼───────────────────────────────────────┼─────────────────────────────────┼──────────────────────────┼──────────────────────────────────────────────────────────────────┤
+│ gx:LegalParticipant │ did:web:nk-gx-agent.eu.ngrok.io       │ did:web:nk-gx-agent.eu.ngrok.io │ 2023-06-08T13:08:29.888Z │ <participant sd id>                                              │
+│ ServiceOffering     │ did:web:nk-gx-agent.eu.ngrok.io       │ did:web:nk-gx-agent.eu.ngrok.io │ 2023-06-08T13:08:29.888Z │ <service offering sd id>                                         │
+│          Compliance │ did:web:nk-gx-compliance.eu.ngrok.io  │ did:web:nk-gx-agent.eu.ngrok.io │ 2023-06-08T14:10:52.037Z │ <participant compliance id from gx-compliance>                   │
+│          Compliance │ did:web:nk-eco-compliance.eu.ngrok.io │ did:web:nk-gx-agent.eu.ngrok.io │ 2023-06-08T14:26:49.870Z │ <participant and service offering compliance from eco-compliance>│
+└─────────────────────┴───────────────────────────────────────┴─────────────────────────────────┴──────────────────────────┴──────────────────────────────────────────────────────────────────┘
+
 ```
 
 ## List service-offering self-description credentials
@@ -864,7 +818,7 @@ This command verifies a service-offering self-description credential. It first d
 Credential, including a check on the signature/proof. After that it contacts the compliance service to check whether the
 compliance service provides a response that the service-offering self-description is compliant.
 
-The optional `-s/--show` option shows the contents of credential on the console
+The optional `--show` option shows the contents of credential on the console
 
 ```shell
 gx-agent so sd verify -id 98021d8c32ccf3723ecf83d712a634000ecf10875e1e9b39ece5f90606f65227959936269ad0d65ed9921b6062d9d4cd3ba2ea8d441e38f748e758c864942447

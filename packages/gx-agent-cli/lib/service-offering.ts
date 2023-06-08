@@ -8,7 +8,8 @@ import {
   createSDCredentialFromPayload,
   exampleServiceOfferingSDv1_2_8,
   getAgent,
-  getVcType,
+  getVcSubjectIdAsString,
+  getVcType, isServiceOfferingVC,
   IVerifySelfDescribedCredential,
   ServiceOfferingType,
 } from '@sphereon/gx-agent'
@@ -62,7 +63,7 @@ sd.command('submit')
           {
             types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
             issuer: vc.verifiableCredential.issuer,
-            subject: vc.verifiableCredential.credentialSubject.id,
+            subject: getVcSubjectIdAsString(vc.verifiableCredential),
             'issuance-date': vc.verifiableCredential.issuanceDate,
             id: vc.hash,
             persisted: true,
@@ -80,7 +81,7 @@ sd.command('submit')
         {
           types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
           issuer: vc.verifiableCredential.issuer,
-          subject: vc.verifiableCredential.credentialSubject.id,
+          subject: getVcSubjectIdAsString(vc.verifiableCredential),
           'issuance-date': vc.verifiableCredential.issuanceDate,
           id: vc.hash,
           persisted: cmd.persist,
@@ -112,12 +113,7 @@ sd.command('example-input')
   .description('Creates an example service-offering self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
   .option('-v, --version <string>', 'We only support version v1.2.8 right now')
-  .option(
-    '-t, --type <string>',
-    `ServiceOffering type is mandatory of you select latest version. Type can be chosen from this list: ${Object.keys(ServiceOfferingType).map(
-      (key) => ' ' + key
-    )}`
-  )
+  .option('-t, --type <string>', `Type can be chosen from this list: ${Object.keys(ServiceOfferingType).map((key) => ' ' + key)}`)
   .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
@@ -247,13 +243,13 @@ sd.command('create')
         const did = await asDID()
         sd = createSDCredentialFromPayload({ did, payload: sd })
       }
-      if (!sd.credentialSubject.type.includes('ServiceOffering') || !sd.type.includes['VerifiableCredential']) {
+      if (!isServiceOfferingVC(sd)) {
         throw new Error(
           'Self-description input file is not of the correct type. Please use `gx-agent so export-example` command and update the content to create a correct input file'
         )
       }
       const selfDescription = await agent.issueVerifiableCredential({
-        ...sd,
+        credential: {...sd},
         persist: true,
       })
       printTable([{ ...selfDescription }])
