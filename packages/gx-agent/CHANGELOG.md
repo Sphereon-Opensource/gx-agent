@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/Sphereon/gx-agent/compare/v0.9.4...v0.10.0) (2023-07-10)
+
+
+### Bug Fixes
+
+* added general SO type ([709071f](https://github.com/Sphereon/gx-agent/commit/709071f158296d5aa0e4340abe6020e3d4bdafc1))
+* minor bug fix plus doc update and prettier ([a27528d](https://github.com/Sphereon/gx-agent/commit/a27528dfb0a8838655fc4c90a0526b8375db8bff))
+* participant sd export fixed ([bd49789](https://github.com/Sphereon/gx-agent/commit/bd497894cd640de0e8155a400bc8a680bbaffb86))
+
+
+### Features
+
+* added participant example for v1.2.8 plus some readme plus fixed calling v2210 as well as v1.2.8 ([62b4244](https://github.com/Sphereon/gx-agent/commit/62b4244b04844f116d5662da2f302392d082bcef))
+* added support for verifying a SO or Participant VC to the ecosystem cli and removed external verification from so and participant cli ([a20d1ea](https://github.com/Sphereon/gx-agent/commit/a20d1ea05c707c2369fedb25efb2836317a47602))
+* fixed agent for connecting to CS v1.2.8 ([a49cc05](https://github.com/Sphereon/gx-agent/commit/a49cc054415e43a9f14a245b3425387e8f38930d))
+* Move to PS256 ([a9f45c1](https://github.com/Sphereon/gx-agent/commit/a9f45c1e79f9d9630b524c1ae3d1f5de8643b8dd))
+* removed support for v2210 and v2204 and update readmes ([57aeb7d](https://github.com/Sphereon/gx-agent/commit/57aeb7d209e81cf6c90652860306e0f9d94edd3c))
+* update to latest SDK versions ([145087f](https://github.com/Sphereon/gx-agent/commit/145087f53b3ae8b762917cdd142fb2a6a3ebab47))
+
+
+
+
+
 ## [0.9.4](https://github.com/Sphereon/gx-agent/compare/v0.9.3...v0.9.4) (2023-05-24)
 
 
