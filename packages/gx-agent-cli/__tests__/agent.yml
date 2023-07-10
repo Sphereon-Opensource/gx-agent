@@ -22,7 +22,7 @@ constants:
   methods:
     - issueVerifiableCredential
       issueVerifiablePresentation
-      submitComplianceCredential
+      fetchComplianceCredential
       getComplianceCredentialFromUnsignedParticipant
       createAndSubmitServiceOffering
       submitServiceOffering
@@ -88,7 +88,7 @@ agent:
   $args:
     - schemaValidation: false
       plugins:
-        - $require: '@sphereon/ssi-sdk-vc-handler-ld-local/dist#CredentialHandlerLDLocal'
+        - $require: '@sphereon/ssi-sdk.vc-handler-ld-local/dist#CredentialHandlerLDLocal'
         - $require: '@sphereon/gx-agent/dist#GXComplianceClient'
           $args:
             $ref: /gx

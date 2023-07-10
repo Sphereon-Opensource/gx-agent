@@ -1,0 +1,23 @@
+@startuml
+
+header Gaia-X CLI Workflow
+title
+Gaia-X CLI Workflow
+A simple scenario for working with gx-cli
+end title
+
+autonumber
+
+participant "GX cli agent" as agent order 0 #ORANGE
+participant "GX Compliance service" as gc order 1 #GREEN
+participant "Ecosystem Compliance service" as ec order 2 #PINK
+
+agent -> agent: create did and place it in the well-known location
+agent -> agent: create Participant example, modify and sign it
+agent -> gc: agent wraps the VC inside a vp & sends it to\ngx-compliance to get a\n"Compliance Verifiable Credential"
+gc -> agent: gx-compliance issues and sends a\nComplianceCredential to the agent
+agent -> agent: agent creates a ServiceOffering example\nmodifies it, signs it, and with previously\ncreated/fetched Participant and Compliance\n credential wraps it inside a VerifiablePresentation
+agent -> ec: agent sends the VerifiablePresentation created in the previous step to the Ecosystem Compliance service
+ec -> agent: ec issues a Compliance VerifiableCredential with a credentialSubject list, one for each VerifiableCredential listed in the VP
+agent -> agent: agent wraps all the aforementioned\nVerifiableCredentials into one VerifiablePresentation
+@enduml

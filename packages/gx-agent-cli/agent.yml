@@ -276,14 +276,14 @@ credentialIssuerLD:
         #  others should be included here
 
 credentialHandlerLD:
-  $require: '@sphereon/ssi-sdk-vc-handler-ld-local#CredentialHandlerLDLocal'
+  $require: '@sphereon/ssi-sdk.vc-handler-ld-local#CredentialHandlerLDLocal'
   $args:
     - suites:
-        - $require: '@sphereon/ssi-sdk-vc-handler-ld-local#SphereonJsonWebSignature2020'
+        - $require: '@sphereon/ssi-sdk.vc-handler-ld-local#SphereonJsonWebSignature2020'
         - $require: '@veramo/credential-ld#VeramoEcdsaSecp256k1RecoverySignature2020'
       contextMaps:
         # The LdDefaultContext is a "catch-all" for now.
-        - $require: '@sphereon/ssi-sdk-vc-handler-ld-local?t=object#LdDefaultContexts'
+        - $require: '@sphereon/ssi-sdk.vc-handler-ld-local?t=object#LdDefaultContexts'
         - $require: '@transmute/credentials-context?t=object#contexts'
         #  others should be included here
 
@@ -296,7 +296,7 @@ agent:
         - $require: '@sphereon/gx-agent/dist#GXComplianceClient'
           $args:
             - $ref: /gx
-        #        - $require: '@sphereon/ssi-sdk-vc-handler-ld-local/dist#CredentialHandlerLDLocal'
+        #        - $require: '@sphereon/ssi-sdk.vc-handler-ld-local/dist#CredentialHandlerLDLocal'
         - $ref: /keyManager
         - $ref: /didManager
         - $ref: /didResolver

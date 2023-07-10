@@ -1,10 +1,10 @@
 import { CredentialPayload, DIDDocument, IAgentContext, IKey, PresentationPayload, TKeyType, VerifiableCredential } from '@veramo/core'
-import { RequiredAgentMethods } from '@sphereon/ssi-sdk-vc-handler-ld-local'
+import { RequiredAgentMethods } from '@sphereon/ssi-sdk.vc-handler-ld-local'
 import * as u8a from 'uint8arrays'
 import { encodeJoseBlob } from '@veramo/utils'
 import { JsonWebKey } from './gx-impl/JsonWebKeyWithRSASupport.js'
 import { JsonWebSignature } from './gx-impl/JsonWebSignatureWithRSASupport.js'
-import { SphereonLdSignature } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/ld-suites.js'
+import { SphereonLdSignature } from './ld-suites.js'
 
 /**
  * WARNING:
@@ -27,7 +27,7 @@ export class GXJsonWebSignature2020 extends SphereonLdSignature {
     // DID Key ID
     let id = verificationMethodId
 
-    const alg = 'RS256'
+    const alg = 'PS256'
     const signer = {
       // returns a JWS detached
       sign: async (args: { data: string }): Promise<string> => {

@@ -1,6 +1,6 @@
 import { DIDDocument, IIdentifier, IService } from '@veramo/core'
 import { ExportFileResult, GXRequiredContext, IImportDIDArg } from '../types/index.js'
-import { privateKeyHexFromPEM, publicKeyHexFromPEM, x5cToPemCertChain } from '@sphereon/ssi-sdk-did-utils'
+import { privateKeyHexFromPEM, publicKeyHexFromPEM, x5cToPemCertChain } from '@sphereon/ssi-sdk-ext.key-utils'
 import { asDID, convertDidWebToHost, exportToDIDDocument } from '../utils/index.js'
 import fs from 'fs'
 import { TKeyType } from '@veramo/core/src/types/IIdentifier'

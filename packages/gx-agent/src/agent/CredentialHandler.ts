@@ -1,3 +1,4 @@
+import { IVerifyResult } from '@sphereon/ssi-types'
 import { GXComplianceClient } from './GXComplianceClient.js'
 import {
   ExportFileResult,
@@ -12,7 +13,7 @@ import { UniqueVerifiableCredential, UniqueVerifiablePresentation, VerifiableCre
 import { asDID, convertDidWebToHost, extractIssuerDIDFromVCs, extractSignInfo, getVcType } from '../utils/index.js'
 import fs from 'fs'
 import { dirname } from 'path'
-import { AuthenticationProofPurpose, ICreateVerifiablePresentationLDArgs } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types.js'
+import { AuthenticationProofPurpose, ICreateVerifiablePresentationLDArgs } from '@sphereon/ssi-sdk.vc-handler-ld-local/dist/types/types.js'
 
 export class CredentialHandler {
   public readonly _client: GXComplianceClient
@@ -55,7 +56,7 @@ export class CredentialHandler {
     return { verifiableCredential, hash }
   }
 
-  public async checkVerifiableCredential(args: ICheckVerifiableCredentialArgs, context: GXRequiredContext): Promise<boolean> {
+  public async checkVerifiableCredential(args: ICheckVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifyResult> {
     const result = await context.agent.verifyCredentialLDLocal({
       credential: args.verifiableCredential,
       fetchRemoteContexts: true,
@@ -92,7 +93,7 @@ export class CredentialHandler {
     return { verifiablePresentation, hash }
   }
 
-  public async checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<boolean> {
+  public async checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifyResult> {
     const domain = args.targetDomain ?? args.verifiablePresentation?.proof?.domain ?? this.config().complianceServiceUrl
     const challenge = args.challenge ?? args.verifiablePresentation?.proof?.challenge
     const result = await context.agent.verifyPresentationLDLocal({
