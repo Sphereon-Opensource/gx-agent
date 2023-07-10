@@ -40,12 +40,12 @@
     ]
   },
   "resolutions": {
-    "@sphereon/ssi-sdk.core": "0.11.1-next.70",
-    "@sphereon/ssi-types": "0.11.1-next.70",
-    "@sphereon/ssi-sdk-ext.kms-local": "^0.12.1-next.2",
+    "@sphereon/ssi-sdk.core": "0.13.0",
+    "@sphereon/ssi-types": "0.13.0",
+    "@sphereon/ssi-sdk-ext.kms-local": "^0.12.2-next.3",
     "@sphereon/did-uni-client": "^0.6.0",
-    "@sphereon/ssi-sdk-ext.did-utils": "0.12.1-next.2",
-    "@sphereon/ssi-sdk.vc-handler-ld-local": "0.11.1-next.70",
+    "@sphereon/ssi-sdk-ext.did-utils": "0.12.2-next.3",
+    "@sphereon/ssi-sdk.vc-handler-ld-local": "0.13.0",
     "@digitalcredentials/ed25519-verification-key-2020": "3.2.2",
     "@veramo/cli": "4.2.0",
     "@veramo/core": "4.2.0",
