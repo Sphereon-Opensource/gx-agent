@@ -2,7 +2,7 @@ import { program } from 'commander'
 import { printTable } from 'console-table-printer'
 import fs from 'fs'
 import { CredentialPayload, IIdentifier, VerifiableCredential } from '@veramo/core'
-import { asDID, convertDidWebToHost, exportToDIDDocument, getAgent, getVcType } from '@sphereon/gx-agent'
+import { asDID, convertDidWebToHost, exportToDIDDocument, getAgent, getVcSubjectIdAsString, getVcType } from '@sphereon/gx-agent'
 import nock from 'nock'
 
 const vc = program.command('vc').description('Generic Verifiable Credential commands')
@@ -97,7 +97,7 @@ vc.command('list')
           return {
             types: getVcType(vc.verifiableCredential),
             issuer: vc.verifiableCredential.issuer,
-            subject: vc.verifiableCredential.credentialSubject.id,
+            subject: getVcSubjectIdAsString(vc.verifiableCredential),
             'issuance-date': vc.verifiableCredential.issuanceDate,
             id: vc.hash,
           }
@@ -160,7 +160,7 @@ vc.command('verify')
             issuer: verifiableCredential.issuer,
             subject: verifiableCredential.credentialSubject.id,
             'issuance-date': verifiableCredential.issuanceDate,
-            valid: result,
+            valid: JSON.stringify(result).toString(),
           },
         ])
       } catch (e: any) {

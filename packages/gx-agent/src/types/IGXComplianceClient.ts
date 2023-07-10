@@ -1,3 +1,4 @@
+import { IVerifyResult } from '@sphereon/ssi-types'
 import {
   CredentialPayload,
   DIDDocument,
@@ -16,12 +17,12 @@ import {
   VerifiableCredential,
   VerifiablePresentation,
 } from '@veramo/core'
-import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk-vc-handler-ld-local'
+import { ICredentialHandlerLDLocal } from '@sphereon/ssi-sdk.vc-handler-ld-local'
 
 import { _ExtendedIKey } from '@veramo/utils'
 
 export interface IGXComplianceClient extends IPluginMethodMap {
-  submitComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
+  fetchComplianceCredential(args: IAcquireComplianceCredentialArgs, context: GXRequiredContext): Promise<VerifiableCredential>
 
   acquireComplianceCredentialFromExistingParticipant(
     args: IAcquireComplianceCredentialFromExistingParticipantArgs,
@@ -62,9 +63,9 @@ export interface IGXComplianceClient extends IPluginMethodMap {
 
   issueVerifiablePresentation(args: IIssueVerifiablePresentationArgs, context: GXRequiredContext): Promise<UniqueVerifiablePresentation>
 
-  checkVerifiableCredential(args: ICheckVerifiableCredentialArgs, context: GXRequiredContext): Promise<boolean>
+  checkVerifiableCredential(args: ICheckVerifiableCredentialArgs, context: GXRequiredContext): Promise<IVerifyResult>
 
-  checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<boolean>
+  checkVerifiablePresentation(args: ICheckVerifiablePresentationArgs, context: GXRequiredContext): Promise<IVerifyResult>
 
   onboardParticipantOnEcosystem(args: IOnboardParticipantOnEcosystem, context: GXRequiredContext): Promise<UniqueVerifiablePresentation>
 
@@ -74,7 +75,9 @@ export interface IGXComplianceClient extends IPluginMethodMap {
 
   onboardServiceOfferingOnEcosystem(args: IOnboardServiceOfferingOnEcosystemArgs, context: GXRequiredContext): Promise<IGaiaxOnboardingResult>
 
-  verifySelfDescription(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult>
+  verifySelfDescription(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<IVerifyResult>
+
+  verifySelfDescriptionEcoSystem(args: IVerifySelfDescribedCredential, context: GXRequiredContext): Promise<CredentialValidationResult>
 }
 
 /**
@@ -150,6 +153,7 @@ export interface ICheckVerifiableCredentialArgs {
 export interface IAcquireComplianceCredentialArgs {
   selfDescriptionVP: VerifiablePresentation
   baseUrl: string
+  env?: string
   show?: boolean
 }
 
@@ -191,7 +195,7 @@ export interface IOnboardServiceOfferingOnEcosystemArgs {
   ecosystemUrl: string
   sdId: string
   complianceId: string
-  ecosystemComplianceId: string
+  ecosystemComplianceId?: string
   serviceOffering: VerifiableCredential
 
   labelVCs?: VerifiableCredential[]
@@ -208,7 +212,7 @@ export interface IAcquireComplianceCredentialFromUnsignedParticipantArgs {
 export interface IAddServiceOfferingUnsignedArgs {
   serviceOfferingId: string
   participantId: string
-  complianceId: string
+  complianceId?: string
   labelVCs?: VerifiableCredential[]
   persist?: boolean
   show?: boolean
@@ -254,7 +258,7 @@ export interface ISignInfo {
 export interface IVerifySelfDescribedCredential {
   verifiableCredential?: VerifiableCredential
   id?: string
-
+  baseUrl?: string
   show?: boolean
 }
 
@@ -309,44 +313,11 @@ export interface JWK extends JsonWebKey {
 }
 
 export enum ServiceOfferingType {
+  gx_ServiceOffering = 'gx:ServiceOffering',
   DcatDataService = 'dcat:DataService',
   DcatDataset = 'dcat:Dataset',
-  AutoscaledVirtualMachine = 'AutoscaledVirtualMachine',
-  ComputeFunction = 'ComputeFunction',
-  IdentityAccessManagementOffering = 'IdentityAccessManagementOffering',
-  VirtualMachine = 'VirtualMachine',
-  InstantiatedVirtualResource = 'InstantiatedVirtualResource',
-  VerifiableCredentialWallet = 'VerifiableCredentialWallet',
-  PlatformOffering = 'PlatformOffering',
-  Location = 'Location',
-  ObjectStorageOffering = 'ObjectStorageOffering',
-  BigData = 'BigData',
-  InfrastructureOffering = 'InfrastructureOffering',
-  Connectivity = 'Connectivity',
-  ServiceOffering = 'ServiceOffering',
-  Database = 'Database',
-  WalletOffering = 'WalletOffering',
-  ImageRegistryOffering = 'ImageRegistryOffering',
-  IdentityFederation = 'IdentityFederation',
-  SoftwareOffering = 'SoftwareOffering',
-  LinkConnectivity = 'LinkConnectivity',
-  PhysicalConnectivity = 'PhysicalConnectivity',
-  Container = 'Container',
-  Interconnection = 'Interconnection',
-  StorageOffering = 'StorageOffering',
-  AutoscaledContainer = 'AutoscaledContainer',
-  Catalogue = 'Catalogue',
-  Compute = 'Compute',
-  NetworkOffering = 'NetworkOffering',
-  NetworkConnectivity = 'NetworkConnectivity',
-  LocatedServiceOffering = 'LocatedServiceOffering',
-  BareMetal = 'BareMetal',
-  FileStorageOffering = 'FileStorageOffering',
-  IdentityProvider = 'IdentityProvider',
-  Orchestration = 'Orchestration',
-  BlockStorageOffering = 'BlockStorageOffering',
-  DigitalIdentityWallet = 'DigitalIdentityWallet',
 }
+
 export interface EcosystemConfig {
   name: string
   description?: string

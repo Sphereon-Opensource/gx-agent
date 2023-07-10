@@ -1,6 +1,6 @@
 import { GXComplianceClient, GXPluginMethodMap } from '../src'
-import { BlsKeyManagementSystem } from '@sphereon/bls-kms-local/dist/BlsKeyManagementSystem'
-import { CredentialHandlerLDLocal, LdDefaultContexts, MethodNames } from '@sphereon/ssi-sdk-vc-handler-ld-local'
+import { SphereonKeyManagementSystem } from '@sphereon/ssi-sdk-ext.kms-local/dist/SphereonKeyManagementSystem'
+import { CredentialHandlerLDLocal, LdDefaultContexts, MethodNames } from '@sphereon/ssi-sdk.vc-handler-ld-local'
 import { CredentialPlugin } from '@veramo/credential-w3c'
 import { KeyManager } from '@veramo/key-manager'
 import { SecretBox } from '@veramo/kms-local'
@@ -13,7 +13,7 @@ import { Resolver } from 'did-resolver'
 import { getResolver } from 'web-did-resolver'
 // @ts-ignore
 import fs from 'fs'
-import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
+import { ContextDoc } from '@sphereon/ssi-sdk.vc-handler-ld-local/dist/types/types'
 import { DIDResolverPlugin } from '@veramo/did-resolver'
 import { GXJsonWebSignature2020 } from '../src/suites/GXJsonWebSignature2020'
 
@@ -28,7 +28,7 @@ export async function setupAgent(opts: {
   }
   const dbConnection: Promise<DataSource> = opts.dbConnection ? opts.dbConnection : newDBConnection(opts.dbFile!)
   const privateKeyStore = new PrivateKeyStore(dbConnection, new SecretBox(opts.dbEncryptionKey))
-  const kms = new BlsKeyManagementSystem(privateKeyStore)
+  const kms = new SphereonKeyManagementSystem(privateKeyStore)
   const webResolver = getResolver()
   const keyStore = new KeyStore(dbConnection)
   const resolver = new Resolver({ ...webResolver })

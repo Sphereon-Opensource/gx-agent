@@ -2,10 +2,11 @@ import { IGaiaxCredentialType, ServiceOfferingType } from '../types/index.js'
 import { v4 as uuidv4 } from 'uuid'
 import { convertDidWebToHost } from './index.js'
 import { CredentialPayload } from '@veramo/core'
+import { ICredentialSubject } from '@sphereon/ssi-types'
 
 export function createSDCredentialFromPayload({ did, payload }: { payload: unknown; did?: string }): CredentialPayload {
   const json = typeof payload === 'string' ? payload : JSON.stringify(payload)
-  const credentialSubject = { ...getGeneralServiceOffering2210Subject(did), ...JSON.parse(json) }
+  const credentialSubject = { ...getGeneralServiceOfferingV1_2_8(did), ...JSON.parse(json) }
   if (credentialSubject['@id']) {
     if (credentialSubject.id && credentialSubject['@id'] !== credentialSubject.id) {
       throw Error(`Mismatch in credential subject ids. Supplied: ${credentialSubject['@id']}, agent: ${did}`)
@@ -23,6 +24,36 @@ export function createSDCredentialFromPayload({ did, payload }: { payload: unkno
   }
 }
 
+export function exampleParticipantSD1_2_8({ did }: { did?: string; version?: string }) {
+  return {
+    '@context': [
+      'https://www.w3.org/2018/credentials/v1',
+      'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#',
+    ],
+    type: ['VerifiableCredential'],
+    id: `urn:uuid:${uuidv4()}`,
+    issuer: `${did ? did : 'your DID here'}`,
+    issuanceDate: new Date().toISOString(),
+    //todo: fix this
+    credentialSubject: {
+      id: `${did ? did : 'your DID here'}`,
+      type: 'gx:LegalParticipant',
+      'gx:legalName': 'Gaia-X European Association for Data and Cloud AISBL',
+      'gx:legalRegistrationNumber': {
+        'gx:vatID': 'BE0762747721',
+      },
+      'gx:headquarterAddress': {
+        'gx:countrySubdivisionCode': 'BE-BRU',
+      },
+      'gx:legalAddress': {
+        'gx:countrySubdivisionCode': 'BE-BRU',
+      },
+      'gx-terms-and-conditions:gaiaxTermsAndConditions': '70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700',
+    },
+  }
+}
+
+//TODO: remove this deprecated example
 export function exampleParticipantSD({ did }: { did?: string; version?: string }) {
   return {
     //fixme: discuss this subject later, gaia-x shpaes is not available anymore
@@ -72,6 +103,7 @@ export function exampleParticipantSD({ did }: { did?: string; version?: string }
   }
 }
 
+//TODO: remove this deprecated example
 export function exampleParticipantSD2210({ did }: { did?: string; version?: string }) {
   return {
     '@context': ['https://www.w3.org/2018/credentials/v1'],
@@ -164,6 +196,7 @@ export function exampleParticipantSD2210({ did }: { did?: string; version?: stri
   }
 }
 
+//TODO: remove this deprecated example
 export function exampleServiceOfferingSD({ url, did }: { url: string; did?: string; version?: string }) {
   return {
     //fixme: discuss this subject later, gaia-x shpaes is not available anymore
@@ -199,16 +232,37 @@ export function exampleServiceOfferingSD({ url, did }: { url: string; did?: stri
   }
 }
 
-export function exampleServiceOfferingSD2210({ url, did, type }: { url: string; did?: string; type: ServiceOfferingType; version?: string }) {
+export function exampleServiceOfferingSDv1_2_8({ url, did, type }: { url: string; did?: string; type: ServiceOfferingType; version?: string }) {
+  // TODO: revisit this part and see what we can use from previous version
   let credentialSubject
   switch (type) {
     case ServiceOfferingType.DcatDataset:
-      credentialSubject = createDcatDatasetSubject(url, did)
+      credentialSubject = createDcatDatasetSubjectV1_2_8(url, did)
       break
     case ServiceOfferingType.DcatDataService:
       credentialSubject = createDcatDataServiceSubject(url, did)
       break
-    case ServiceOfferingType.AutoscaledVirtualMachine:
+    default:
+      credentialSubject = {
+        id: `${url ? url : 'Your service url or did'}`,
+        type: 'gx:ServiceOffering',
+        'gx:providedBy': {
+          id: `${did ? did : 'Your did here'}`,
+        },
+        'gx:policy': '',
+        'gx:termsAndConditions': {
+          'gx:URL': 'http://termsandconds.com',
+          'gx:hash': 'd8402a23de560f5ab34b22d1a142feb9e13b3143',
+        },
+        'gx:dataAccountExport': {
+          'gx:requestType': 'API',
+          'gx:accessType': 'digital',
+          'gx:formatType': 'application/json',
+        },
+      }
+      break
+    //todo: reenable after figuring out the sd-creation wizard new examples
+    /*case ServiceOfferingType.AutoscaledVirtualMachine:
       credentialSubject = createAutoscaledVirtualMachineSubject(url, did)
       break
     case ServiceOfferingType.ComputeFunction:
@@ -312,18 +366,21 @@ export function exampleServiceOfferingSD2210({ url, did, type }: { url: string; 
       break
     case ServiceOfferingType.DigitalIdentityWallet:
       credentialSubject = createDigitalIdentityWalletSubject(did)
-      break
+      break*/
   }
   return {
-    '@context': ['https://www.w3.org/2018/credentials/v1'],
+    '@context': [
+      'https://www.w3.org/2018/credentials/v1',
+      'https://registry.lab.gaia-x.eu/development/api/trusted-shape-registry/v1/shapes/jsonld/trustframework#',
+    ],
     issuer: `${did ? did : 'your DID here'}`,
     id: `urn:uuid:${uuidv4()}`,
     credentialSubject,
-    type: ['VerifiableCredential'],
+    type: 'VerifiableCredential',
   }
 }
 
-function getGeneralServiceOffering2210Subject(did?: string) {
+/*function getGeneralServiceOffering2210Subject(did?: string) {
   return {
     '@context': {
       cc: 'http://creativecommons.org/ns#',
@@ -351,9 +408,9 @@ function getGeneralServiceOffering2210Subject(did?: string) {
     //fixme id should change to did:web:registry.gaia-x.eu:<service-type>:random alphanumeric like: 0EhGVCJEBe9p2AxKPydcK6O3F3Wememi4sui
     id: `${did ? did : 'your DID here'}`,
   }
-}
+}*/
 
-function createAutoscaledVirtualMachineSubject(url: string, did?: string) {
+/*function createAutoscaledVirtualMachineSubject(url: string, did?: string) {
   return {
     ...getGeneralServiceOffering2210Subject(did),
     '@type': 'gax-trust-framework:AutoscaledVirtualMachine',
@@ -1028,9 +1085,24 @@ function dctDescriptionFixture() {
       '@type': 'xsd:string',
     },
   }
+}*/
+
+function getGeneralServiceOfferingV1_2_8(did?: string): ICredentialSubject {
+  return {
+    type: 'gx:ServiceOffering',
+    'gx:providedBy': {
+      id: `${did ? did : 'your DID here'}`,
+    },
+    'gx:policy': '',
+    'gx:termsAndConditions': {
+      'gx:URL': 'http://termsandconds.com',
+      'gx:hash': 'd8402a23de560f5ab34b22d1a142feb9e13b3143',
+    },
+    id: `${did ? did : 'your DID here'}`,
+  } as ICredentialSubject
 }
 
-function createDcatDatasetSubject(url: string, did?: string) {
+function createDcatDatasetSubjectV1_2_8(url: string, did?: string) {
   return {
     '@context': {
       cc: 'http://creativecommons.org/ns#',
@@ -1057,7 +1129,7 @@ function createDcatDatasetSubject(url: string, did?: string) {
       adms: 'http://www.w3.org/ns/adms#',
     },
     ...dcatDataSetFixture(url, did),
-    id: `${did ? did : 'your DID here'}`,
+    ...getGeneralServiceOfferingV1_2_8(did),
   }
 }
 
@@ -1070,15 +1142,12 @@ function createDcatDataServiceSubject(url: string, did?: string) {
       void: 'http://rdfs.org/ns/void#',
       owl: 'http://www.w3.org/2002/07/owl#',
       xsd: 'http://www.w3.org/2001/XMLSchema#',
-      'gax-validation': 'http://w3id.org/gaia-x/validation#',
       skos: 'http://www.w3.org/2004/02/skos/core#',
       voaf: 'http://purl.org/vocommons/voaf#',
       rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
       vcard: 'http://www.w3.org/2006/vcard/ns#',
-      'gax-core': 'http://w3id.org/gaia-x/core#',
       dct: 'http://purl.org/dc/terms/',
       sh: 'http://www.w3.org/ns/shacl#',
-      'gax-trust-framework': 'http://w3id.org/gaia-x/gax-trust-framework#',
       rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
       ids: 'https://w3id.org/idsa/core/',
       dcat: 'http://www.w3.org/ns/dcat#',
@@ -1089,6 +1158,15 @@ function createDcatDataServiceSubject(url: string, did?: string) {
     },
     ...dcatDataServiceFixture(url, did),
     id: `${did ? did : 'your DID here'}`,
+    type: 'gx:ServiceOffering',
+    'gx:providedBy': {
+      id: `${did ? did : 'your DID here'}`,
+    },
+    'gx:policy': '',
+    'gx:termsAndConditions': {
+      'gx:URL': 'http://termsandconds.com',
+      'gx:hash': 'd8402a23de560f5ab34b22d1a142feb9e13b3143',
+    },
   }
 }
 
@@ -1301,19 +1379,19 @@ function dcatDataServiceFixture(url: string, did?: string) {
   }
 }
 
-function tenantSeparationFixture() {
-  return {
-    'gax-trust-framework:tenantSeparation': {
-      '@value': 'your tenant separation (default value: hw-virtualized)',
-      '@type': 'xsd:string',
-    },
-  }
-}
-
-function dcatKeywordFixture() {
+/*function dcatKeywordFixture() {
   return {
     'dcat:keyword': {
       '@value': 'your list of keywords',
+      '@type': 'xsd:string',
+    },
+  }
+}*/
+
+/*function tenantSeparationFixture() {
+  return {
+    'gax-trust-framework:tenantSeparation': {
+      '@value': 'your tenant separation (default value: hw-virtualized)',
       '@type': 'xsd:string',
     },
   }
@@ -1716,4 +1794,4 @@ function policyFixture() {
       '@type': 'xsd:string',
     },
   }
-}
+}*/

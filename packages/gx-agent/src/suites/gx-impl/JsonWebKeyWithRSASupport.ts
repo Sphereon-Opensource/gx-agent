@@ -1,3 +1,9 @@
+import { Crypto } from '@peculiar/webcrypto'
+
+const crypto = new Crypto()
+
+export const subtle: SubtleCrypto = typeof window !== 'undefined' && typeof jest === 'undefined' ? window.crypto.subtle : crypto.subtle
+
 import { JWS } from '@transmute/jose-ld'
 
 import { JsonWebKey2020, WebCryptoKey } from '@transmute/web-crypto-key-pair'
@@ -16,7 +22,7 @@ const getKeyPairForKtyAndCrv = (kty: string, crv: string) => {
   throw new Error(`getKeyPairForKtyAndCrv does not support: ${kty} and ${crv}`)
 }
 
-const getKeyPairForType = (k: any) => {
+export const getKeyPairForType = (k: any) => {
   if (k.type === 'JsonWebKey2020') {
     return getKeyPairForKtyAndCrv(k.publicKeyJwk.kty, k.publicKeyJwk.crv)
   }
@@ -33,7 +39,7 @@ const getVerifier = async (k: any, options = { detached: true }) => {
 
   if (kty === 'RSA') {
     // @ts-ignore
-    return JWS.createVerifier(k.verifier('RSA'), 'RS256', options)
+    return JWS.createVerifier(k.verifier('RSA'), 'PS256', options)
   }
 
   throw new Error(`getVerifier does not support ${JSON.stringify(publicKeyJwk, null, 2)}`)
@@ -45,7 +51,7 @@ const getSigner = async (k: any, options = { detached: true }) => {
 
   if (kty === 'RSA') {
     // @ts-ignore
-    return JWS.createSigner(k.signer('RSA'), 'RS256', options)
+    return JWS.createSigner(k.signer('RSA'), 'PS256', options)
   }
 
   throw new Error(`getSigner does not support ${JSON.stringify(publicKeyJwk, null, 2)}`)
@@ -54,7 +60,7 @@ const getSigner = async (k: any, options = { detached: true }) => {
 const applyJwa = async (k: any, options?: any) => {
   const verifier = options?.verifier !== undefined ? options.verifier : await getVerifier(k, options)
   k.verifier = () => verifier as any
-  if (k.privateKey || options?.signer !== undefined) {
+  if (k.privateKey || (options?.signer !== undefined && options?.signer !== false)) {
     const signer = options?.signer !== undefined ? options.signer : await getSigner(k, options)
     k.signer = () => signer as any
   }
@@ -76,13 +82,37 @@ export class JsonWebKey {
   public controller!: string
 
   static from = async (k: JsonWebKey2020, options: any = { detached: true }) => {
-    const KeyPair = getKeyPairForType(k)
-    const kp = await KeyPair.from(k as any)
+    // const KeyPair = getKeyPairForType(k)
+    // const kp = await KeyPair.from(k as any)
+
+    const publicKey = await subtle.importKey(
+      // @ts-ignore
+      'jwk',
+      k.publicKeyJwk as JsonWebKey,
+      {
+        name: 'RSA-PSS',
+        // modulusLength: 2048,
+        saltLength: 32,
+        hash: 'SHA-256',
+        // publicExponent: new Uint8Array([1, 0, 1]),
+      },
+      true,
+      ['sign', 'verify']
+    )
+
+    const webKey = new WebCryptoKey({
+      id: k.id,
+      type: 'JsonWebKey2020',
+      controller: k.controller,
+      publicKey,
+    })
+
+    // kp.publicKey['algorithm'] = {name: 'RSA-PSS'}
     let { detached, header, signer, verifier } = options
     if (detached === undefined) {
       detached = true
     }
-    return useJwa(kp, { detached, header, signer, verifier })
+    return useJwa(webKey, { detached, header, signer, verifier })
   }
 
   public signer!: () => any

@@ -6,10 +6,10 @@ import {
   asDID,
   convertDidWebToHost,
   createSDCredentialFromPayload,
-  exampleServiceOfferingSD,
-  exampleServiceOfferingSD2210,
+  exampleServiceOfferingSDv1_2_8,
   getAgent,
-  getVcType,
+  getVcSubjectIdAsString,
+  getVcType, isServiceOfferingVC,
   IVerifySelfDescribedCredential,
   ServiceOfferingType,
 } from '@sphereon/gx-agent'
@@ -26,7 +26,6 @@ sd.command('submit')
   .option('-sof, --so-input-file <string>', 'Unsigned ServiceOffering self-description input file location')
   .option('-soi, --so-id <string>', 'id of a signed ServiceOffering self-description stored in the agent')
   .requiredOption('-sid, --sd-id <string>', 'ID of your self-description verifiable credential')
-  .requiredOption('-cid, --compliance-id <string>', 'ID of your compliance credential from Gaia-X compliance')
   .option('-lai, --label-ids <string...>', 'ID(s) of any label Verifiable Credential you want to include with the service offering')
   .option('-laf, --label-files <string...>', 'Path(s) any label Verifiable Credential you want to include with the service offering')
   .option('-p, --persist', 'Persist the credential. If not provided the credential will not be stored in the agent')
@@ -64,7 +63,7 @@ sd.command('submit')
           {
             types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
             issuer: vc.verifiableCredential.issuer,
-            subject: vc.verifiableCredential.credentialSubject.id,
+            subject: getVcSubjectIdAsString(vc.verifiableCredential),
             'issuance-date': vc.verifiableCredential.issuanceDate,
             id: vc.hash,
             persisted: true,
@@ -74,7 +73,6 @@ sd.command('submit')
       const vc = await agent.createAndSubmitServiceOffering({
         serviceOfferingId: soVcId,
         participantId: cmd.sdId,
-        complianceId: cmd.complianceId,
         labelVCs,
         persist: cmd.persist,
         show: cmd.show,
@@ -83,7 +81,7 @@ sd.command('submit')
         {
           types: vc.verifiableCredential.type!.toString().replace('VerifiableCredential,', ''),
           issuer: vc.verifiableCredential.issuer,
-          subject: vc.verifiableCredential.credentialSubject.id,
+          subject: getVcSubjectIdAsString(vc.verifiableCredential),
           'issuance-date': vc.verifiableCredential.issuanceDate,
           id: vc.hash,
           persisted: cmd.persist,
@@ -98,38 +96,15 @@ sd.command('verify')
   .description('verifies a service-offering self-description')
   .option('-id, --sd-id <string>', 'id of your self-description')
   .option('--show', 'Show self descriptions')
-  // .option('-sf, --sd-file <string>', 'your sd file')
   .action(async (cmd) => {
     try {
       const agent = await getAgent()
       const args: IVerifySelfDescribedCredential = { show: cmd.show, id: cmd.sdId }
 
       const result = await agent.verifySelfDescription(args)
-      printTable([{ conforms: result.conforms }])
+      printTable([{ verified: result.verified }])
     } catch (e: unknown) {
       console.error(e)
-    }
-  })
-
-sd.command('wizard-credential')
-  .description(
-    'Takes data from the SD Creation Wizard and creates a SD Credential out of it. Link to the wizard: https://sd-creation-wizard.gxfs.dev/'
-  )
-  .option('-d, --did <string>', 'the DID or domain which will be used')
-  .requiredOption('-sif, --sd-input-file <string>', 'filesystem location of the SD Wizard file you downloaded)')
-  .option('--show', 'Show the resulting self-description Verifiable Credential')
-  .action(async (cmd) => {
-    const did = await asDID(cmd.did)
-    const payload = JSON.parse(fs.readFileSync(cmd.sdInputFile, 'utf-8'))
-    const credential = createSDCredentialFromPayload({ did, payload })
-    const fileName = `${cmd.sdInputFile.replace('.json', '')}-sd-credential.json`
-    fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
-    printTable([{ 'credential file': fileName, did }])
-    console.log(
-      `SD Wizard file has been converted to a self-description credential file and written to ${fileName}. Please check and adjust the contents and use one of the onboarding methods`
-    )
-    if (cmd.show) {
-      console.log(JSON.stringify(credential, null, 2))
     }
   })
 
@@ -137,37 +112,16 @@ sd.command('example-input')
   .alias('example')
   .description('Creates an example service-offering self-description input credential file')
   .option('-d, --did <string>', 'the DID or domain which will be used')
-  .option(
-    '-v, --version <string>',
-    "Version of SelfDescription object you want to create: 'v2206', or 'v2210', if no version provided, it will default to `v2210`"
-  )
-  .option(
-    '-t, --type <string>',
-    `ServiceOffering type is mandatory of you select latest version. Type can be chosen from this list: ${Object.keys(ServiceOfferingType).map(
-      (key) => ' ' + key
-    )}`
-  )
+  .option('-v, --version <string>', 'We only support version v1.2.8 right now')
+  .option('-t, --type <string>', `Type can be chosen from this list: ${Object.keys(ServiceOfferingType).map((key) => ' ' + key)}`)
   .option('--show', 'Show self descriptions')
   .action(async (cmd) => {
     const did = await asDID(cmd.did)
     const typeStr = 'service-offering'
     const fileName = `service-offering-input-credential.json`
-    let credential
-    // @ts-ignore
-    // console.log(ServiceOfferingType[cmd.type])
     const url = `https://${convertDidWebToHost(did)}`
-    if (cmd.version && cmd.version === 'v2206') {
-      credential = exampleServiceOfferingSD({
-        did,
-        url,
-      })
-    } else if ((!cmd.version && !cmd.type) || (cmd.version === 'latest' && !cmd.type)) {
-      console.error('for v2210 version, you should provide type.')
-    } else if ((!cmd.version || cmd.version === 'latest') && cmd.type) {
-      console.log("IMPORTANT: the values specified with '*' should be populated by you.")
-      // @ts-ignore
-      credential = exampleServiceOfferingSD2210({ url, did, type: ServiceOfferingType[cmd.type] })
-    }
+    // @ts-ignore
+    const credential = exampleServiceOfferingSDv1_2_8({ url, did, type: ServiceOfferingType[cmd.type] })
     fs.writeFileSync(fileName, JSON.stringify(credential, null, 2))
     printTable([{ type: typeStr, 'sd-file': fileName, did }])
     console.log(
@@ -180,7 +134,7 @@ sd.command('example-input')
 
 export async function exportServiceOffering(cmd: any) {
   const did = await asDID(cmd.did)
-  const typeStr = 'ServiceOffering'
+  const typeStr = 'gx:ServiceOffering'
   const agent = await getAgent()
   const exportResult = await agent.exportVCsToPath({
     domain: did,
@@ -289,19 +243,16 @@ sd.command('create')
         const did = await asDID()
         sd = createSDCredentialFromPayload({ did, payload: sd })
       }
-      if (!sd.type.includes('ServiceOffering') || (!sd.type.includes['VerifiableCredential'] && !sd.credentialSubject['@type'])) {
+      if (!isServiceOfferingVC(sd)) {
         throw new Error(
           'Self-description input file is not of the correct type. Please use `gx-agent so export-example` command and update the content to create a correct input file'
         )
       }
       const selfDescription = await agent.issueVerifiableCredential({
-        ...sd,
+        credential: {...sd},
         persist: true,
       })
       printTable([{ ...selfDescription }])
-      if (cmd.show) {
-        console.log(JSON.stringify(cmd.show, null, 2))
-      }
     } catch (e: unknown) {
       console.error(e)
     }

@@ -20,17 +20,14 @@ export async function postRequest(url: string, body: BodyInit): Promise<unknown>
   }
 }
 
-export function getApiVersionedUrl(config: IGaiaxComplianceConfig, baseUrl?: string) {
-  if (!config && !baseUrl) {
-    config = {
-      complianceServiceUrl: 'http://localhost:3003',
-      complianceServiceVersion: '2206',
-    }
-  }
-  if (config.complianceServiceVersion === 'v2210') {
-    config.complianceServiceVersion = '2210vp'
-  }
-  return baseUrl
-    ? `${baseUrl}/api${config.complianceServiceVersion ? `/${config.complianceServiceVersion}` : ''}`
-    : `${config.complianceServiceUrl}/api${config.complianceServiceVersion ? `/${config.complianceServiceVersion}` : ''}`
+export function getApiVersionedUrl(config: IGaiaxComplianceConfig, baseUrl?: string): string {
+  const apiVersionText =
+    !config || !config.complianceServiceVersion || config.complianceServiceVersion === 'v1.2.8'
+      ? ''
+      : config.complianceServiceUrl === 'v2210'
+      ? '2210vp'
+      : '2206'
+  const url = baseUrl ? baseUrl : config && config.complianceServiceUrl ? config.complianceServiceUrl : 'http://localhost:3000'
+
+  return apiVersionText.length > 0 ? `${url}/api${apiVersionText}` : `${url}/api`
 }

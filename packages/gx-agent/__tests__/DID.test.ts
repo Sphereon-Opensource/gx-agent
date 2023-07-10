@@ -10,7 +10,7 @@ import { DataSource } from 'typeorm'
 import fs from 'fs'
 import { createDatabase, dropDatabase, setupAgent } from './commonTest'
 import { PEM_CERT, PEM_CHAIN, PEM_PRIV_KEY } from './certs'
-import { privateKeyHexFromPEM, X509Opts } from '@sphereon/ssi-sdk-did-utils'
+import { privateKeyHexFromPEM, X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
 
 describe('@sphereon/gx-agent DID support', () => {
   let agent: TAgent<GXPluginMethodMap>

@@ -1,5 +1,5 @@
 import { GXPluginMethodMap, IGaiaxCredentialType } from '../src'
-import { ContextDoc } from '@sphereon/ssi-sdk-vc-handler-ld-local/dist/types/types'
+import { ContextDoc } from '@sphereon/ssi-sdk.vc-handler-ld-local/dist/types/types'
 import { exampleV1, gxShape } from './schemas'
 import { mockedDID } from './mocks'
 import { IIdentifier, TAgent } from '@veramo/core'
@@ -10,7 +10,7 @@ import { DataSource } from 'typeorm'
 import fs from 'fs'
 import { PEM_CERT, PEM_CHAIN, PEM_PRIV_KEY } from './certs'
 import { createDatabase, dropDatabase, setupAgent } from './commonTest'
-import { X509Opts } from '@sphereon/ssi-sdk-did-utils'
+import { X509Opts } from '@sphereon/ssi-sdk-ext.key-utils'
 
 const customContext = new Map<string, ContextDoc>([
   [`https://www.w3.org/2018/credentials/examples/v1`, exampleV1],
