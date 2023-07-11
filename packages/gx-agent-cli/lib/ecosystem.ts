@@ -135,7 +135,7 @@ so.command('submit')
         {
           types: getVcType(soVC),
           issuer: soVC.issuer,
-          subject: getVcSubjectIdAsString(soVC.verifiableCredential),
+          subject: getVcSubjectIdAsString(soVC),
           'issuance-date': soVC.issuanceDate,
           id: uniqueSoVC.hash,
           persisted: true,
