@@ -39,6 +39,7 @@ import { CredentialHandler } from './CredentialHandler.js'
 import { extractApiTypeFromVC } from '../utils/index.js'
 import { getApiVersionedUrl, postRequest } from '../utils/index.js'
 import { extractSignInfo } from '../utils/index.js'
+import {asDidWeb} from "@sphereon/ssi-sdk-ext.did-utils";
 
 /**
  * {@inheritDoc IGXComplianceClient}
@@ -188,7 +189,7 @@ export class GXComplianceClient implements IAgentPlugin {
     const serviceOfferingVC = await context.agent.dataStoreGetVerifiableCredential({
       hash: args.serviceOfferingId,
     })
-    const did = participantVC.credentialSubject.id ? participantVC.credentialSubject.id : getIssuerString(participantVC)
+    const did = participantVC.credentialSubject.id ? await asDidWeb(participantVC.credentialSubject.id) : getIssuerString(participantVC)
     const labelVCs = args.labelVCs
     const signInfo: ISignInfo = await extractSignInfo({ did, section: 'authentication' }, context)
     const serviceOfferingVP = await this.credentialHandler.issueVerifiablePresentation(
