@@ -656,13 +656,16 @@ will always overwrite the existing file!
 
 ## Submit the service-offering self-description
 
-The next command creates a self-asserted Verifiable Credential out of the ServiceOffering self-description input file. 
+The next command creates a self-asserted Verifiable Credential out of the ServiceOffering self-description input file.
+
 ```shell
-gx-agent so sd submit -sof service-offering-input-credential.json -sid <id>  
+gx-agent so sd submit -sof service-offering-input-credential.json -sid <id>
 ```
+
 For the id, see "gx-agent vc list"
 It sends that in
 as a Verifiable Presentation with previously fetched ComplianceCredential and Participant SelfDescription to the Ecosystem Compliance service as configured in your agent.yml file.
+
 ```json
 {
   "type": ["VerifiablePresentation"],

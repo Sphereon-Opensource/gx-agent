@@ -39,7 +39,7 @@ import { CredentialHandler } from './CredentialHandler.js'
 import { extractApiTypeFromVC } from '../utils/index.js'
 import { getApiVersionedUrl, postRequest } from '../utils/index.js'
 import { extractSignInfo } from '../utils/index.js'
-import {asDidWeb} from "@sphereon/ssi-sdk-ext.did-utils";
+import { asDidWeb } from '@sphereon/ssi-sdk-ext.did-utils'
 
 /**
  * {@inheritDoc IGXComplianceClient}

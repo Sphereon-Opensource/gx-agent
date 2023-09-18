@@ -242,8 +242,8 @@ importers:
         specifier: ^2.0.27
         version: 2.0.27
       yaml:
-        specifier: ^2.2.1
-        version: 2.2.1
+        specifier: ^2.2.2
+        version: 2.2.2
     devDependencies:
       '@babel/core':
         specifier: ^7.20.12
@@ -3748,7 +3748,7 @@ packages:
       strip-ansi: 5.2.0
       sudo-prompt: 9.2.1
       wcwidth: 1.0.1
-      yaml: 2.2.1
+      yaml: 2.2.2
     transitivePeerDependencies:
       - encoding
     dev: false
@@ -5480,7 +5480,7 @@ packages:
       url-parse: 1.5.10
       web-did-resolver: 2.0.27
       ws: 8.13.0
-      yaml: 2.2.1
+      yaml: 2.2.2
     transitivePeerDependencies:
       - '@google-cloud/spanner'
       - '@sap/hana-client'
@@ -17075,6 +17075,11 @@ packages:
 
   /yaml@2.2.1:
     resolution: {integrity: sha512-e0WHiYql7+9wr4cWMx3TVQrNwejKaEe7/rHNmQmqRjazfOP5W8PB6Jpebb5o6fIapbz9o9+2ipcaTM2ZwDI6lw==}
+    engines: {node: '>= 14'}
+    dev: false
+
+  /yaml@2.2.2:
+    resolution: {integrity: sha512-CBKFWExMn46Foo4cldiChEzn7S7SRV+wqiluAb6xmueD/fGyRHIhX8m14vVGgeFWjN540nKCNVj6P21eQjgTuA==}
     engines: {node: '>= 14'}
     dev: false
 
