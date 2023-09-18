@@ -78,7 +78,7 @@ If you see an output similar like the above, the Gaia-X Agent CLI is properly in
 
 You will first need to have an existing X.509 EV SSL certificate or create a new
 one. [This document](../../docs/X509-setup.md)
-explains how to setup a new X.509 certificate. Without following the steps in the document you cannot be onboarded as
+explains how to set up a new X.509 certificate. Without following the steps in the document you cannot be onboarded as
 Gaia-X participant.
 
 # Agent configuration Commands
@@ -123,7 +123,7 @@ _support for versions v2206 and v2210 are removed in this release_
 ## Verify configuration
 
 Verifies a Gaia-X `agent.yml` file at a specific file location. If the `-f/--filename` option is omitted the default
-home-dir location will be used in stead. The `--show` option, will display the entire configuration file.
+home-dir location will be used instead. The `--show` option, will display the entire configuration file.
 
 For technical people or developers. You can also test whether low level agent methods are properly configured and
 available by providing the `-m/--method` option. For example to test the DID resolution method, you could
@@ -152,7 +152,7 @@ Your Gaia-X agent configuration seems fine. An agent can be created and the 'age
 Gaia-X DIDs currently rely on the so called [DID:web](https://w3c-ccg.github.io/did-method-web/) DID documents and
 method.
 The DID document is responsible for listing public keys associated with the DID and your organizational domain. This DID
-is used to sign Gaia-X self-descriptions and so called Verifiable Credentials. This allows others to determine that data
+is used to sign Gaia-X self-descriptions and so-called Verifiable Credentials. This allows others to determine that data
 is authentic and not manipulated, originating from your organization.
 For Gaia-X so called did:web DIDs will be used, meaning DIDs associated with your domain name hosted at a well known
 location (https://example.com/.well-known/did.json). The DID will list at least the X.509 Certificate public key
@@ -193,7 +193,7 @@ explore the database of the agent
 ## List DIDs
 
 Lists all DIDs known to the agent. Normally you will only have one DID:web for your organization. When only one DID is
-present, the agent will automatically select this DID for it's commands. If you have more DIDs available, you should use
+present, the agent will automatically select this DID for its commands. If you have more DIDs available, you should use
 the -d option available on most commands, to select the appropriate DID
 
 ```shell
@@ -279,7 +279,7 @@ DID Document:
 
 ## Export a DID and the CA chain
 
-You will need to host the DID on your domain. For now you will have to copy the files to your webserver (the agent can
+You will need to host the DID on your domain. For now, you will have to copy the files to your webserver (the agent can
 host them for you, but that option is not yet available). The document will have to be served from your domain in the
 /.well-known location. The easiest way to accommodate that typically is to create a folder called .well-known in your
 Website root directory. The export command already creates that folder for you!
@@ -319,9 +319,9 @@ gx-agent did delete did:web:nk-gx-agent.eu.ngrok.io
 # Participant onboarding
 
 You first need to become a Gaia-X compliant participant. In order to do so, you first need to create a participant
-self-description. This is a so called Credential in a specific order. You will need to sign this self-description, using
+self-description. This is a so-called Credential in a specific order. You will need to sign this self-description, using
 your DID, making it a Verifiable Credential. The compliance service will issue an attestation, in the form of a
-Participant Credential, signed by it’s DID. This allows you to prove to others that you are a Gaia-X participant.
+Participant Credential, signed by its DID. This allows you to prove to others that you are a Gaia-X participant.
 
 You can either become compliant in 1 step, or by having 2 extra steps. The benefit of using 2 steps is that you can
 verify the self-description, before sending it in to become compliant. The agent internally creates the same objects, no
@@ -329,12 +329,12 @@ matter what choice you make.
 
 ## Export example participant-input-credential.json
 
-There is a command to export a template/example for two version of participants self-description to disk. If you want to create a Pariticipant according to v2206 api, you can call it with that specific version `-v v2206`, or you can call it with `-v v2210` to get the new version of Participant Self-Description. _Also calling it without a version param will generate v2210 version of a participant self-description._ You can then edit this example
+There is a command to export a template/example for two version of participants self-description to disk. If you want to create a Participant according to v2206 api, you can call it with that specific version `-v v2206`, or you can call it with `-v v2210` to get the new version of Participant Self-Description. _Also calling it without a version param will generate v2210 version of a participant self-description._ You can then edit this example
 self-description with your information.
 The `--show` argument, displays the example self-description to your console.
 
 ```shell
-gx-agent participant sd export-example -d did:web:nk-gx-agent.eu.ngrok.io --show
+gx-agent participant sd example -d did:web:nk-gx-agent.eu.ngrok.io --show
 
 output:
 ┌─────────────┬───────────────────────────────────┬──────────────────────────────────────┐
@@ -381,7 +381,7 @@ Example self-description file has been written to participant-input-credential.j
 ```
 
 You now should open the file, and adjust the values with your participant information. Update all
-the values. Do not add new keys or remove any properties/keys, except for the some of the keys that are mentioned in the context file:
+the values. Do not add new keys or remove any properties/keys, except for some of the keys that are mentioned in the context file:
 
 - gx:legalRegistrationNumber
 - gx:parentOrganization
@@ -610,7 +610,7 @@ The `--show` argument, displays the example self-description to your console.
 
 ```shell
 
-gx-agent so sd example -d
+gx-agent so sd example -d did:web:nk-gx-agent.eu.ngrok.io
 
 output:
 IMPORTANT: the values specified with '*' should be populated by you.
@@ -656,9 +656,13 @@ will always overwrite the existing file!
 
 ## Submit the service-offering self-description
 
-The next command creates a self-asserted Verifiable Credential out of the ServiceOffering self-description input file. It sends that in
+The next command creates a self-asserted Verifiable Credential out of the ServiceOffering self-description input file. 
+```shell
+gx-agent so sd submit -sof service-offering-input-credential.json -sid <id>  
+```
+For the id, see "gx-agent vc list"
+It sends that in
 as a Verifiable Presentation with previously fetched ComplianceCredential and Participant SelfDescription to the Ecosystem Compliance service as configured in your agent.yml file.
-
 ```json
 {
   "type": ["VerifiablePresentation"],
