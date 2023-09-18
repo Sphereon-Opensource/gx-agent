@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.10.2](https://github.com/Sphereon/gx-agent/compare/v0.10.1...v0.10.2) (2023-09-18)
+
+
+### Bug Fixes
+
+* did:web sometimes ended up as https:// subject in a VC ([b5dfcbb](https://github.com/Sphereon/gx-agent/commit/b5dfcbbfc3d8888bab36d885a6b8f443548ad862))
+
+
+
+
+
 ## [0.10.1](https://github.com/Sphereon/gx-agent/compare/v0.10.0...v0.10.1) (2023-07-11)
 
 ### Bug Fixes
