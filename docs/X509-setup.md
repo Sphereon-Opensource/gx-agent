@@ -82,6 +82,10 @@ Letsencrypt allows you to get X509 Certificates for your domain(s) for free. The
 can also be used in Gaia-X for now. The process to get these credentials is mostly automated and can be found for your
 environment in this website: https://certbot.eff.org/. Additional documentation for certbot can be found
 here: https://eff-certbot.readthedocs.io/en/stable/
+Please make sure you add these flags to the certbot command:
+```shell
+certbot certonly --standalone --rsa-key-size 2048 --key-type rsa
+```
 
 After having installed the certificate successfully you will need the following files from the directory
 /etc/letsencrypt/live/[your-domain]:

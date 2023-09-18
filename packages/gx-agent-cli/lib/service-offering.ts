@@ -9,7 +9,8 @@ import {
   exampleServiceOfferingSDv1_2_8,
   getAgent,
   getVcSubjectIdAsString,
-  getVcType, isServiceOfferingVC,
+  getVcType,
+  isServiceOfferingVC,
   IVerifySelfDescribedCredential,
   ServiceOfferingType,
 } from '@sphereon/gx-agent'
@@ -249,7 +250,7 @@ sd.command('create')
         )
       }
       const selfDescription = await agent.issueVerifiableCredential({
-        credential: {...sd},
+        credential: { ...sd },
         persist: true,
       })
       printTable([{ ...selfDescription }])
